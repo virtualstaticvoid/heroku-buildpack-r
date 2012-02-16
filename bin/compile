@@ -38,9 +38,9 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
-echo BUILD_DIR => $BUILD_DIR
-echo CACHE_DIR => $CACHE_DIR
-echo LP_DIR => $LP_DIR
+echo "BUILD_DIR => $BUILD_DIR"
+echo "CACHE_DIR => $CACHE_DIR"
+echo "LP_DIR => $LP_DIR"
 
 CACHE_STORE_DIR="$CACHE_DIR/r_packages/$R_VERSION"
 CACHE_TARGET_DIR="$BUILD_DIR/r_packages"
@@ -53,7 +53,9 @@ VENDORED_R="$(mktmpdir R)"
 
 # download and unpack packages
 echo "-----> Fetching R binaries"
-mkdir -p $VENDORED_R  && curl $R_PACKAGE -s -o -  | tar xzf - -C $VENDORED_R
+mkdir -p $VENDORED_R
+curl $R_PACKAGE -s -o ./R-$R_VERSION-binaries.tgz
+tar -xzf ./R-$R_VERSION-binaries.tgz -C $VENDORED_R
 
 # vendor R into the slug
 PATH="$BUILD_DIR/bin:$PATH"
