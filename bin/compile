@@ -51,37 +51,22 @@ R_PACKAGE="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tgz"
 # vendor directories
 VENDORED_R="$(mktmpdir R)"
 
-# download and unpack packages
+# download and unpack binaries
 echo "-----> Fetching R binaries"
-mkdir -p $VENDORED_R
-
-echo "VENDORED_R => $VENDORED_R"
-
-curl $R_PACKAGE -s -o $BUILD_DIR/R-$R_VERSION-binaries.tgz
-
-echo "Downloaded file => $BUILD_DIR/R-$R_VERSION-binaries.tgz"
-
-ls -alh $VENDORED_R
-ls -alh $BUILD_DIR
-
-tar -xzf $BUILD_DIR/R-$R_VERSION-binaries.tgz -C $VENDORED_R
-
-echo "...>>>"
-ls -alh $VENDORED_R
-echo "...>>>"
+mkdir -p $VENDORED_R  && curl $R_PACKAGE -s -o -  | tar xzf - -C $VENDORED_R
 
 # vendor R into the slug
 PATH="$BUILD_DIR/bin:$PATH"
 echo "-----> Vendoring R $R_VERSION"
 
-#mkdir -p "$BUILD_DIR/bin"
-#cp "$VENDORED_R/bin/R" "$BUILD_DIR/bin/R"
+mkdir -p "$BUILD_DIR/bin"
+cp "$VENDORED_R/bin/R" "$BUILD_DIR/bin/R"
 
 # setting up paths for building
 PATH="$VENDORED_R/bin:$PATH"
-# INCLUDE_PATH="$VENDORED_R/lib"
-# export CPATH="$INCLUDE_PATH"
-# export CPPPATH="$INCLUDE_PATH"
+INCLUDE_PATH="$VENDORED_R/lib/R/include"
+export CPATH="$INCLUDE_PATH"
+export CPPPATH="$INCLUDE_PATH"
 
 # # unpack existing cache
 # if [ -d $CACHE_STORE_DIR ]; then
