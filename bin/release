@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# bin/release <build-dir>
+
+cat <<EOF
+---
+config_vars:
+  R_HOME: bin
+  R_INCLUDE: lib/R/include
+EOF
