@@ -37,6 +37,11 @@ S3_BUCKET="heroku-buildpack-r"
 BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
+
+echo BUILD_DIR => $BUILD_DIR
+echo CACHE_DIR => $CACHE_DIR
+echo LP_DIR => $LP_DIR
+
 CACHE_STORE_DIR="$CACHE_DIR/r_packages/$R_VERSION"
 CACHE_TARGET_DIR="$BUILD_DIR/r_packages"
 
