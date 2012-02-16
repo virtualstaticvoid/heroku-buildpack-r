@@ -61,13 +61,21 @@ curl $R_PACKAGE -s -o $BUILD_DIR/R-$R_VERSION-binaries.tgz
 
 echo "Downloaded file => $BUILD_DIR/R-$R_VERSION-binaries.tgz"
 
+ls -alh $VENDORED_R
+ls -alh $BUILD_DIR
+
 tar -xzf $BUILD_DIR/R-$R_VERSION-binaries.tgz -C $VENDORED_R
+
+echo "...>>>"
+ls -alh $VENDORED_R
+echo "...>>>"
 
 # vendor R into the slug
 PATH="$BUILD_DIR/bin:$PATH"
 echo "-----> Vendoring R $R_VERSION"
-mkdir -p "$BUILD_DIR/bin"
-cp "$VENDORED_R/bin/R" "$BUILD_DIR/bin/R"
+
+#mkdir -p "$BUILD_DIR/bin"
+#cp "$VENDORED_R/bin/R" "$BUILD_DIR/bin/R"
 
 # setting up paths for building
 PATH="$VENDORED_R/bin:$PATH"
