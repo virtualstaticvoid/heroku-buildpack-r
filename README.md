@@ -1,6 +1,4 @@
-Heroku buildpack: R
-===================
-
+# Heroku buildpack: R
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Ruby applications which use 
 [R](http://www.r-project.org/) for statistical computing and [CRAN](http://cran.r-project.org/) for R packages.
 
@@ -11,9 +9,7 @@ series analysis, classification, clustering, etc. Please consult the [R project 
 [CRAN](http://cran.r-project.org/) is a network of ftp and web servers around the world that store identical, up-to-date, versions of code and 
 documentation for R. A list of available packages can be found [here](http://cran.r-project.org/web/packages/available_packages_by_date.html).
 
-Usage
------
-
+# Usage
 Example usage:
 
     $ ls
@@ -29,19 +25,14 @@ Example usage:
     -----> Vendoring R 2.14.1
     -----> Installing dependencies from CRAN
 
-The buildpack will detect your app makes use of R if it has the file `r-packages` in the root.  
-It will parse the `r-packages` file for URL's of packages and install them via CRAN.
+The buildpack will detect your app makes use of R if it has the file `r_packages` in the root.  
+It will parse the `r_packages` file for URL's of packages and install them via CRAN.
 The R runtime and packages are vendored into your slug.  
 
-Using in Ruby Applications
-------------------------------
-
+# Using in Ruby Applications
 Use the [RSRuby](https://github.com/alexgutteridge/rsruby/) or [RinRuby](http://rubyforge.org/projects/rinruby/) gem 
 to connect to the instance of the R runtime.
 
-Hacking
--------
-
+# Hacking
 To use this buildpack, fork it on Github.  Push up changes to your fork, then create a test app 
 with `--buildpack <your-github-url>` and push to it.
-
