@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#
+# Downloads, builds and packages the R-runtime for use in the Heroku build-pack
+#
+
+r_version=2.15.0
+
+mkdir -p $r_version
+pushd $r_version
+
+echo Downloading R source code
+wget http://cran.r-project.org/src/base/R-2/R-$r_version.tar.gz
+tar -xvf R-$r_version.tar.gz
+mv R-$r_version src
+
+output_path=`pwd`/build/app/vendor/R-$r_version
+mkdir -p $output_path
+
+echo Building to $output_path
+
+pushd src
+./configure --prefix $output_path
+make install
+popd
+
+pushd $output_path
+tar -czvf ../../../../R-$r_version-binaries.tgz *
+popd
+
+popd
