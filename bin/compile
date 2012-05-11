@@ -99,7 +99,7 @@ echo "-----> Installing dependencies from CRAN"
 
 cd $BUILD_DIR
 
-# TODO: read package list and install each one
+# TODO: read the r_packages file and install each one
 
 #
 # e.g. to install the "neldermead" package:
