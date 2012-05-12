@@ -72,50 +72,50 @@ INCLUDE_PATH="$VENDORED_R/lib/R/include"
 export CPATH="$INCLUDE_PATH"
 export CPPPATH="$INCLUDE_PATH"
 
-# # unpack existing cache
-# if [ -d $CACHE_STORE_DIR ]; then
+# unpack existing cache
+if [ -d $CACHE_STORE_DIR ]; then
 
-#   # generate a place to put packages
-#   TEMP_R_PACKAGES_DIR=$(mktmpdir r_packages)
+  # generate a place to put packages
+  TEMP_R_PACKAGES_DIR=$(mktmpdir r_packages)
 
-#   # move existing packages out of the way
-#   if [ -d $CACHE_TARGET_DIR ]; then
-#     mv $CACHE_TARGET_DIR $TEMP_R_PACKAGES_DIR/
-#   fi
+  # move existing packages out of the way
+  if [ -d $CACHE_TARGET_DIR ]; then
+    mv $CACHE_TARGET_DIR $TEMP_R_PACKAGES_DIR/
+  fi
 
-#   # copy the cached packages in
-#   mkdir -p $CACHE_TARGET_DIR
-#   cp -R $CACHE_STORE_DIR/* $CACHE_TARGET_DIR/
+  # copy the cached packages in
+  mkdir -p $CACHE_TARGET_DIR
+  cp -R $CACHE_STORE_DIR/* $CACHE_TARGET_DIR/
 
-#   # move existing packages back into place
-#   if [ -d $TEMP_R_PACKAGES_DIR/r_packages ]; then
-#     cp -R $TEMP_R_PACKAGES_DIR/r_packages/* $CACHE_TARGET_DIR/
-#   fi
+  # move existing packages back into place
+  if [ -d $TEMP_R_PACKAGES_DIR/r_packages ]; then
+    cp -R $TEMP_R_PACKAGES_DIR/r_packages/* $CACHE_TARGET_DIR/
+  fi
 
-# fi
+fi
 
 # install dependencies from CRAN
 echo "-----> Installing dependencies from CRAN"
 
 cd $BUILD_DIR
 
-# TODO: read the r_packages file and install each one
+  # TODO: read the r_packages file and install each one
 
-echo "...TODO..." | indent
-echo "...TODO..." | indent
-echo "...TODO..." | indent
-echo "...TODO..." | indent
+  echo "...TODO..." | indent
+  echo "...TODO..." | indent
+  echo "...TODO..." | indent
+  echo "...TODO..." | indent
 
-#
-# e.g. to install the "neldermead" package:
-#  install_r_package('http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz')
-#
+  #
+  # e.g. to install the "neldermead" package:
+  #  install_r_package('http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz')
+  #
 
 echo "Dependencies installed" | indent
 
-# # repack cache with new assets
-# if [ -d $CACHE_TARGET_DIR ]; then
-#   rm -rf $CACHE_STORE_DIR
-#   mkdir -p $(dirname $CACHE_STORE_DIR)
-#   cp -a $CACHE_TARGET_DIR $CACHE_STORE_DIR
-# fi
+# repack cache with new assets
+if [ -d $CACHE_TARGET_DIR ]; then
+  rm -rf $CACHE_STORE_DIR
+  mkdir -p $(dirname $CACHE_STORE_DIR)
+  cp -a $CACHE_TARGET_DIR $CACHE_STORE_DIR
+fi
