@@ -30,7 +30,7 @@ install_r_package() {
 unset GIT_DIR
 
 # config
-R_VERSION="2.14.1"
+R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
 
 # parse and derive params
