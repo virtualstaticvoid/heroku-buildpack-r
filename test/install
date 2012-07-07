@@ -1,5 +1,10 @@
 #!/bin/bash
+rm -rf .git
+git init
+git add --all
+git commit -m "initial"
 
 heroku create --stack cedar
 heroku config:add BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
+
 git push heroku master
