@@ -24,10 +24,6 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
-# echo "BUILD_DIR => $BUILD_DIR"
-# echo "CACHE_DIR => $CACHE_DIR"
-# echo "LP_DIR => $LP_DIR"
-
 # config
 R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
@@ -43,6 +39,6 @@ mkdir -p $R_HOME && curl $R_BINARIES -s -o - | tar xzf - -C $R_HOME
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
 
-# TODO
+
 
 echo "Dependencies installed" | indent
