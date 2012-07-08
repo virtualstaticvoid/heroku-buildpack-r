@@ -39,6 +39,13 @@ mkdir -p $R_HOME && curl $R_BINARIES -s -o - | tar xzf - -C $R_HOME
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
 
-
+while read line
+do
+  package_url=`echo $line | sed -n '/^[^#]/p'`
+  if [ $package_url ]; then
+    echo "Installing package from $package_url"
+    install_r_package $package_url
+  fi
+done < $1/r_packages
 
 echo "Dependencies installed" | indent
