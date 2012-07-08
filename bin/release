@@ -4,6 +4,6 @@
 cat <<EOF
 ---
 config_vars:
-  R_HOME: /app/vendor/R
+  R_HOME: /app/vendor/R/lib/R
   R_INCLUDE: /app/vendor/R/lib/R/include
 EOF
