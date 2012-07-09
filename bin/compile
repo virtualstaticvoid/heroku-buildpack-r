@@ -27,7 +27,7 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 # config
 R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tgz"
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tar.gz"
 R_HOME="$BUILD_DIR/vendor/R"
 
 # vendor R into the slug
