@@ -41,17 +41,27 @@ Example `r_packages` file:
 http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz
 ```
 
-## R Binaries
-The binaries used by the buildpack are for R 2.15.1, and are hosted 
-on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/R-2.15.1-binaries.tar.gz)
-
-See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries.
-
 ## Using in your applications
 This buildpack can be used in conjunction with other supported language stacks on Heroku by 
 using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
 
 See the example [test application](heroku-buildpack-r/tree/master/test) application, which shows how to use R from a Ruby Sinatra application.
+
+## R Console
+You can also run the R console application as follows:
+
+```
+$ heroku run R
+```
+
+Type `q()` to exit the console when you are finished. Note that the Heroku slug is read-only, 
+so any changes you make during the session will be discarded.
+
+## R Binaries
+The binaries used by the buildpack are for R 2.15.1, and are hosted 
+on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/R-2.15.1-binaries.tar.gz)
+
+See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries.
 
 ## Hacking
 To use this buildpack, fork it on Github.  Push up changes to your fork, then create a test app 
