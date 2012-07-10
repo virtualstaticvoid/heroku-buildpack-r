@@ -14,24 +14,28 @@ store identical, up-to-date, versions of code and documentation for R.
 ## Usage
 Example usage:
 
-    $ ls
-    init.r prog1.r prog2.r ...
+```
+$ ls
+init.r prog1.r prog2.r ...
 
-    $ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git
+$ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git
 
-    $ git push heroku master
-    ...
-    -----> Heroku receiving push
-    -----> Fetching custom buildpack
-    -----> R app detected
-    -----> Vendoring R x.xx.x
-    -----> Installing dependencies from CRAN
+$ git push heroku master
+...
+-----> Heroku receiving push
+-----> Fetching custom buildpack
+-----> R app detected
+-----> Vendoring R x.xx.x
+       Executing init.r script
+...
+-----> R successfully installed
+```
 
-The buildpack will detect your app makes use of R if it has the file `init.r` in the root.  
-The R runtime is vendored into your slug.  
+The buildpack will detect your app makes use of R if it has the `init.r` file in the root.  
+The R runtime is vendored into your slug.
 
 ## Installing R packages 
-During the slug compilation process, the `init.r` R file is executed. Put code in this file to install any packages you require.
+During the slug compilation process, the `init.r` R file is executed. Put code in this file to install any packages you may require.
 See the [Installing-packages](http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages) for details. The 
 list of available packages can be found at [http://cran.r-project.org](http://cran.r-project.org/web/packages/available_packages_by_date.html).
 
@@ -49,8 +53,9 @@ You can also run the R console application as follows:
 $ heroku run R
 ```
 
-Type `q()` to exit the console when you are finished. Note that the Heroku slug is read-only, 
-so any changes you make during the session will be discarded.
+Type `q()` to exit the console when you are finished. 
+
+_Note that the Heroku slug is read-only, so any changes you make during the session will be discarded._
 
 ## Using in your applications
 This buildpack can be used in conjunction with other supported language stacks on Heroku by 

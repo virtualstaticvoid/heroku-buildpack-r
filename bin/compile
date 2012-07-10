@@ -37,7 +37,7 @@ export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/ -R/app/vendor/gcc-4.3/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
 
 # install dependencies from CRAN
-echo "Installing dependencies from CRAN" | indent
+echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the r_packages program
 /app/vendor/R/bin/R -s --silent <<RPROG
@@ -52,4 +52,4 @@ if [ "${PIPESTATUS[*]}" != "0 0" ]; then
   exit 1
 fi
 
-echo "Dependencies installed" | indent
+echo "R $R_VERSION successfully installed" | indent
