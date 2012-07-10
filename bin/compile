@@ -12,8 +12,8 @@ function indent() {
 install_r_package() {
   package_url="$1"
   echo "Installing package from $package_url" | indent
-  rm package.tar.gz > /dev/null
-  curl $package_url -o package.tar.gz > /dev/null
+  rm package.tar.gz &> /dev/null
+  curl $package_url -s -o package.tar.gz &> /dev/null
   /app/vendor/R/bin/R CMD INSTALL ./package.tar.gz 2>&1 | indent
 
   if [ "${PIPESTATUS[*]}" != "0 0" ]; then
