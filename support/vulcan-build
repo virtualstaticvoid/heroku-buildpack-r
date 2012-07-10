@@ -5,6 +5,7 @@ rversion=2.15.1
 tar czf build.tgz build-r
 
 vulcan build --source=./build.tgz \
+             --prefix=/app/vendor \
              --command="./build-r $rversion" \
              --output=/app/vendor/R-$rversion-binaries.tar.gz \
              --verbose
