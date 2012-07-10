@@ -30,15 +30,16 @@ Example usage:
 The buildpack will detect your app makes use of R if it has the file `r_packages` in the root.  
 The R runtime is vendored into your slug.  
 
-## Additional R packages 
-During the slug compilation process, the `r_packages` file is parsed for URL's to R package sources, which are
-downloaded, built and installed as R libraries. A list of available packages can be found at [http://cran.r-project.org](http://cran.r-project.org/web/packages/available_packages_by_date.html).
-
-Example `r_packages` file:
+## Installing R packages 
+During the slug compilation process, the `r_packages` R file is executed. Put code in this file to install any packages you require.
+See the [Installing-packages](http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages) for details. The 
+list of available packages can be found at [http://cran.r-project.org](http://cran.r-project.org/web/packages/available_packages_by_date.html).
 
 ```
-# supply urls for R package sources
-http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz
+# Example `r_packages` file
+
+install.packages("fPortfolio", dependencies = TRUE)
+
 ```
 
 ## Using in your applications

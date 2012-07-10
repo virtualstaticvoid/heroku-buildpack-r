@@ -1,3 +1,6 @@
-# supply urls for R package sources
-http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz
-http://cran.r-project.org/src/contrib/fPortfolio_2130.80.tar.gz
+#
+# Example R code to install packages
+# See http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages for details
+#
+
+install.packages("fPortfolio", dependencies = TRUE)

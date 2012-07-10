@@ -9,19 +9,6 @@ function indent() {
   esac
 }
 
-install_r_package() {
-  package_url="$1"
-  echo "Installing package from $package_url" | indent
-  rm package.tar.gz &> /dev/null
-  curl $package_url -s -o package.tar.gz &> /dev/null
-  /app/vendor/R/bin/R CMD INSTALL ./package.tar.gz 2>&1 | indent
-
-  if [ "${PIPESTATUS[*]}" != "0 0" ]; then
-    echo " !     Failed to install $package_url package"
-    exit 1
-  fi
-}
-
 # parse and derive params
 BUILD_DIR=$1
 CACHE_DIR=$2
@@ -39,22 +26,29 @@ echo "Vendoring R $R_VERSION" | indent
 
 # download and unpack binaries
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
-cp -R $VENDOR_DIR/* /app/vendor
 
-# install dependencies from CRAN
-echo "Installing dependencies from CRAN" | indent
+# need to copy the binaries to /app/vendor for slug compilation
+cp -R $VENDOR_DIR/* /app/vendor
 
 # R needs to know where gfortran and glibc header files are
 export PATH=/app/vendor/gcc-4.3/bin:$PATH
 export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/ -R/app/vendor/gcc-4.3/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
 
-while read line
-do
-  package_url=`echo $line | sed -n '/^[^#]/p'`
-  if [ $package_url ]; then
-    install_r_package $package_url
-  fi
-done < $BUILD_DIR/r_packages
+# install dependencies from CRAN
+echo "Installing dependencies from CRAN" | indent
+
+# set the CRAN mirror and run the r_packages program
+/app/vendor/R/bin/R -s --silent <<RPROG
+  r <- getOption("repos"); 
+  r["CRAN"] <- "http://cran.fhcrc.org"; 
+  options(repos=r);
+  `cat $BUILD_DIR/r_packages`
+RPROG
+
+if [ "${PIPESTATUS[*]}" != "0 0" ]; then
+  echo " !     Failed to install $package_url package"
+  exit 1
+fi
 
 echo "Dependencies installed" | indent
