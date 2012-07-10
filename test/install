@@ -9,5 +9,7 @@ heroku config:add BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-mult
 
 git push heroku master
 
-heroku logs
+# fix up path (See https://github.com/ddollar/heroku-buildpack-multi/issues/5 for details)
+heroku config:set PATH=/app/vendor/R/bin:bin:vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin
 
+heroku logs
