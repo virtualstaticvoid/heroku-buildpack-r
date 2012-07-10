@@ -11,7 +11,7 @@ function indent() {
 
 install_r_package() {
   package_url="$1"
-  $R_HOME/bin/R CMD INSTALL $package_url 2>&1 | indent
+  /app/vendor/R/bin/R CMD INSTALL $package_url 2>&1 | indent
 
   if [ "${PIPESTATUS[*]}" != "0 0" ]; then
     echo " !     Failed to install $package_url package"
@@ -45,7 +45,7 @@ while read line
 do
   package_url=`echo $line | sed -n '/^[^#]/p'`
   if [ $package_url ]; then
-    echo "Installing package from $package_url"
+    echo "Installing package from $package_url" | indent
     install_r_package $package_url
   fi
 done < $BUILD_DIR/r_packages
