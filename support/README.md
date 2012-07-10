@@ -17,18 +17,18 @@ Add your AWS id and security token to the Heroku application configuration varia
 heroku config:add AWS_ID=XXXXXXXXXXXXXXXXXXXX AWS_SECRET=XXXXXXXXXXXXXXXXXXXX
 ```
 
-Initiate the build by running the [`vulcan-build`](vulcan-build) executable script:
+Initiate the build by running the [`vulcan-build`](../../master/support/vulcan-build) executable script:
 
 ```
 $ ./vulcan-build
 ```
 
-The [build-r](build-r) script will be uploaded to the vulcan build server and executed. 
+The [build-r](../../master/support/build-r) script will be uploaded to the vulcan build server and executed. 
 The R sources and dependencies are downloaded and compiled, and the binary output is uploaded to S3.
 During the build process, the outputs from `configure` and `make` will be displayed.
 
 ## Notes
-To configure the build prefix and S3 bucket used, edit the variables in the [vulcan-build](vulcan-build) file.
+To configure the R version to build, edit the `rversion` variable in the `vulcan-build` file.
 
 ## Credit
 Build script inspired by [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.

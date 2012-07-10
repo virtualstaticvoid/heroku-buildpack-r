@@ -43,15 +43,15 @@ http://cran.r-project.org/src/contrib/neldermead_1.0-7.tar.gz
 
 ## R Binaries
 The binaries used by the buildpack are for R 2.15.1, and are hosted 
-on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz]()
+on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/R-2.15.1-binaries.tar.gz)
 
-See the [guide](support/README.md) for building the R binaries.
+See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries.
 
 ## Using in your applications
 This buildpack can be used in conjunction with other supported language stacks on Heroku by 
 using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
 
-See the example [test application](test) application, which shows how to use R from a Ruby Sinatra application.
+See the example [test application](heroku-buildpack-r/tree/master/test) application, which shows how to use R from a Ruby Sinatra application.
 
 ## Hacking
 To use this buildpack, fork it on Github.  Push up changes to your fork, then create a test app 
