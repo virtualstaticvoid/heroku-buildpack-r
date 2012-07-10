@@ -11,8 +11,9 @@ function indent() {
 
 install_r_package() {
   package_url="$1"
+  echo "Installing package from $package_url" | indent
   rm package.tar.gz > /dev/null
-  curl $package_url -o package.tar.gz
+  curl $package_url -o package.tar.gz > /dev/null
   /app/vendor/R/bin/R CMD INSTALL ./package.tar.gz 2>&1 | indent
 
   if [ "${PIPESTATUS[*]}" != "0 0" ]; then
@@ -25,10 +26,6 @@ install_r_package() {
 BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
-
-echo $BUILD_DIR
-echo $CACHE_DIR
-echo $LP_DIR
 
 # config
 R_VERSION="2.15.1"
@@ -47,11 +44,15 @@ cp -R $VENDOR_DIR/* /app/vendor
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
 
+# R needs to know where gfortran and glibc header files are
+export PATH=/app/vendor/gcc-4.3/bin:$PATH
+export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/ -R/app/vendor/gcc-4.3/lib64/"
+export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
+
 while read line
 do
   package_url=`echo $line | sed -n '/^[^#]/p'`
   if [ $package_url ]; then
-    echo "Installing package from $package_url" | indent
     install_r_package $package_url
   fi
 done < $BUILD_DIR/r_packages

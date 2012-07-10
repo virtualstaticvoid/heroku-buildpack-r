@@ -38,3 +38,31 @@ export CPPFLAGS="-I$vendordir/glibc-2.7/string/ -I$vendordir/glibc-2.7/time"
 # configure and make R
 cd $basedir/R-$rversion/
 ./configure --prefix=$prefix --without-x && make && make install
+
+# remove unneeded files to make the output smaller
+cd $vendordir
+
+rm glibc-2.7/*.bz2
+rm glibc-2.7/BUGS
+rm glibc-2.7/CANCEL*
+rm glibc-2.7/ChangeLog*
+rm glibc-2.7/CONFORMANCE
+rm glibc-2.7/COPYING*
+rm glibc-2.7/NAMESPACE
+rm glibc-2.7/NEWS
+rm glibc-2.7/NOTES
+rm glibc-2.7/PROJECTS
+rm glibc-2.7/README*
+rm glibc-2.7/Rules
+rm glibc-2.7/WUR-REPORT
+rm -rf glibc-2.7/man
+
+rm -rf gcc-4.3/info
+rm -rf gcc-4.3/man
+
+rm -rf R/lib64/R/doc
+rm R/lib64/R/COPYING*
+rm R/lib64/R/NEWS*
+rm R/lib64/R/SVN-REVISION
+
+# TODO
