@@ -1,0 +1,14 @@
+#!/bin/bash
+
+rversion=2.15.1
+prefix=/app/vendor/R
+
+tar czf build.tgz build-r
+
+vulcan build --source=./build.tgz \
+             --prefix=$prefix \
+             --command="./build-r $rversion" \
+             --output=$prefix/R-$rversion-binaries.tar.gz \
+             --verbose
+
+rm build.tgz
