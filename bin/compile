@@ -28,13 +28,14 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tar.gz"
-R_HOME="$BUILD_DIR/vendor/R"
+VENDOR_DIR="$BUILD_DIR/vendor"
+R_HOME="$VENDOR_DIR/R"
 
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
 # download and unpack binaries
-mkdir -p $R_HOME && curl $R_BINARIES -s -o - | tar xzf - -C $R_HOME
+mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
