@@ -11,12 +11,6 @@ vulcan create vulcan-build-r
 
 Where `vulcan-build-r` is the name of the Heroku application created.
 
-Add your AWS id and security token to the Heroku application configuration variables:
-
-```
-heroku config:add AWS_ID=XXXXXXXXXXXXXXXXXXXX AWS_SECRET=XXXXXXXXXXXXXXXXXXXX
-```
-
 Initiate the build by running the [`vulcan-build`](../../master/support/vulcan-build) executable script:
 
 ```
