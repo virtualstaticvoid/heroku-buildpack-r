@@ -56,7 +56,7 @@ so any changes you make during the session will be discarded.
 This buildpack can be used in conjunction with other supported language stacks on Heroku by 
 using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
 
-See the example [test application](heroku-buildpack-r/tree/master/test) application, which shows how to use R from a Ruby Sinatra application.
+See the example [test applications](heroku-buildpack-r/tree/master/test) which show how to use R from the console and a simple Ruby application.
 
 ## R Binaries
 The binaries used by the buildpack are for R 2.15.1, and are hosted 
