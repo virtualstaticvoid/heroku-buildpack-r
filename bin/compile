@@ -36,6 +36,7 @@ echo "Vendoring R $R_VERSION" | indent
 
 # download and unpack binaries
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
+cp -R $VENDOR_DIR /app/vendor
 
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
