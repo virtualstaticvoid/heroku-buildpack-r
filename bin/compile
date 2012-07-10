@@ -48,6 +48,6 @@ do
     echo "Installing package from $package_url"
     install_r_package $package_url
   fi
-done < $1/r_packages
+done < $BUILD_DIR/r_packages
 
 echo "Dependencies installed" | indent
