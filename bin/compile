@@ -11,7 +11,9 @@ function indent() {
 
 install_r_package() {
   package_url="$1"
-  /app/vendor/R/bin/R CMD INSTALL $package_url 2>&1 | indent
+  rm package.tar.gz > /dev/null
+  curl $package_url -o package.tar.gz
+  /app/vendor/R/bin/R CMD INSTALL ./package.tar.gz 2>&1 | indent
 
   if [ "${PIPESTATUS[*]}" != "0 0" ]; then
     echo " !     Failed to install $package_url package"
@@ -23,6 +25,10 @@ install_r_package() {
 BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
+
+echo $BUILD_DIR
+echo $CACHE_DIR
+echo $LP_DIR
 
 # config
 R_VERSION="2.15.1"
@@ -36,7 +42,7 @@ echo "Vendoring R $R_VERSION" | indent
 
 # download and unpack binaries
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
-cp -R $VENDOR_DIR /app/vendor
+cp -R $VENDOR_DIR/* /app/vendor
 
 # install dependencies from CRAN
 echo "Installing dependencies from CRAN" | indent
