@@ -42,7 +42,7 @@ list of available packages can be found at [http://cran.r-project.org](http://cr
 ```
 # Example `init.r` file
 
-install.packages("fPortfolio", dependencies = TRUE)
+install.packages("nlme", dependencies = TRUE)
 
 ```
 
