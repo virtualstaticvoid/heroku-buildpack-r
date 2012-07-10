@@ -38,6 +38,7 @@ export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
 
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
+mkdir -p /app/vendor/R/lib64/R/doc/html
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s --silent <<RPROG
@@ -45,11 +46,6 @@ echo "Executing init.r script" | indent
   r["CRAN"] <- "$CRAN_MIRROR"; 
   options(repos=r);
   `cat $BUILD_DIR/init.r`
-RPROG 2>&1 > /dev/null
-
-if [ "${PIPESTATUS[*]}" != "0 0" ]; then
-  echo " !     Failed to run init.r program"
-  exit 1
-fi
+RPROG
 
 echo "R $R_VERSION successfully installed" | indent
