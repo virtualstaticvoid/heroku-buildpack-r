@@ -20,6 +20,7 @@ S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tar.gz"
 VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
+CRAN_MIRROR="http://cran.fhcrc.org"
 
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
@@ -41,7 +42,7 @@ echo "Installing dependencies from CRAN" | indent
 # set the CRAN mirror and run the r_packages program
 /app/vendor/R/bin/R -s --silent <<RPROG
   r <- getOption("repos"); 
-  r["CRAN"] <- "http://cran.fhcrc.org"; 
+  r["CRAN"] <- "$CRAN_MIRROR"; 
   options(repos=r);
   `cat $BUILD_DIR/r_packages`
 RPROG
