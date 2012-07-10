@@ -5,7 +5,6 @@ git add --all
 git commit -m "initial"
 
 heroku create -s cedar -b https://github.com/ddollar/heroku-buildpack-multi.git
-
 git push heroku master
 
 # fix up path (See https://github.com/ddollar/heroku-buildpack-multi/issues/5 for details)

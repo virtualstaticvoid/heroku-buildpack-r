@@ -15,7 +15,7 @@ store identical, up-to-date, versions of code and documentation for R.
 Example usage:
 
     $ ls
-    Procfile  r_packages  config.ru
+    init.r prog1.r prog2.r ...
 
     $ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git
 
@@ -27,26 +27,20 @@ Example usage:
     -----> Vendoring R x.xx.x
     -----> Installing dependencies from CRAN
 
-The buildpack will detect your app makes use of R if it has the file `r_packages` in the root.  
+The buildpack will detect your app makes use of R if it has the file `init.r` in the root.  
 The R runtime is vendored into your slug.  
 
 ## Installing R packages 
-During the slug compilation process, the `r_packages` R file is executed. Put code in this file to install any packages you require.
+During the slug compilation process, the `init.r` R file is executed. Put code in this file to install any packages you require.
 See the [Installing-packages](http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages) for details. The 
 list of available packages can be found at [http://cran.r-project.org](http://cran.r-project.org/web/packages/available_packages_by_date.html).
 
 ```
-# Example `r_packages` file
+# Example `init.r` file
 
 install.packages("fPortfolio", dependencies = TRUE)
 
 ```
-
-## Using in your applications
-This buildpack can be used in conjunction with other supported language stacks on Heroku by 
-using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
-
-See the example [test application](heroku-buildpack-r/tree/master/test) application, which shows how to use R from a Ruby Sinatra application.
 
 ## R Console
 You can also run the R console application as follows:
@@ -57,6 +51,12 @@ $ heroku run R
 
 Type `q()` to exit the console when you are finished. Note that the Heroku slug is read-only, 
 so any changes you make during the session will be discarded.
+
+## Using in your applications
+This buildpack can be used in conjunction with other supported language stacks on Heroku by 
+using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
+
+See the example [test application](heroku-buildpack-r/tree/master/test) application, which shows how to use R from a Ruby Sinatra application.
 
 ## R Binaries
 The binaries used by the buildpack are for R 2.15.1, and are hosted 

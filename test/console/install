@@ -1,0 +1,8 @@
+#!/bin/bash
+rm -rf .git
+git init
+git add --all
+git commit -m "initial"
+
+heroku create -s cedar -b https://github.com/virtualstaticvoid/heroku-buildpack-r
+git push heroku master
