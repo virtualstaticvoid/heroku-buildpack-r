@@ -5,9 +5,18 @@ git add --all
 git commit -m "initial"
 
 heroku create -s cedar -b https://github.com/ddollar/heroku-buildpack-multi.git
+
+app=`heroku apps:info --raw | grep ^name=`
+app=${app:5}
+
 git push heroku master
 
 # fix up path (See https://github.com/ddollar/heroku-buildpack-multi/issues/5 for details)
-heroku config:set PATH=/app/vendor/R/bin:bin:vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin
+# and add environment variables for R runtime
+curr_path=`heroku config:get PATH --app $app`
+heroku config:set PATH=/app/vendor/R/bin:$curr_path \
+                  R_HOME=/app/vendor/R/lib/R \
+                  R_INCLUDE=/app/vendor/R/lib64/R/include --app $app
 
-heroku logs
+# check...
+heroku logs --app $app
