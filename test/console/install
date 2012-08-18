@@ -5,6 +5,11 @@ git add --all
 git commit -m "initial"
 
 heroku create -s cedar -b https://github.com/virtualstaticvoid/heroku-buildpack-r
+
+app=`heroku apps:info --raw | grep ^name=`
+app=${app:5}
+
 git push heroku master
 
-heroku run R
+# run R console
+heroku run R --app $app
