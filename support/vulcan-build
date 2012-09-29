@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# assuming `vulcan create heroku-buildpack-r` command has been run
+
 rversion=2.15.1
 
 tar czf build.tgz build-r
