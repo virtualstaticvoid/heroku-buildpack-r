@@ -32,7 +32,7 @@ tar xzf $basedir/glibc_2.7.tar.gz && tar xjf glibc-2.7/glibc-2.7.tar.bz2
 
 # R needs to know where gfortran and glibc header files are
 export PATH=$vendordir/gcc-4.3/bin:$PATH
-export LDFLAGS="-L$vendordir/gcc-4.3/lib64/ -R$vendordir/gcc-4.3/lib64/"
+export LDFLAGS="-L$vendordir/gcc-4.3/lib64/"
 export CPPFLAGS="-I$vendordir/glibc-2.7/string/ -I$vendordir/glibc-2.7/time"
 
 # configure and make R
