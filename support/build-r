@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# See http://cran.r-project.org/doc/manuals/R-admin.html for details on building R
+
 set -e
 
 rversion="$1"
@@ -13,7 +15,7 @@ basedir="$( cd -P "$( dirname "$0" )" && pwd )"
 vendordir=/app/vendor
 prefix=$vendordir/R
 
-# download dependancies 
+# download dependancies
 curl http://gfortran.com/download/x86_64/snapshots/gcc-4.3.tar.xz -o gcc-4.3.tar.xz
 curl http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_2.7.orig.tar.gz -o glibc_2.7.tar.gz
 
@@ -37,7 +39,7 @@ export CPPFLAGS="-I$vendordir/glibc-2.7/string/ -I$vendordir/glibc-2.7/time"
 
 # configure and make R
 cd $basedir/R-$rversion/
-./configure --prefix=$prefix --without-x && make && make install
+./configure --prefix=$prefix --without-x --enable-R-shlib && make && make install
 
 # remove unneeded files to make the output smaller
 cd $vendordir
