@@ -35,6 +35,7 @@ cp -R $VENDOR_DIR/* /app/vendor
 export PATH=/app/vendor/gcc-4.3/bin:$PATH
 export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
+export R_INCLUDE=/app/vendor/R/lib64/R/include
 
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
