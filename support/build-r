@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# NOTE: Heroku Cedar stack on Ubuntu 10.04
+#  gcc needs to be 4.3
+
 # See http://cran.r-project.org/doc/manuals/R-admin.html for details on building R
 
 set -e
