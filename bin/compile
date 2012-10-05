@@ -29,7 +29,7 @@ echo "Vendoring R $R_VERSION" | indent
 # download and unpack binaries
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
-# need to copy the binaries to /app/vendor for slug compilation
+# need to copy the binaries to /app/vendor so that R works
 cp -R $VENDOR_DIR/* /app/vendor
 
 # R needs to know where gfortran and glibc header files are
@@ -51,3 +51,8 @@ mkdir -p /app/vendor/R/lib64/R/doc/html
 RPROG
 
 echo "R $R_VERSION successfully installed" | indent
+
+# need to copy binaries back so that any installed packages are included in the slug
+rm -rf $VENDOR_DIR
+mkdir -p $VENDOR_DIR
+cp -R -f /app/vendor/* $VENDOR_DIR
