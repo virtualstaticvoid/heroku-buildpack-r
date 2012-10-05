@@ -15,9 +15,10 @@ CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # config
+BUILD_PACK_VERSION="20121005"
 R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tar.gz"
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.fhcrc.org"
@@ -43,8 +44,8 @@ mkdir -p /app/vendor/R/lib64/R/doc/html
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s --silent <<RPROG
-  r <- getOption("repos"); 
-  r["CRAN"] <- "$CRAN_MIRROR"; 
+  r <- getOption("repos");
+  r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
   `cat $BUILD_DIR/init.r`
 RPROG
