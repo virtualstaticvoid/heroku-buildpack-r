@@ -30,44 +30,57 @@ tar xzf R-$rversion.tar.gz
 mkdir -p $vendordir
 mkdir -p $prefix
 
-# unpack dependancies (into vendor)
 cd $vendordir
+
+# unpack dependancies (into vendor)
 tar xJf $basedir/gcc-4.3.tar.xz
-tar xzf $basedir/glibc_2.7.tar.gz && tar xjf glibc-2.7/glibc-2.7.tar.bz2
+
+# patch gcc features.h file
+# See http://permalink.gmane.org/gmane.comp.gcc.help/40166
+cp $basedir/features.h $vendordir/gcc-4.3/lib/gcc/x86_64-unknown-linux-gnu/4.3.6/include-fixed/features.h
+
+tar xzf $basedir/glibc_2.7.tar.gz && tar xjf $vendordir/glibc-2.7/glibc-2.7.tar.bz2
 
 # R needs to know where gfortran and glibc header files are
 export PATH=$vendordir/gcc-4.3/bin:$PATH
 export LDFLAGS="-L$vendordir/gcc-4.3/lib64/"
 export CPPFLAGS="-I$vendordir/glibc-2.7/string/ -I$vendordir/glibc-2.7/time"
 
+echo GCC Version: 4.3
+echo PATH:     $PATH
+echo LDFLAGS:  $LDFLAGS
+echo CPPFLAGS: $CPPFLAGS
+
 # configure and make R
 cd $basedir/R-$rversion/
+
+# ./configure --prefix=$prefix --without-x && make && make install
 ./configure --prefix=$prefix --without-x --enable-R-shlib && make && make install
 
 # remove unneeded files to make the output smaller
 cd $vendordir
 
-rm glibc-2.7/*.bz2
-rm glibc-2.7/BUGS
-rm glibc-2.7/CANCEL*
-rm glibc-2.7/ChangeLog*
-rm glibc-2.7/CONFORMANCE
-rm glibc-2.7/COPYING*
-rm glibc-2.7/NAMESPACE
-rm glibc-2.7/NEWS
-rm glibc-2.7/NOTES
-rm glibc-2.7/PROJECTS
-rm glibc-2.7/README*
-rm glibc-2.7/Rules
-rm glibc-2.7/WUR-REPORT
+rm     glibc-2.7/*.bz2
+rm     glibc-2.7/BUGS
+rm     glibc-2.7/CANCEL*
+rm     glibc-2.7/ChangeLog*
+rm     glibc-2.7/CONFORMANCE
+rm     glibc-2.7/COPYING*
+rm     glibc-2.7/NAMESPACE
+rm     glibc-2.7/NEWS
+rm     glibc-2.7/NOTES
+rm     glibc-2.7/PROJECTS
+rm     glibc-2.7/README*
+rm     glibc-2.7/Rules
+rm     glibc-2.7/WUR-REPORT
 rm -rf glibc-2.7/man
 
 rm -rf gcc-4.3/info
 rm -rf gcc-4.3/man
 
 rm -rf R/lib64/R/doc
-rm R/lib64/R/COPYING*
-rm R/lib64/R/NEWS*
-rm R/lib64/R/SVN-REVISION
+rm     R/lib64/R/COPYING*
+rm     R/lib64/R/NEWS*
+rm     R/lib64/R/SVN-REVISION
 
 # TODO
