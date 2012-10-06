@@ -34,7 +34,7 @@ $ git push heroku master
 The buildpack will detect your app makes use of R if it has the `init.r` file in the root.
 The R runtime is vendored into your slug.
 
-To reference a specific version, add the Git branch or tag name to the end of the build packs URL.
+To reference a specific version of the build pack, add the Git branch or tag name to the end of the build pack URL.
 
 ```
 $ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#master
@@ -73,8 +73,7 @@ See the example [test applications](heroku-buildpack-r/tree/master/test) which s
 The binaries used by the buildpack are for R 2.15.1, and are hosted
 on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/R-2.15.1-binaries.tar.gz)
 
-See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries.
+See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries yourself.
 
-## Hacking
-To use this buildpack, fork it on Github.  Push up changes to your fork, then create a test app
-with `--buildpack <your-github-url>` and push to it.
+## Caveats
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
