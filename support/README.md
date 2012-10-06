@@ -17,12 +17,14 @@ Initiate the build by running the [`vulcan-build`](../../master/support/vulcan-b
 $ ./vulcan-build
 ```
 
-The [build-r](../../master/support/build-r) script will be uploaded to the vulcan build server and executed. 
-The R sources and dependencies are downloaded and compiled, and the binary output is uploaded to S3.
-During the build process, the outputs from `configure` and `make` will be displayed.
+The [build-r](../../master/support/build-r) script will be uploaded to the vulcan build server and executed.
+The R sources and dependencies are downloaded and compiled, and the binary output downloaded.
+During the build process, the outputs from `configure` and `make` will be displayed in the console.
 
 ## Notes
-To configure the R version to build, edit the `rversion` variable in the `vulcan-build` file.
+* To configure the R version to build, edit the `rversion` variable in the [vulcan-build](../../master/support/vulcan-build) file.
+* The binaries output file must be uploaded to S3.
+* Update the path in the [compile](../../master/bin/compile#L20) file for your S3 bucket name and path.
 
-## Credit
+## Credits
 Build script inspired by [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.
