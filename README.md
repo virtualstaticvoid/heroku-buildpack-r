@@ -76,4 +76,4 @@ on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r
 See the [guide](heroku-buildpack-r/tree/master/support/README.md) for building the R binaries yourself.
 
 ## Caveats
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 50Mb.
