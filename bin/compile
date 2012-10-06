@@ -9,6 +9,8 @@ function indent() {
   esac
 }
 
+shopt -s extglob
+
 # parse and derive params
 BUILD_DIR=$1
 CACHE_DIR="$2/vendor"
@@ -68,4 +70,8 @@ echo "R $R_VERSION successfully installed" | indent
 # need to copy binaries back so that any installed packages are included in the slug
 rm -rf $VENDOR_DIR
 mkdir -p $VENDOR_DIR
-cp -R -f /app/vendor/R $VENDOR_DIR
+cp -R /app/vendor/* $VENDOR_DIR
+
+# removed unneeded files to make slug smaller
+pushd $VENDOR_DIR/glibc-2.7 && rm -rf !(string|time) && popd
+pushd $VENDOR_DIR/gcc-4.3 && rm -rf !(lib64) && popd
