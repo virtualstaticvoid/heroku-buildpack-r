@@ -1,0 +1,3 @@
+#!/bin/bash
+
+vulcan create heroku-buildpack-r
