@@ -60,20 +60,9 @@ cd $basedir/R-$rversion/
 # remove unneeded files to make the output smaller
 cd $vendordir
 
-rm     glibc-2.7/*.bz2
-rm     glibc-2.7/BUGS
-rm     glibc-2.7/CANCEL*
-rm     glibc-2.7/ChangeLog*
-rm     glibc-2.7/CONFORMANCE
-rm     glibc-2.7/COPYING*
-rm     glibc-2.7/NAMESPACE
-rm     glibc-2.7/NEWS
-rm     glibc-2.7/NOTES
-rm     glibc-2.7/PROJECTS
-rm     glibc-2.7/README*
-rm     glibc-2.7/Rules
-rm     glibc-2.7/WUR-REPORT
-rm -rf glibc-2.7/man
+shopt -s extglob
+
+pushd glibc-2.7 && rm -rf !(string|time) && popd
 
 rm -rf gcc-4.3/info
 rm -rf gcc-4.3/man
@@ -83,4 +72,4 @@ rm     R/lib64/R/COPYING*
 rm     R/lib64/R/NEWS*
 rm     R/lib64/R/SVN-REVISION
 
-# TODO
+# TODO: remove other unneeded files
