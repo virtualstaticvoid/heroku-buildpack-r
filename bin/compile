@@ -15,9 +15,10 @@ CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # config
+BUILD_PACK_VERSION="20121005"
 R_VERSION="2.15.1"
 S3_BUCKET="heroku-buildpack-r"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries.tar.gz"
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.fhcrc.org"
@@ -28,13 +29,14 @@ echo "Vendoring R $R_VERSION" | indent
 # download and unpack binaries
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
-# need to copy the binaries to /app/vendor for slug compilation
+# need to copy the binaries to /app/vendor so that R works
 cp -R $VENDOR_DIR/* /app/vendor
 
 # R needs to know where gfortran and glibc header files are
 export PATH=/app/vendor/gcc-4.3/bin:$PATH
-export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/ -R/app/vendor/gcc-4.3/lib64/"
+export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
+export R_INCLUDE=/app/vendor/R/lib64/R/include
 
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
@@ -42,10 +44,15 @@ mkdir -p /app/vendor/R/lib64/R/doc/html
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s --silent <<RPROG
-  r <- getOption("repos"); 
-  r["CRAN"] <- "$CRAN_MIRROR"; 
+  r <- getOption("repos");
+  r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
   `cat $BUILD_DIR/init.r`
 RPROG
 
 echo "R $R_VERSION successfully installed" | indent
+
+# need to copy binaries back so that any installed packages are included in the slug
+rm -rf $VENDOR_DIR
+mkdir -p $VENDOR_DIR
+cp -R -f /app/vendor/* $VENDOR_DIR
