@@ -43,7 +43,9 @@ else
 fi
 
 # need to copy the binaries to /app/vendor so that R works
-cp -R $VENDOR_DIR/* /app/vendor
+cp -R $VENDOR_DIR/gcc-4.3 /app/vendor/gcc-4.3
+cp -R $VENDOR_DIR/glibc-2.7 /app/vendor/glibc-2.7
+cp -R $VENDOR_DIR/R /app/vendor/R
 
 
 # R needs to know where gfortran and glibc header files are
@@ -68,10 +70,11 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-rm -rf $VENDOR_DIR
-mkdir -p $VENDOR_DIR
-cp -R /app/vendor/* $VENDOR_DIR
+rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
+cp -R /app/vendor/gcc-4.3 $VENDOR_DIR/gcc-4.3
+cp -R /app/vendor/glibc-2.7 $VENDOR_DIR/glibc-2.7
+cp -R /app/vendor/R $VENDOR_DIR/R
 
 # removed unneeded files to make slug smaller
-pushd $VENDOR_DIR/glibc-2.7 && rm -rf !(string|time) && popd
-pushd $VENDOR_DIR/gcc-4.3 && rm -rf !(lib64) && popd
+pushd $VENDOR_DIR/gcc-4.3 > /dev/null && rm -rf !(lib64) && popd > /dev/null
+pushd $VENDOR_DIR/glibc-2.7 > /dev/null && rm -rf !(string|time) && popd > /dev/null
