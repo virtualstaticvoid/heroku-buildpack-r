@@ -79,3 +79,6 @@ cp -R /app/vendor/R $VENDOR_DIR/R
 # removed unneeded files to make slug smaller
 pushd $VENDOR_DIR/gcc-4.3 > /dev/null && rm -rf !(lib64) && popd > /dev/null
 pushd $VENDOR_DIR/glibc-2.7 > /dev/null && rm -rf !(string|time) && popd > /dev/null
+
+# HACK
+cp $VENDOR_DIR/gcc-4.3/lib64/* $VENDOR_DIR/R/lib64/R/lib
