@@ -58,6 +58,7 @@ export R_INCLUDE=/app/vendor/R/lib64/R/include
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 mkdir -p /app/vendor/R/lib64/R/doc/html
+touch /app/vendor/R/lib64/R/doc/html/R.css
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s --silent <<RPROG
