@@ -11,7 +11,7 @@ function indent() {
 
 # parse and derive params
 BUILD_DIR=$1
-CACHE_DIR=$2
+CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # config
@@ -23,15 +23,17 @@ VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.fhcrc.org"
 
+mkdir -p $CACHE_DIR
+
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
 # Check if we can pull from cache rather than download tar
-if [ "$($CACHE_DIR/vendor/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
+if [ "$($CACHE_DIR/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
 then
   echo "Desired R version ($R_VERSION) cached" | indent
   mdir -p $VENDOR_DIR
-  cp -R $CACHE_DIR/vendor/* $VENDOR_DIR
+  cp -R $CACHE_DIR/* $VENDOR_DIR
 else
   # download and unpack binaries
   echo "Downloading and unpacking R binaries" | indent
@@ -66,4 +68,4 @@ echo "R $R_VERSION successfully installed" | indent
 rm -rf $VENDOR_DIR
 mkdir -p $VENDOR_DIR
 cp -R -f /app/vendor/* $VENDOR_DIR
-cp -R -f /app/vendor/* $CACHE_DIR/vendor
+cp -R -f /app/vendor/* $CACHE_DIR
