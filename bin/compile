@@ -26,18 +26,20 @@ CRAN_MIRROR="http://cran.fhcrc.org"
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
-echo $(which R)
-echo $(R --version)
-if [ "$(/app/vendor/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
+# Check if we can pull from cache rather than download tar
+if [ "$($CACHE_DIR/vendor/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
 then
-  echo "Detected desired R version ($R_VERSION) already installed" | indent
+  echo "Desired R version ($R_VERSION) cached" | indent
+  mdir -p $VENDOR_DIR
+  cp -R $CACHE_DIR/vendor/* $VENDOR_DIR
 else
   # download and unpack binaries
+  echo "Downloading and unpacking R binaries" | indent
   mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
-
-  # need to copy the binaries to /app/vendor so that R works
-  cp -R $VENDOR_DIR/* /app/vendor
 fi
+
+# need to copy the binaries to /app/vendor so that R works
+cp -R $VENDOR_DIR/* /app/vendor
 
 
 # R needs to know where gfortran and glibc header files are
@@ -64,3 +66,4 @@ echo "R $R_VERSION successfully installed" | indent
 rm -rf $VENDOR_DIR
 mkdir -p $VENDOR_DIR
 cp -R -f /app/vendor/* $VENDOR_DIR
+cp -R -f /app/vendor/* $CACHE_DIR/vendor
