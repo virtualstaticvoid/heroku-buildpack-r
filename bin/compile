@@ -28,13 +28,8 @@ mkdir -p $CACHE_DIR
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
-echo `$CACHE_DIR`
-echo `ls $CACHE_DIR`
-echo `find $CACHE_DIR -name 'R'`
-echo `$CACHE_DIR/R/bin/R --version`
-echo "$($CACHE_DIR/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)"
 # Check if we can pull from cache rather than download tar
-if [ "$($CACHE_DIR/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
+if [ "$(cat $CACHE_DIR/R/bin/.version)" = "$R_VERSION" ]
 then
   echo "Desired R version ($R_VERSION) cached" | indent
   mdir -p $VENDOR_DIR
@@ -74,3 +69,4 @@ rm -rf $VENDOR_DIR $CACHE_DIR
 mkdir -p $VENDOR_DIR $CACHE_DIR
 cp -R -f /app/vendor/* $VENDOR_DIR
 cp -R -f /app/vendor/* $CACHE_DIR
+echo "$R_VERSION" > $CACHE_DIR/R/bin/.version
