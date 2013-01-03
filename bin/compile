@@ -26,6 +26,8 @@ CRAN_MIRROR="http://cran.fhcrc.org"
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
+echo $(which R)
+echo $(R --version)
 if [ "$(/app/vendor/R/bin/R --version 2> /dev/null | head -1 | cut -d ' ' -f 3)" = "$R_VERSION" ]
 then
   echo "Detected desired R version ($R_VERSION) already installed" | indent
