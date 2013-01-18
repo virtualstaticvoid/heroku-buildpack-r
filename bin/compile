@@ -11,7 +11,7 @@ function indent() {
 
 # parse and derive params
 BUILD_DIR=$1
-CACHE_DIR=$2
+CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # config
@@ -23,17 +23,30 @@ VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.fhcrc.org"
 
+mkdir -p $CACHE_DIR
+
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
 
-# download and unpack binaries
-mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
+# Check if we can pull from cache rather than download tar
+if [ "$(cat $CACHE_DIR/R/bin/.version 2>/dev/null)" = "$R_VERSION" ]
+then
+  echo "Desired R version ($R_VERSION) cached" | indent
+  mkdir -p $VENDOR_DIR
+  cp -R $CACHE_DIR/* $VENDOR_DIR
+else
+  # download and unpack binaries
+  echo "Downloading and unpacking R binaries" | indent
+  mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
+fi
 
 # need to copy the binaries to /app/vendor so that R works
 cp -R $VENDOR_DIR/* /app/vendor
 
+
 # R needs to know where gfortran and glibc header files are
-export PATH=/app/vendor/gcc-4.3/bin:$PATH
+# For buildpacks that get run after, need to update PATH with location of R
+export PATH=/app/vendor/R/bin/:/app/vendor/gcc-4.3/bin:$PATH
 export LDFLAGS="-L/app/vendor/gcc-4.3/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-2.7/string/ -I/app/vendor/glibc-2.7/time"
 export R_INCLUDE=/app/vendor/R/lib64/R/include
@@ -53,6 +66,8 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-rm -rf $VENDOR_DIR
-mkdir -p $VENDOR_DIR
+rm -rf $VENDOR_DIR $CACHE_DIR
+mkdir -p $VENDOR_DIR $CACHE_DIR
 cp -R -f /app/vendor/* $VENDOR_DIR
+cp -R -f /app/vendor/* $CACHE_DIR
+echo "$R_VERSION" > $CACHE_DIR/R/bin/.version
