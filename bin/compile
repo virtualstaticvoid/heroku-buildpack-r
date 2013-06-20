@@ -61,7 +61,7 @@ mkdir -p /app/vendor/R/lib64/R/doc/html
 touch /app/vendor/R/lib64/R/doc/html/R.css
 
 # set the CRAN mirror and run the init.r program
-/app/vendor/R/bin/R -s --silent <<RPROG
+/app/vendor/R/bin/R -s <<RPROG > indent
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
