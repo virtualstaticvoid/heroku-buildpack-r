@@ -12,7 +12,7 @@ function indent() {
 shopt -s extglob
 
 # parse and derive params
-BUILD_DIR=$1
+export BUILD_DIR=$1
 CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
