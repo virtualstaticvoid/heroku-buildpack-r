@@ -12,7 +12,7 @@ function indent() {
 shopt -s extglob
 
 # parse and derive params
-export BUILD_DIR=$1
+BUILD_DIR=$1
 CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
@@ -62,6 +62,8 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s <<RPROG > indent
+  Sys.setenv(BUILD_DIR="$BUILD_DIR")
+  setwd("$BUILD_DIR")
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
