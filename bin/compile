@@ -9,6 +9,8 @@ function indent() {
   esac
 }
 
+shopt -s extglob
+
 # parse and derive params
 BUILD_DIR=$1
 CACHE_DIR="$2/vendor"
@@ -41,7 +43,9 @@ else
 fi
 
 # need to copy the binaries to /app/vendor so that R works
-cp -R $VENDOR_DIR/* /app/vendor
+cp -R $VENDOR_DIR/gcc-4.3 /app/vendor/gcc-4.3
+cp -R $VENDOR_DIR/glibc-2.7 /app/vendor/glibc-2.7
+cp -R $VENDOR_DIR/R /app/vendor/R
 
 
 # R needs to know where gfortran and glibc header files are
@@ -54,9 +58,12 @@ export R_INCLUDE=/app/vendor/R/lib64/R/include
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 mkdir -p /app/vendor/R/lib64/R/doc/html
+touch /app/vendor/R/lib64/R/doc/html/R.css
 
 # set the CRAN mirror and run the init.r program
-/app/vendor/R/bin/R -s --silent <<RPROG
+/app/vendor/R/bin/R -s <<RPROG > indent
+  Sys.setenv(BUILD_DIR="$BUILD_DIR")
+  setwd("$BUILD_DIR")
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
@@ -66,8 +73,14 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-rm -rf $VENDOR_DIR $CACHE_DIR
-mkdir -p $VENDOR_DIR $CACHE_DIR
-cp -R -f /app/vendor/* $VENDOR_DIR
-cp -R -f /app/vendor/* $CACHE_DIR
-echo "$R_VERSION" > $CACHE_DIR/R/bin/.version
+rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
+cp -R /app/vendor/gcc-4.3 $VENDOR_DIR/gcc-4.3
+cp -R /app/vendor/glibc-2.7 $VENDOR_DIR/glibc-2.7
+cp -R /app/vendor/R $VENDOR_DIR/R
+
+# removed unneeded files to make slug smaller
+pushd $VENDOR_DIR/gcc-4.3 > /dev/null && rm -rf !(lib64) && popd > /dev/null
+pushd $VENDOR_DIR/glibc-2.7 > /dev/null && rm -rf !(string|time) && popd > /dev/null
+
+# HACK
+cp $VENDOR_DIR/gcc-4.3/lib64/* $VENDOR_DIR/R/lib64/R/lib

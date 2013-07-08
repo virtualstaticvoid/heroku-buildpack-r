@@ -52,6 +52,12 @@ install.packages("nlme", dependencies = TRUE)
 
 ```
 
+R packages can also be included in your project source and installed when the `init.r` file is executed.
+
+```
+install.packages("optional-path-to-packages/local-r-package-file.tar.gz", repos=NULL, type="source")
+```
+
 ## R Console
 You can also run the R console application as follows:
 
@@ -76,4 +82,4 @@ on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r
 See the [guide](support/README.md) for building the R binaries yourself.
 
 ## Caveats
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 45Mb.
