@@ -83,8 +83,8 @@ tar xzf $basedir/fontconfig-$fontconfig_version.tar.gz
 
 # http://www.cairographics.org
 cairo_version=1.12.14
-download "http://www.cairographics.org/releases/LATEST-cairo-$cairo_version" cairo-$cairo_version.tar.gz
-tar xzf $basedir/cairo-$cairo_version.tar.gz
+download "http://www.cairographics.org/releases/LATEST-cairo-$cairo_version" cairo-$cairo_version.tar.xz
+tar xJf $basedir/cairo-$cairo_version.tar.xz
 
 # http://www.pango.org
 pango_ver=1.35
