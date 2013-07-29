@@ -135,7 +135,7 @@ echo ============================================================
 cd $basedir/R-$r_version/
 
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
-export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string/ -I$vendordir/glibc-$glibc_version/time"
+export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time"
 export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
 
 echo ----------------------------------------------------------------------
