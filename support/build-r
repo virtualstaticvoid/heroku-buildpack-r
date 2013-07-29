@@ -145,19 +145,4 @@ echo ----------------------------------------------------------------------
 
 ./configure --prefix=$vendordir/R --with-x --with-libpng --with-cairo --enable-R-shlib && make && make install
 
-# remove unneeded files to make the output smaller
-cd $vendordir
-
-shopt -s extglob
-
-pushd glibc-$glibc_version && rm -rf !(string|time) && popd
-
-rm -rf gcc-$gcc_version/info
-rm -rf gcc-$gcc_version/man
-
-rm -rf R/lib64/R/doc
-rm     R/lib64/R/COPYING*
-rm     R/lib64/R/NEWS*
-rm     R/lib64/R/SVN-REVISION
-
-# TODO: remove other unneeded files
+# TODO: remove unneeded files to make buildpack smaller
