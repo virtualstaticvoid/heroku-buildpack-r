@@ -10,7 +10,7 @@
 function download() {
   if [ ! -f "$2" ]; then
     echo Downloading $2...
-    curl $1 -o $2
+    curl $1 -o $2 -s -S
   else
     echo Got $2...
   fi
