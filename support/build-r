@@ -57,49 +57,49 @@ echo ======================================================================
 
 # http://www.freetype.org/freetype2/
 freetype_version=2.5.0
-download http://www.mirrorservice.org/sites/download.savannah.gnu.org/releases/freetype/freetype-$freetype_version.tar.gz freetype-$freetype_version.tar.gz
+download "http://www.mirrorservice.org/sites/download.savannah.gnu.org/releases/freetype/freetype-$freetype_version.tar.gz" freetype-$freetype_version.tar.gz
 tar xzf freetype-$freetype_version.tar.gz
 
 # http://directfb.org/
 directfb_version=1.2.9
 directfb_ver_major=${directfb_version:0:3}
-download http://directfb.org/downloads/Core/DirectFB-$directfb_ver_major/DirectFB-$directfb_version.tar.gz DirectFB-$directfb_version.tar.gz
+download "http://directfb.org/downloads/Core/DirectFB-$directfb_ver_major/DirectFB-$directfb_version.tar.gz" DirectFB-$directfb_version.tar.gz
 tar xzf DirectFB-$directfb_version.tar.gz
 
 # http://www.libpng.org/pub/png/libpng.html
 libpng_version=1.2.50
-download ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_version.tar.gz libpng-$libpng_version.tar.gz
+download "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_version.tar.gz" libpng-$libpng_version.tar.gz
 tar xzf libpng-$libpng_version.tar.gz
 
 # http://www.cairographics.org
 pixman_version=0.30.0
-download http://www.cairographics.org/releases/LATEST-pixman-$pixman_version pixman-$pixman_version.tar.gz
+download "http://www.cairographics.org/releases/LATEST-pixman-$pixman_version" pixman-$pixman_version.tar.gz
 tar xzf $basedir/pixman-$pixman_version.tar.gz
 
 # http://www.freedesktop.org/software/fontconfig
 fontconfig_version=2.9.0
-download http://www.freedesktop.org/software/fontconfig/release/fontconfig-$fontconfig_version.tar.gz fontconfig-$fontconfig_version.tar.gz
+download "http://www.freedesktop.org/software/fontconfig/release/fontconfig-$fontconfig_version.tar.gz" fontconfig-$fontconfig_version.tar.gz
 tar xzf $basedir/fontconfig-$fontconfig_version.tar.gz
 
 # http://www.cairographics.org
 cairo_version=1.12.14
-download http://www.cairographics.org/releases/LATEST-cairo-$cairo_version cairo-$cairo_version.tar.gz
+download "http://www.cairographics.org/releases/LATEST-cairo-$cairo_version" cairo-$cairo_version.tar.gz
 tar xzf $basedir/cairo-$cairo_version.tar.gz
 
 # http://www.pango.org
 pango_ver=1.35
 pango_version=$pango_ver.0
-download http://ftp.gnome.org/pub/GNOME/sources/pango/$pango_ver/pango-$pango_version.tar.xz pango-$pango_version.tar.xz
+download "http://ftp.gnome.org/pub/GNOME/sources/pango/$pango_ver/pango-$pango_version.tar.xz" pango-$pango_version.tar.xz
 tar xJf $basedir/pango-$pango_version.tar.xz
 
 # R
-download http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.gz R-$r_version.tar.gz
+download "http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.gz" R-$r_version.tar.gz
 tar xzf R-$r_version.tar.gz
 
 # http://gcc.gnu.org/wiki/GFortran
 gcc_ver=4.2.6
 gcc_version=${gcc_ver:0:3}
-download http://gfortran.com/download/x86_64/snapshots/gcc-$gcc_version.tar.xz gcc-$gcc_version.tar.xz
+download "http://gfortran.com/download/x86_64/snapshots/gcc-$gcc_version.tar.xz" gcc-$gcc_version.tar.xz
 tar xJf $basedir/gcc-$gcc_version.tar.xz -C $vendordir
 
 # patch gcc features.h file
@@ -109,7 +109,7 @@ cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-
 
 # https://www.gnu.org/software/libc/
 glibc_version=2.7
-download http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_$glibc_version.orig.tar.gz glibc_$glibc_version.tar.gz
+download "http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_$glibc_version.orig.tar.gz" glibc_$glibc_version.tar.gz
 tar xzf $basedir/glibc_$glibc_version.tar.gz -C $vendordir
 tar xjf $vendordir/glibc-$glibc_version/glibc-$glibc_version.tar.bz2 -C $vendordir
 
