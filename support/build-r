@@ -97,14 +97,15 @@ download http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.
 tar xzf R-$r_version.tar.gz
 
 # http://gcc.gnu.org/wiki/GFortran
-gcc_version=4.3
+gcc_ver=4.2.6
+gcc_version=${gcc_ver:0:3}
 download http://gfortran.com/download/x86_64/snapshots/gcc-$gcc_version.tar.xz gcc-$gcc_version.tar.xz
 tar xJf $basedir/gcc-$gcc_version.tar.xz -C $vendordir
 
 # patch gcc features.h file
 # see http://permalink.gmane.org/gmane.comp.gcc.help/40166
-mkdir -p $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_version/include-fixed
-cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_version/include-fixed/features.h
+mkdir -p $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed
+cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed/features.h
 
 # https://www.gnu.org/software/libc/
 glibc_version=2.7
