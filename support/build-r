@@ -72,8 +72,8 @@ download ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_
 tar xzf libpng-$libpng_version.tar.gz
 
 # http://www.cairographics.org
-pixman_version=0.29.4
-download http://www.cairographics.org/snapshots/pixman-$pixman_version.tar.gz pixman-$pixman_version.tar.gz
+pixman_version=0.30.0
+download http://www.cairographics.org/releases/LATEST-pixman-$pixman_version pixman-$pixman_version.tar.gz
 tar xzf $basedir/pixman-$pixman_version.tar.gz
 
 # http://www.freedesktop.org/software/fontconfig
@@ -83,7 +83,7 @@ tar xzf $basedir/fontconfig-$fontconfig_version.tar.gz
 
 # http://www.cairographics.org
 cairo_version=1.12.14
-download http://www.cairographics.org/snapshots/cairo-$cairo_version.tar.gz cairo-$cairo_version.tar.gz
+download http://www.cairographics.org/releases/LATEST-cairo-$cairo_version cairo-$cairo_version.tar.gz
 tar xzf $basedir/cairo-$cairo_version.tar.gz
 
 # http://www.pango.org
@@ -126,7 +126,7 @@ build "$basedir/cairo-$cairo_version" cairo
 # copy over missing header files
 cp $basedir/cairo-$cairo_version/src/*.h $vendordir/cairo/include
 
-build $basedir/pango-$pango_version pango
+build "$basedir/pango-$pango_version" pango
 
 # build R
 echo ============================================================
