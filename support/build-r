@@ -97,7 +97,7 @@ download "http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar
 tar xzf R-$r_version.tar.gz
 
 # http://gcc.gnu.org/wiki/GFortran
-gcc_ver=4.2.6
+gcc_ver=4.3.6
 gcc_version=${gcc_ver:0:3}
 download "http://gfortran.com/download/x86_64/snapshots/gcc-$gcc_version.tar.xz" gcc-$gcc_version.tar.xz
 tar xJf $basedir/gcc-$gcc_version.tar.xz -C $vendordir
