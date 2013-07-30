@@ -151,7 +151,12 @@ cp $basedir/cairo-$cairo_version/src/*.h $vendordir/cairo/include
 build "$basedir/harfbuzz-$harfbuzz_version" harfbuzz
 build "$basedir/libffi-$libffi_version" libffi
 build "$basedir/gettext-$gettext_version" gettext
+
+export LDFLAGS="-L$vendordir/gettext/lib"
+export CFLAGS="-I$vendordir/gettext/include"
+
 build "$basedir/glib-$glib_version" glib
+
 build "$basedir/pango-$pango_version" pango
 
 # build R
