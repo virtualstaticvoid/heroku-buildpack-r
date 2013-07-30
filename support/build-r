@@ -86,33 +86,6 @@ cairo_version=1.12.14
 download "http://www.cairographics.org/releases/LATEST-cairo-$cairo_version" cairo-$cairo_version.tar.xz
 tar xJf $basedir/cairo-$cairo_version.tar.xz
 
-# http://www.freedesktop.org/wiki/Software/HarfBuzz/
-harfbuzz_version=0.9.19
-download "http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-$harfbuzz_version.tar.bz2" harfbuzz-$harfbuzz_version.tar.bz2
-tar xjf harfbuzz-$harfbuzz_version.tar.bz2
-
-# http://sourceware.org/libffi/
-libffi_version=3.0.13
-download "ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz" libffi-$libffi_version.tar.gz
-tar xzf libffi-$libffi_version.tar.gz
-
-# http://www.gnu.org/software/gettext/gettext.html
-gettext_version=0.18.3
-download "http://ftp.gnu.org/pub/gnu/gettext/gettext-$gettext_version.tar.gz" gettext-$gettext_version.tar.gz
-tar xzf gettext-$gettext_version.tar.gz
-
-# http://www.gtk.org/
-glib_version=2.36.3
-glib_ver=${glib_ver:0:4}
-download "http://ftp.gnome.org/pub/gnome/sources/glib/$glib_ver/glib-$glib_version.tar.xz" glib-$glib_version.tar.xz
-tar xJf glib-$glib_version.tar.xz
-
-# http://www.pango.org
-pango_ver=1.35
-pango_version=$pango_ver.0
-download "http://ftp.gnome.org/pub/GNOME/sources/pango/$pango_ver/pango-$pango_version.tar.xz" pango-$pango_version.tar.xz
-tar xJf $basedir/pango-$pango_version.tar.xz
-
 # R
 download "http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.gz" R-$r_version.tar.gz
 tar xzf R-$r_version.tar.gz
@@ -147,17 +120,6 @@ build "$basedir/cairo-$cairo_version" cairo
 
 # copy over missing header files
 cp $basedir/cairo-$cairo_version/src/*.h $vendordir/cairo/include
-
-build "$basedir/harfbuzz-$harfbuzz_version" harfbuzz
-build "$basedir/libffi-$libffi_version" libffi
-build "$basedir/gettext-$gettext_version" gettext
-
-export LDFLAGS="-L$vendordir/gettext/lib"
-export CFLAGS="-I$vendordir/gettext/include"
-
-build "$basedir/glib-$glib_version" glib
-
-build "$basedir/pango-$pango_version" pango
 
 # build R
 echo ============================================================
