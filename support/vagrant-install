@@ -5,6 +5,6 @@ sudo mkdir -p /app
 sudo chown vagrant /app
 sudo chgrp vagrant /app
 
-# build R
-cd /vagrant
-build-r
+echo
+echo NOTE: SSH into vagrant, cd into /vagrant and run build-r
+echo
