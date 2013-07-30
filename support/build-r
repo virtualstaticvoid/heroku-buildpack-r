@@ -118,9 +118,6 @@ build "$basedir/pixman-$pixman_version" pixman
 build "$basedir/fontconfig-$fontconfig_version" fontconfig
 build "$basedir/cairo-$cairo_version" cairo
 
-# copy over missing header files
-cp $basedir/cairo-$cairo_version/src/*.h $vendordir/cairo/include
-
 # build R
 echo ============================================================
 echo Building R
@@ -128,7 +125,7 @@ echo ============================================================
 cd $basedir/R-$r_version/
 
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
-export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time"
+export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
 export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
 
 echo ----------------------------------------------------------------------
