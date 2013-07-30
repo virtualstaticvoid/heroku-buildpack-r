@@ -128,11 +128,6 @@ export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
 export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
 export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
 
-echo ----------------------------------------------------------------------
-echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-echo PKG_CONFIG_PATH=$PKG_CONFIG_PATH
-echo ----------------------------------------------------------------------
-
 ./configure --prefix=$vendordir/R --with-x --with-libpng --with-cairo --enable-R-shlib && make && make install
 
 # TODO: remove unneeded files to make buildpack smaller
