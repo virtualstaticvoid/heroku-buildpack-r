@@ -11,12 +11,5 @@ app=${app:5}
 
 git push heroku master
 
-# fix up path (See https://github.com/ddollar/heroku-buildpack-multi/issues/5 for details)
-# and add environment variables for R runtime
-curr_path=`heroku config:get PATH --app $app`
-heroku config:set PATH=/app/vendor/R/bin:$curr_path \
-                  R_HOME=/app/vendor/R \
-                  R_INCLUDE=/app/vendor/R/lib64/R/include --app $app
-
 # check...
 heroku logs --app $app
