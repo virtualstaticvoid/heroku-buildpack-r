@@ -5,6 +5,12 @@
 
 # See http://cran.r-project.org/doc/manuals/R-admin.html for details on building R
 
+# fail fast
+set -e
+
+# debug
+# set -x
+
 ## HELPERS
 
 function download() {
