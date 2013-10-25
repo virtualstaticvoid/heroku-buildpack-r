@@ -84,3 +84,5 @@ See the [guide](support/README.md) for building the R binaries yourself.
 ## Caveats
 Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 98Mb.
 If additional R packages are installed by the `init.r` script then the slug size will increase.
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/e84b7e401f24073d47c0c7e0338fe363 "githalytics.com")](http://githalytics.com/virtualstaticvoid/heroku-buildpack-r)
