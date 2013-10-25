@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Utility to download the binaries created by the vulcan build server
+
+build_uuid=$1
+cloudant_uid=${2:-$CLOUDANT_UID}
+cloudant_pwd=${3:-$CLOUDANT_PWD}
+rversion=${4:-2.15.1}
+
+if [ -z "$build_uuid" ] || [ -z "$cloudant_uid" ] || [ -z "$cloudant_pwd" ] || [ -z "$rversion" ]; then
+
+  echo ""
+  echo "  USAGE: $0 build_uuid cloudant_uid cloudant_pwd [rversion]"
+  echo ""
+  echo "        build_uid           vulcan build UUID"
+  echo "        cloudant_uid        Cloudant user name"
+  echo "        cloudant_pwd        Cloudant password"
+  echo "        rversion            Optionally, the R version. Defaults to $rversion"
+  echo ""
+  echo "  To get your Cloudant user name and password, from the vulcan build instance,"
+  echo "  run the following command and extract from CLOUDANT_URL configuration variable."
+  echo ""
+  echo "    heroku config --app <vulcan-app-name>"
+  echo ""
+  echo "  Where <vulcan-app-name> is the name of your heroku application"
+  echo ""
+
+  exit 1
+fi
+
+wget https://$cloudant_uid:$cloudant_pwd@cloudant.com/db/$cloudant_uid/make/$build_uuid/output \
+      --no-check-certificate \
+      -O R-$rversion-binaries-$(date +%Y%m%d).tar.gz
