@@ -32,7 +32,7 @@ $ git push heroku master
 ```
 
 The buildpack will detect your app makes use of R if it has the `init.r` file in the root.
-The R runtime is vendored into your slug.
+The R runtime is vendored into your slug, and includes the gcc compiler for fortran support.
 
 To reference a specific version of the build pack, add the Git branch or tag name to the end of the build pack URL.
 
