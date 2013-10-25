@@ -4,7 +4,4 @@
 cat <<EOF
 ---
 config_vars:
-  PATH: /app/vendor/R/bin:bin:/usr/local/bin:/usr/bin:/bin
-  R_HOME: /app/vendor/R
-  R_INCLUDE: /app/vendor/R/lib64/R/include
 EOF
