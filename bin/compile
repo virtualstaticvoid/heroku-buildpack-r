@@ -68,7 +68,8 @@ export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-
 export R_INCLUDE=/app/vendor/R/lib64/R/include
 
 # copy over environment
-cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/
+mkdir -p $BUILD_DIR/.profile.d
+cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/r_environment.sh
 
 # HACK
 cp $VENDOR_DIR/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
