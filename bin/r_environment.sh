@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GCC_VERSION="4.8"
+GCC_VERSION="4.3"
 
 export R_HOME=/app/vendor/R
 export R_INCLUDE=$R_HOME/lib64/R/include
