@@ -65,18 +65,19 @@ cp -R $VENDOR_DIR/R /app/vendor/R
 export PATH=$PATH:/app/vendor/R/bin:/app/vendor/gcc-$GCC_VERSION/bin
 export LDFLAGS="-L/app/vendor/gcc-$GCC_VERSION/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-$GLIBC_VERSION/time"
-export R_INCLUDE=/app/vendor/R/lib64/R/include
+export R_HOME=/app/vendor/R
+export R_INCLUDE=$R_HOME/lib64/R/include
 
 # copy over environment
 mkdir -p $BUILD_DIR/.profile.d
 cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/r_environment.sh
 
-# install dependencies from CRAN
-echo "Executing init.r script" | indent
-
 # prevent warnings
 mkdir -p /app/vendor/R/lib64/R/doc/html
 touch /app/vendor/R/lib64/R/doc/html/R.css
+
+# install dependencies from CRAN
+echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
 /app/vendor/R/bin/R -s <<RPROG > indent
