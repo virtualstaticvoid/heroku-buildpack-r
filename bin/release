@@ -2,6 +2,5 @@
 # bin/release <build-dir>
 
 cat <<EOF
----
-config_vars:
+--- {}
 EOF
