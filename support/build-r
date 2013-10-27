@@ -41,8 +41,6 @@ function build() {
 
 ## SCRIPT
 
-set -e
-
 r_version="${1:-2.15.1}"
 r_version_major=${r_version:0:1}
 
