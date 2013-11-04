@@ -77,7 +77,7 @@ tar xzf libpng-$libpng_version.tar.gz
 
 # http://www.cairographics.org
 pixman_version=0.30.2
-download "http://www.cairographics.org/releases/LATEST-pixman-$pixman_version" pixman-$pixman_version.tar.gz
+download "http://www.cairographics.org/releases/pixman-$pixman_version.tar.gz" pixman-$pixman_version.tar.gz
 tar xzf $basedir/pixman-$pixman_version.tar.gz
 
 # http://www.freedesktop.org/software/fontconfig
@@ -87,7 +87,7 @@ tar xzf $basedir/fontconfig-$fontconfig_version.tar.gz
 
 # http://www.cairographics.org
 cairo_version=1.12.16
-download "http://www.cairographics.org/releases/LATEST-cairo-$cairo_version" cairo-$cairo_version.tar.xz
+download "http://www.cairographics.org/releases/cairo-$cairo_version.tar.xz" cairo-$cairo_version.tar.xz
 tar xJf $basedir/cairo-$cairo_version.tar.xz
 
 # R
