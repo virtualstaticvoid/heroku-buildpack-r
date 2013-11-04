@@ -8,3 +8,7 @@ sudo chgrp vagrant /app
 echo
 echo NOTE: SSH into vagrant, cd into /vagrant and run build-r
 echo
+echo Or run the following command:
+echo
+echo   vagrant ssh -c "cd /vagrant && ./build-r &> build-r.log"
+echo
