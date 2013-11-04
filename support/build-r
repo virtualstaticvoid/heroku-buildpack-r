@@ -109,7 +109,6 @@ cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-
 glibc_version=2.7
 download "http://ftp.gnu.org/gnu/glibc/glibc-$glibc_version.tar.gz" glibc_$glibc_version.tar.gz
 tar xzf $basedir/glibc_$glibc_version.tar.gz -C $vendordir
-tar xjf $vendordir/glibc-$glibc_version/glibc-$glibc_version.tar.bz2 -C $vendordir
 
 echo ============================================================
 echo Building dependencies...
