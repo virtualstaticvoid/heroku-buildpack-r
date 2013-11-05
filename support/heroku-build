@@ -21,7 +21,7 @@ build_no="${2:-`date +%Y%m%d-%H%M`}"
 
 rm -rf .git &> /dev/null
 git init
-git add Gemfile Gemfile.lock s3_upload.rb build-r features.h .env
+git add Gemfile Gemfile.lock s3_upload.rb build-r features.h vars.mk .env
 git commit -m "build scripts"
 
 heroku apps:create
