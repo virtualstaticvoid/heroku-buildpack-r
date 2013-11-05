@@ -43,7 +43,7 @@ function build() {
 
 r_version="${1:-2.15.1}"
 r_version_major=${r_version:0:1}
-build_no=${2:-`date +%Y%m%d-%H%M`}
+build_no="${2:-`date +%Y%m%d-%H%M`}"
 
 # check arguments
 if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
