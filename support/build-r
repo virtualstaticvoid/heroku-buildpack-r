@@ -145,6 +145,8 @@ pushd $basedir/R-$r_version/
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
 export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
 export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
+export R_HOME="$vendordir/R"
+export R_INCLUDE=$R_HOME/lib64/R/include
 
 echo ----------------------------------------------------------------------
 echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
