@@ -43,9 +43,16 @@ function build() {
 
 r_version="${1:-2.15.1}"
 r_version_major=${r_version:0:1}
+build_no=${2:-`date +%Y%m%d-%H%M`}
 
-if [ -z "$r_version" ]; then
-  echo "USAGE: $0 VERSION"
+# check arguments
+if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
+  echo
+  echo "USAGE: $0 VERSION [BUILDNUM]"
+  echo
+  echo "  VERSION    is the R version. E.g. 2.15.1"
+  echo "  BUILDNUM   the build number. E.g. 20131031-1400"
+  echo
   exit 1
 fi
 
@@ -104,6 +111,7 @@ tar xJf $basedir/gcc-$gcc_version.tar.xz -C $vendordir
 # see http://permalink.gmane.org/gmane.comp.gcc.help/40166
 mkdir -p $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed
 cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed/features.h
+export LD_LIBRARY_PATH="$vendordir/gcc-$gcc_version:$LD_LIBRARY_PATH"
 
 # https://www.gnu.org/software/libc/
 glibc_version=2.7
@@ -125,7 +133,7 @@ build "$basedir/cairo-$cairo_version" cairo
 echo ============================================================
 echo Building R
 echo ============================================================
-cd $basedir/R-$r_version/
+pushd $basedir/R-$r_version/
 
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
 export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
@@ -138,4 +146,13 @@ echo ----------------------------------------------------------------------
 
 ./configure --prefix=$vendordir/R --with-x --with-libpng --with-cairo --enable-R-shlib && make && make install
 
+popd
+
 # TODO: remove unneeded files to make buildpack smaller
+
+# upload to S3 bucket
+pushd $vendordir
+tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo R
+popd
+
+bundle exec ruby ./s3_upload.rb "$vendordir/R-$r_version-binaries-$build_no.tar.gz"

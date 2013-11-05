@@ -61,7 +61,6 @@ cp -R $VENDOR_DIR/R /app/vendor/R
 
 
 # R needs to know where gfortran and glibc header files are
-# For buildpacks that get run after, need to update PATH with location of R
 export PATH=/app/vendor/R/bin:/app/vendor/gcc-$GCC_VERSION/bin:$PATH
 export LDFLAGS="-L/app/vendor/gcc-$GCC_VERSION/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-$GLIBC_VERSION/time"

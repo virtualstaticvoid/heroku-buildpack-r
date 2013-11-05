@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#
+# vulcan has be deprecated, use this script to build the R binaries
+#
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+  echo "Please edit the .env file and supply your AWS credentials before continuing."
+  exit 1
+fi
+
+rversion=2.15.1
+build_no=${2:-`date +%Y%m%d-%H%M`}
+
+rm -rf .git &> /dev/null
+git init
+git add Gemfile Gemfile.lock s3_upload.rb build-r features.h .env
+git commit -m "build scripts"
+
+heroku apps:create
+app=`heroku apps:info -s | grep ^name=`
+app=${app:5}
+
+git push heroku master
+
+heroku run "bash -c ./build-r $rversion $build_no > ./build-r.log && bundle exec ruby ./s3_upload.rb ./build-r.log" --app $app
+
+heroku apps:destroy $app --confirm $app
+
+# download the file off s3
+wget "https://heroku-buildpack-r.s3.amazonaws.com/build-r.log"
+# wget "https://heroku-buildpack-r.s3.amazonaws.com/R-$r_version-binaries-$build_no.tar.gz"
