@@ -133,7 +133,14 @@ build "$basedir/cairo-$cairo_version" cairo
 echo ============================================================
 echo Building R
 echo ============================================================
+
+# copy over our customized vars.mk file
+cp -f $basedir/vars.mk $basedir/R-$r_version/share/make/vars.mk
+
 pushd $basedir/R-$r_version/
+
+# download the recommended packages
+./tools/rsync-recommended
 
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
 export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
