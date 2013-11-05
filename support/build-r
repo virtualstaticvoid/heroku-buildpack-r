@@ -159,9 +159,11 @@ popd
 
 # TODO: remove unneeded files to make buildpack smaller
 
-# upload to S3 bucket
+# compress and upload to S3 bucket
 pushd $vendordir
 tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo R
 popd
 
+echo
+echo Uploading binaries to S3
 bundle exec ruby ./s3_upload.rb "$vendordir/R-$r_version-binaries-$build_no.tar.gz"
