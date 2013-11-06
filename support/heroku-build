@@ -31,7 +31,7 @@ app=${app:5}
 git push heroku master
 
 # NOTE: only redirecting stdout to file, stderr will be displayed!
-heroku run "bash -c ./build-r $r_version $build_no > ./build-r-$build_no.log && bundle exec ruby ./s3_upload.rb ./build-r-$build_no.log" --app $app
+heroku run "bash -c './build-r $r_version $build_no' > ./build-r-$build_no.log && bundle exec ruby ./s3_upload.rb ./build-r-$build_no.log" --app $app
 
 heroku apps:destroy $app --confirm $app
 
