@@ -56,6 +56,11 @@ if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
   exit 1
 fi
 
+echo
+echo R Version = $r_version
+echo Build No. = $build_no
+echo
+
 basedir="$( cd -P "$( dirname "$0" )" && pwd )"
 
 # create output directory
