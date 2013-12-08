@@ -104,7 +104,7 @@ tar xJf $basedir/cairo-$cairo_version.tar.xz
 
 # GSL
 gsl_version=1.6
-download "http://download.polytechnic.edu.na/pub/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz" gsl_$gsl_version.tar.gz
+download "ftp://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz" gsl-$gsl_version.tar.gz
 tar xzf $basedir/gsl-$gsl_version.tar.gz
 
 # R
