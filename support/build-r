@@ -177,4 +177,5 @@ popd
 
 echo
 echo Uploading binaries to S3
+bundle install
 bundle exec ruby ./s3_upload.rb "$vendordir/R-$r_version-binaries-$build_no.tar.gz"
