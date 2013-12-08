@@ -172,7 +172,7 @@ popd
 
 # compress and upload to S3 bucket
 pushd $vendordir
-tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo R
+tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo gsl R
 popd
 
 echo
