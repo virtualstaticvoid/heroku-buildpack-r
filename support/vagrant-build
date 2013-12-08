@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#
+# use this script to build the R binaries on a vagrant instance
+#
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+  echo "Please edit the .env file and supply your AWS credentials before continuing."
+  exit 1
+fi
+
+r_version="${1:-3.0.2}"
+build_no="${2:-`date +%Y%m%d-%H%M`}"
+
+# provision vagrant instance
+vagrant up
+
+# create output directory
+vagrant ssh -c 'sudo mkdir -p /app && sudo chown vagrant /app && sudo chgrp vagrant /app'
+
+# build the R binaries
+vagrant ssh -c 'cd /vagrant && ./build-r $r_version $build_no > ./build-r-$build_no.log'
+
+# destroy the vagrant instance (comment out if debugging build is required)
+# vagrant destroy --force
