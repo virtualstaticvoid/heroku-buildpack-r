@@ -23,10 +23,10 @@ build_no="${2:-`date +%Y%m%d-%H%M`}"
 vagrant up
 
 # create output directory
-vagrant ssh -c 'sudo mkdir -p /app && sudo chown vagrant /app && sudo chgrp vagrant /app'
+vagrant ssh -c "sudo mkdir -p /app && sudo chown vagrant /app && sudo chgrp vagrant /app"
 
 # build the R binaries
-vagrant ssh -c 'cd /vagrant && ./build-r $r_version $build_no > ./build-r-$build_no.log'
+vagrant ssh -c "cd /vagrant && ./build-r $r_version $build_no > ./build-r-$build_no.log"
 
 # destroy the vagrant instance (comment out if debugging build is required)
 # vagrant destroy --force
