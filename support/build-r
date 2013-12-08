@@ -102,6 +102,11 @@ cairo_version=1.12.16
 download "http://www.cairographics.org/releases/cairo-$cairo_version.tar.xz" cairo-$cairo_version.tar.xz
 tar xJf $basedir/cairo-$cairo_version.tar.xz
 
+# GSL
+gsl_version=1.6
+download "http://download.polytechnic.edu.na/pub/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz" gsl_$gsl_version.tar.gz
+tar xzf $basedir/gsl-$gsl_version.tar.gz
+
 # R
 download "http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.gz" R-$r_version.tar.gz
 tar xzf R-$r_version.tar.gz
@@ -133,6 +138,7 @@ build "$basedir/libpng-$libpng_version" libpng
 build "$basedir/pixman-$pixman_version" pixman
 build "$basedir/fontconfig-$fontconfig_version" fontconfig
 build "$basedir/cairo-$cairo_version" cairo
+build "$basedir/gsl-$gsl_version" gsl
 
 # build R
 echo ============================================================
