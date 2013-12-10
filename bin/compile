@@ -52,7 +52,7 @@ echo "Downloading and unpacking R binaries" | indent
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
 # need to copy the binaries to /app/vendor
-cp -R $VENDOR_DIR /app/vendor
+cp -R $VENDOR_DIR/* /app/vendor/
 
 # setup environment for building packages
 export PATH=/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH
