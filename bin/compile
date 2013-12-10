@@ -32,11 +32,8 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
-BUILD_PACK_VERSION="20131210-0332"
-
-GCC_VERSION="4.3"
-GLIBC_VERSION="2.7"
 R_VERSION="2.15.1"
+BUILD_PACK_VERSION="20131210-1612"
 
 S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
@@ -45,7 +42,7 @@ VENDOR_DIR="$BUILD_DIR/vendor"
 R_HOME="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 
-mkdir -p $CACHE_DIR
+# mkdir -p $CACHE_DIR
 
 # vendor R into the slug
 echo "Vendoring R $R_VERSION" | indent
@@ -54,16 +51,17 @@ echo "Vendoring R $R_VERSION" | indent
 echo "Downloading and unpacking R binaries" | indent
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
-# need to copy the binaries to /app/vendor so that R works
-cp -R $VENDOR_DIR/gcc-$GCC_VERSION /app/vendor/gcc-$GCC_VERSION
-cp -R $VENDOR_DIR/glibc-$GLIBC_VERSION /app/vendor/glibc-$GLIBC_VERSION
-cp -R $VENDOR_DIR/R /app/vendor/R
+# need to copy the binaries to /app/vendor
+cp -R $VENDOR_DIR /app/vendor
 
+# setup environment for building packages
+export PATH=/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH
 
-# R needs to know where gfortran and glibc header files are
-export PATH=/app/vendor/R/bin:/app/vendor/gcc-$GCC_VERSION/bin:$PATH
-export LDFLAGS="-L/app/vendor/gcc-$GCC_VERSION/lib64/"
-export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-$GLIBC_VERSION/time"
+export LDFLAGS="-L/app/vendor/gcc/lib64/ -L/app/vendor/gsl/lib/"
+export CPPFLAGS="-I/app/vendor/glibc/string/ -I/app/vendor/glibc/time -I/app/vendor/gsl/include/"
+export PKG_LDFLAGS=$LDFLAGS
+export PKG_CPPFLAGS=$CPPFLAGS
+
 export R_HOME=/app/vendor/R
 export R_INCLUDE=$R_HOME/lib64/R/include
 
@@ -71,7 +69,7 @@ export R_INCLUDE=$R_HOME/lib64/R/include
 mkdir -p $BUILD_DIR/.profile.d
 cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/r_environment.sh
 
-# prevent warnings
+# prevent warnings when building packages
 mkdir -p /app/vendor/R/lib64/R/doc/html
 touch /app/vendor/R/lib64/R/doc/html/R.css
 
@@ -91,14 +89,6 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
-cp -R /app/vendor/gcc-$GCC_VERSION $VENDOR_DIR/gcc-$GCC_VERSION
-cp -R /app/vendor/glibc-$GLIBC_VERSION $VENDOR_DIR/glibc-$GLIBC_VERSION
 cp -R /app/vendor/R $VENDOR_DIR/R
 
-# HACK
-cp $VENDOR_DIR/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
-
-# remove unneeded files to make slug smaller
-# pushd $VENDOR_DIR/gcc-$GCC_VERSION > /dev/null && rm -rf !(lib64) && popd > /dev/null
-# pushd $VENDOR_DIR/glibc-$GLIBC_VERSION > /dev/null && rm -rf !(string|time) && popd > /dev/null
+# TODO: remove unneeded files to make slug smaller
