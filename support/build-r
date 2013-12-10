@@ -168,6 +168,9 @@ echo ----------------------------------------------------------------------
 
 popd
 
+# HACK for GSL library resolution
+ln -s $vendordir/gsl/lib/libgsl* $vendordir/R/lib64/R/lib
+
 # TODO: remove unneeded files to make buildpack smaller
 
 # compress and upload to S3 bucket
