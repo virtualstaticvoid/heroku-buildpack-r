@@ -6,7 +6,7 @@
 ###########################################################
 # Update this line with the R packages to install:
 
-my_packages = c("topicmodels")
+my_packages = c("RJSONIO", "RPostgreSQL", "plyr", "tm", "XML", "Snowball", "slam", "topicmodels")
 
 ###########################################################
 
