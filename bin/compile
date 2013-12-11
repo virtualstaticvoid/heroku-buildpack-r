@@ -33,7 +33,7 @@ BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
 R_VERSION="2.15.1"
-BUILD_PACK_VERSION="20131210-1612"
+BUILD_PACK_VERSION="20131211-0028"
 
 S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
