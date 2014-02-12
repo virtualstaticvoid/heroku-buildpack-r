@@ -94,7 +94,7 @@ echo "R $R_VERSION successfully installed" | indent
 rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
 cp -R /app/vendor/gcc-$GCC_VERSION $VENDOR_DIR/gcc-$GCC_VERSION
 cp -R /app/vendor/glibc-$GLIBC_VERSION $VENDOR_DIR/glibc-$GLIBC_VERSION
-cp -R /app/vendor/R $VENDOR_DIR/R
+cp -R /app/vendor/R/* $VENDOR_DIR/R
 
 # HACK
 cp $VENDOR_DIR/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
