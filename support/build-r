@@ -43,7 +43,7 @@ function build() {
 
 r_version="${1:-2.15.1}"
 r_version_major=${r_version:0:1}
-build_no=${2:-`date +%Y%m%d-%H%M`}
+build_no="${2:-`date +%Y%m%d-%H%M`}"
 
 # check arguments
 if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
@@ -55,6 +55,11 @@ if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
   echo
   exit 1
 fi
+
+echo
+echo R Version = $r_version
+echo Build No. = $build_no
+echo
 
 basedir="$( cd -P "$( dirname "$0" )" && pwd )"
 
@@ -133,11 +138,21 @@ build "$basedir/cairo-$cairo_version" cairo
 echo ============================================================
 echo Building R
 echo ============================================================
+
+# copy over our customized vars.mk file
+cp -f $basedir/vars.mk $basedir/R-$r_version/share/make/vars.mk
+
 pushd $basedir/R-$r_version/
+
+# download the recommended packages
+# ./tools/rsync-recommended
 
 export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
 export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
 export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
+export R_BASE="$vendordir/R"
+export R_HOME=$R_BASE/lib64/R
+export R_INCLUDE=$R_HOME/lib64/R/include
 
 echo ----------------------------------------------------------------------
 echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
@@ -150,9 +165,11 @@ popd
 
 # TODO: remove unneeded files to make buildpack smaller
 
-# upload to S3 bucket
+# compress and upload to S3 bucket
 pushd $vendordir
 tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo R
 popd
 
+echo
+echo Uploading binaries to S3
 bundle exec ruby ./s3_upload.rb "$vendordir/R-$r_version-binaries-$build_no.tar.gz"
