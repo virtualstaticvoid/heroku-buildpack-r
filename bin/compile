@@ -42,7 +42,7 @@ S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
-R_HOME="$VENDOR_DIR/R"
+R_BASE="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 
 mkdir -p $CACHE_DIR
@@ -64,8 +64,8 @@ cp -R $VENDOR_DIR/R /app/vendor/R
 export PATH=/app/vendor/R/bin:/app/vendor/gcc-$GCC_VERSION/bin:$PATH
 export LDFLAGS="-L/app/vendor/gcc-$GCC_VERSION/lib64/"
 export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-$GLIBC_VERSION/time"
-export R_HOME=/app/vendor/R
-export R_INCLUDE=$R_HOME/lib64/R/include
+export R_HOME=$R_BASE/lib64/R
+export R_INCLUDE=$R_HOME/include
 
 # copy over environment
 mkdir -p $BUILD_DIR/.profile.d
