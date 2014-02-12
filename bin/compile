@@ -104,7 +104,7 @@ cp -R /app/vendor/R/* $VENDOR_DIR/R
 
 # HACK
 mkdir -p $VENDOR_DIR/R/lib64/R/lib
-cp $VENDOR_DIR/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
+cp /app/vendor/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
 
 # remove unneeded files to make slug smaller
 # pushd $VENDOR_DIR/gcc-$GCC_VERSION > /dev/null && rm -rf !(lib64) && popd > /dev/null
