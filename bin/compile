@@ -92,11 +92,18 @@ echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
 rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
+
+mkdir -p $VENDOR_DIR/gcc-$GCC_VERSION
 cp -R /app/vendor/gcc-$GCC_VERSION $VENDOR_DIR/gcc-$GCC_VERSION
+
+mkdir -p $VENDOR_DIR/glibc-$GLIBC_VERSION
 cp -R /app/vendor/glibc-$GLIBC_VERSION $VENDOR_DIR/glibc-$GLIBC_VERSION
+
+mkdir -p $VENDOR_DIR/R
 cp -R /app/vendor/R/* $VENDOR_DIR/R
 
 # HACK
+mkdir -p $VENDOR_DIR/R/lib64/R/lib
 cp $VENDOR_DIR/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
 
 # remove unneeded files to make slug smaller
