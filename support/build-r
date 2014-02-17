@@ -83,7 +83,7 @@ download "http://directfb.org/downloads/Core/DirectFB-$directfb_ver_major/Direct
 tar xzf DirectFB-$directfb_version.tar.gz
 
 # http://www.libpng.org/pub/png/libpng.html
-libpng_version=1.2.50
+libpng_version=1.2.51
 download "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_version.tar.gz" libpng-$libpng_version.tar.gz
 tar xzf libpng-$libpng_version.tar.gz
 
