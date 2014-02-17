@@ -32,7 +32,7 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
-BUILD_PACK_VERSION="20130729"
+BUILD_PACK_VERSION="20131211-0028"
 
 GCC_VERSION="4.3"
 GLIBC_VERSION="2.7"
