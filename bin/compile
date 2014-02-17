@@ -58,6 +58,9 @@ cp -R $VENDOR_DIR/gcc/* /app/vendor/gcc
 mkdir -p /app/vendor/glibc
 cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
 
+mkdir -p /app/vendor/gsl
+cp -R $VENDOR_DIR/gsl/* /app/vendor/gsl
+
 mkdir -p /app/vendor/R
 cp -R $VENDOR_DIR/R/* /app/vendor/R
 
@@ -69,7 +72,7 @@ cp /app/vendor/gcc/lib64/* /app/vendor/R/lib64/R/lib
 export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
 
 export LDFLAGS="-L/app/vendor/gcc/lib64 -L/app/vendor/gsl/lib"
-export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include/gsl"
+export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include"
 export PKG_LDFLAGS=$LDFLAGS
 export PKG_CPPFLAGS=$CPPFLAGS
 
