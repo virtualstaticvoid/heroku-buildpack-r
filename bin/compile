@@ -32,7 +32,7 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
-BUILD_PACK_VERSION="20130729"
+BUILD_PACK_VERSION="20131211-0028"
 
 GCC_VERSION="4.3"
 GLIBC_VERSION="2.7"
@@ -61,9 +61,13 @@ cp -R $VENDOR_DIR/R /app/vendor/R
 
 
 # R needs to know where gfortran and glibc header files are
-export PATH=/app/vendor/R/bin:/app/vendor/gcc-$GCC_VERSION/bin:$PATH
-export LDFLAGS="-L/app/vendor/gcc-$GCC_VERSION/lib64/"
-export CPPFLAGS="-I/app/vendor/glibc-$GLIBC_VERSION/string/ -I/app/vendor/glibc-$GLIBC_VERSION/time"
+export PATH=/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH
+
+export LDFLAGS="-L/app/vendor/gcc/lib64/ -L/app/vendor/gsl/lib/"
+export CPPFLAGS="-I/app/vendor/glibc/string/ -I/app/vendor/glibc/time -I/app/vendor/gsl/include/"
+export PKG_LDFLAGS=$LDFLAGS
+export PKG_CPPFLAGS=$CPPFLAGS
+
 export R_HOME=$R_BASE/lib64/R
 export R_INCLUDE=$R_HOME/include
 
@@ -71,7 +75,7 @@ export R_INCLUDE=$R_HOME/include
 mkdir -p $BUILD_DIR/.profile.d
 cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/r_environment.sh
 
-# prevent warnings
+# prevent warnings when building packages
 mkdir -p /app/vendor/R/lib64/R/doc/html
 touch /app/vendor/R/lib64/R/doc/html/R.css
 
@@ -91,7 +95,7 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
+# rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
 
 mkdir -p $VENDOR_DIR/gcc-$GCC_VERSION
 cp -R /app/vendor/gcc-$GCC_VERSION $VENDOR_DIR/gcc-$GCC_VERSION
