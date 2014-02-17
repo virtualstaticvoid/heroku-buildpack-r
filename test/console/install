@@ -12,4 +12,4 @@ app=${app:5}
 git push heroku master
 
 # run R console
-heroku run R --app $app
+heroku run "R --no-save" --app $app
