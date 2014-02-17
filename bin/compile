@@ -61,11 +61,15 @@ cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
 mkdir -p /app/vendor/R
 cp -R $VENDOR_DIR/R/* /app/vendor/R
 
+# HACK: need to copy over the gcc libs so that packages can find them
+mkdir -p /app/vendor/R/lib64/R/lib
+cp /app/vendor/gcc/lib64/* /app/vendor/R/lib64/R/lib
+
 # R needs to know where gfortran and glibc header files are
 export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
 
-export LDFLAGS="-L/app/vendor/gcc/lib64/ -L/app/vendor/gsl/lib/"
-export CPPFLAGS="-I/app/vendor/glibc/string/ -I/app/vendor/glibc/time -I/app/vendor/gsl/include/"
+export LDFLAGS="-L/app/vendor/gcc/lib64 -L/app/vendor/gsl/lib"
+export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include/gsl"
 export PKG_LDFLAGS=$LDFLAGS
 export PKG_CPPFLAGS=$CPPFLAGS
 
@@ -97,7 +101,3 @@ echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
 cp -R /app/vendor/R/* $VENDOR_DIR/R
-
-# HACK: need to copy over the gcc libs so that packages can find them
-mkdir -p $VENDOR_DIR/R/lib64/R/lib
-cp /app/vendor/gcc/lib64/* $VENDOR_DIR/R/lib64/R/lib
