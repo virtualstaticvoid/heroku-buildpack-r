@@ -32,11 +32,8 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
-BUILD_PACK_VERSION="20131211-0028"
-
-GCC_VERSION="4.3"
-GLIBC_VERSION="2.7"
-R_VERSION="2.15.1"
+R_VERSION="3.0.2"
+BUILD_PACK_VERSION="20140218-0019"
 
 S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
@@ -55,13 +52,17 @@ echo "Downloading and unpacking R binaries" | indent
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
 # need to copy the binaries to /app/vendor so that R works
-cp -R $VENDOR_DIR/gcc-$GCC_VERSION /app/vendor/gcc-$GCC_VERSION
-cp -R $VENDOR_DIR/glibc-$GLIBC_VERSION /app/vendor/glibc-$GLIBC_VERSION
-cp -R $VENDOR_DIR/R /app/vendor/R
+mkdir -p /app/vendor/gcc
+cp -R $VENDOR_DIR/gcc/* /app/vendor/gcc
 
+mkdir -p /app/vendor/glibc
+cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
+
+mkdir -p /app/vendor/R
+cp -R $VENDOR_DIR/R/* /app/vendor/R
 
 # R needs to know where gfortran and glibc header files are
-export PATH=/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH
+export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
 
 export LDFLAGS="-L/app/vendor/gcc/lib64/ -L/app/vendor/gsl/lib/"
 export CPPFLAGS="-I/app/vendor/glibc/string/ -I/app/vendor/glibc/time -I/app/vendor/gsl/include/"
@@ -95,21 +96,8 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-# rm -rf $VENDOR_DIR && mkdir -p $VENDOR_DIR
-
-mkdir -p $VENDOR_DIR/gcc-$GCC_VERSION
-cp -R /app/vendor/gcc-$GCC_VERSION $VENDOR_DIR/gcc-$GCC_VERSION
-
-mkdir -p $VENDOR_DIR/glibc-$GLIBC_VERSION
-cp -R /app/vendor/glibc-$GLIBC_VERSION $VENDOR_DIR/glibc-$GLIBC_VERSION
-
-mkdir -p $VENDOR_DIR/R
 cp -R /app/vendor/R/* $VENDOR_DIR/R
 
-# HACK
+# HACK: need to copy over the gcc libs so that packages can find them
 mkdir -p $VENDOR_DIR/R/lib64/R/lib
-cp /app/vendor/gcc-$GCC_VERSION/lib64/* $VENDOR_DIR/R/lib64/R/lib
-
-# remove unneeded files to make slug smaller
-# pushd $VENDOR_DIR/gcc-$GCC_VERSION > /dev/null && rm -rf !(lib64) && popd > /dev/null
-# pushd $VENDOR_DIR/glibc-$GLIBC_VERSION > /dev/null && rm -rf !(string|time) && popd > /dev/null
+cp /app/vendor/gcc/lib64/* $VENDOR_DIR/R/lib64/R/lib
