@@ -5,7 +5,7 @@
 build_uuid=$1
 cloudant_uid=${2:-$CLOUDANT_UID}
 cloudant_pwd=${3:-$CLOUDANT_PWD}
-rversion=${4:-2.15.1}
+rversion=${4:-3.1.0}
 
 if [ -z "$build_uuid" ] || [ -z "$cloudant_uid" ] || [ -z "$cloudant_pwd" ] || [ -z "$rversion" ]; then
 
