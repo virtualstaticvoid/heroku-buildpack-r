@@ -76,13 +76,16 @@ using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-m
 See the example [test applications](test) which show how to use R from the console and a simple Ruby application.
 
 ## R Binaries
-The binaries used by the buildpack are for R 2.15.1, and are hosted
-on [s3://heroku-buildpack-r/R-2.15.1-binaries.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/R-2.15.1-binaries.tar.gz)
+The binaries used by the buildpack are hosted on the AWS S3 at [s3://heroku-buildpack-r](https://heroku-buildpack-r.s3.amazonaws.com).
 
-See the [guide](support/README.md) for building the R binaries yourself.
+See the [building guide](support/README.md) for building the R binaries yourself.
 
 ## Caveats
 Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 98Mb.
 If additional R packages are installed by the `init.r` script then the slug size will increase.
 
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/e84b7e401f24073d47c0c7e0338fe363 "githalytics.com")](http://githalytics.com/virtualstaticvoid/heroku-buildpack-r)
+## Credits
+Original inspiration from [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.
+
+## License
+MIT License. Copyright (c) 2013 Chris Stefano. See MIT_LICENSE for details.

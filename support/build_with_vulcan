@@ -21,7 +21,7 @@ build_no="${2:-`date +%Y%m%d-%H%M`}"
 
 vulcan create heroku-buildpack-r
 
-rm build.tgz
+rm build.tgz &> /dev/null
 tar czf build.tgz Gemfile Gemfile.lock s3_upload.rb build-r features.h vars.mk .env
 
 vulcan build --source=./build.tgz \
