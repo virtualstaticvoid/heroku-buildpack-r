@@ -41,7 +41,7 @@ function build() {
 
 ## SCRIPT
 
-r_version="${1:-2.15.1}"
+r_version="${1:-3.1.0}"
 r_version_major=${r_version:0:1}
 build_no="${2:-`date +%Y%m%d-%H%M`}"
 
@@ -50,8 +50,8 @@ if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
   echo
   echo "USAGE: $0 VERSION [BUILDNUM]"
   echo
-  echo "  VERSION    is the R version. E.g. 2.15.1"
-  echo "  BUILDNUM   the build number. E.g. 20131031-1400"
+  echo "  VERSION    is the R version. E.g. 3.1.0"
+  echo "  BUILDNUM   the build number. E.g. 20140608-2010"
   echo
   exit 1
 fi
@@ -83,7 +83,7 @@ download "http://directfb.org/downloads/Core/DirectFB-$directfb_ver_major/Direct
 tar xzf DirectFB-$directfb_version.tar.gz
 
 # http://www.libpng.org/pub/png/libpng.html
-libpng_version=1.2.50
+libpng_version=1.2.51
 download "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_version.tar.gz" libpng-$libpng_version.tar.gz
 tar xzf libpng-$libpng_version.tar.gz
 
@@ -102,6 +102,25 @@ cairo_version=1.12.16
 download "http://www.cairographics.org/releases/cairo-$cairo_version.tar.xz" cairo-$cairo_version.tar.xz
 tar xJf $basedir/cairo-$cairo_version.tar.xz
 
+# GSL
+gsl_version=1.6
+download "ftp://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz" gsl-$gsl_version.tar.gz
+tar xzf $basedir/gsl-$gsl_version.tar.gz
+
+echo ============================================================
+echo Building dependencies...
+echo ============================================================
+
+build "$basedir/freetype-$freetype_version" freetype
+build "$basedir/DirectFB-$directfb_version" DirectFB
+build "$basedir/libpng-$libpng_version" libpng
+build "$basedir/pixman-$pixman_version" pixman
+build "$basedir/fontconfig-$fontconfig_version" fontconfig
+build "$basedir/cairo-$cairo_version" cairo
+build "$basedir/gsl-$gsl_version" gsl
+
+echo ============================================================
+
 # R
 download "http://cran.r-project.org/src/base/R-$r_version_major/R-$r_version.tar.gz" R-$r_version.tar.gz
 tar xzf R-$r_version.tar.gz
@@ -111,28 +130,19 @@ gcc_ver=4.3.6
 gcc_version=${gcc_ver:0:3}
 download "http://gfortran.com/download/x86_64/snapshots/gcc-$gcc_version.tar.xz" gcc-$gcc_version.tar.xz
 tar xJf $basedir/gcc-$gcc_version.tar.xz -C $vendordir
+mv $vendordir/gcc-$gcc_version $vendordir/gcc
 
 # patch gcc features.h file
 # see http://permalink.gmane.org/gmane.comp.gcc.help/40166
-mkdir -p $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed
-cp $basedir/features.h $vendordir/gcc-$gcc_version/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed/features.h
-export LD_LIBRARY_PATH="$vendordir/gcc-$gcc_version:$LD_LIBRARY_PATH"
+mkdir -p $vendordir/gcc/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed
+cp $basedir/features.h $vendordir/gcc/lib/gcc/x86_64-unknown-linux-gnu/$gcc_ver/include-fixed/features.h
+export LD_LIBRARY_PATH="$vendordir/gcc:$LD_LIBRARY_PATH"
 
 # https://www.gnu.org/software/libc/
 glibc_version=2.7
 download "http://ftp.gnu.org/gnu/glibc/glibc-$glibc_version.tar.gz" glibc_$glibc_version.tar.gz
 tar xzf $basedir/glibc_$glibc_version.tar.gz -C $vendordir
-
-echo ============================================================
-echo Building dependencies...
-echo ======================================================================
-
-build "$basedir/freetype-$freetype_version" freetype
-build "$basedir/DirectFB-$directfb_version" DirectFB
-build "$basedir/libpng-$libpng_version" libpng
-build "$basedir/pixman-$pixman_version" pixman
-build "$basedir/fontconfig-$fontconfig_version" fontconfig
-build "$basedir/cairo-$cairo_version" cairo
+mv $vendordir/glibc-$glibc_version $vendordir/glibc
 
 # build R
 echo ============================================================
@@ -147,12 +157,12 @@ pushd $basedir/R-$r_version/
 # download the recommended packages
 # ./tools/rsync-recommended
 
-export LDFLAGS="-L$vendordir/gcc-$gcc_version/lib64"
-export CPPFLAGS="-I$vendordir/glibc-$glibc_version/string -I$vendordir/glibc-$glibc_version/time -I$vendordir/cairo/include/cairo/include"
-export PATH="$vendordir/gcc-$gcc_version/bin:$PATH"
+export LDFLAGS="-L$vendordir/gcc/lib64"
+export CPPFLAGS="-I$vendordir/glibc/string -I$vendordir/glibc/time -I$vendordir/cairo/include/cairo/include"
+export PATH="$vendordir/gcc/bin:$PATH"
 export R_BASE="$vendordir/R"
-export R_HOME=$R_BASE/lib64/R
-export R_INCLUDE=$R_HOME/lib64/R/include
+export R_HOME="$R_BASE/lib64/R"
+export R_INCLUDE=$R_HOME/include
 
 echo ----------------------------------------------------------------------
 echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
@@ -163,13 +173,17 @@ echo ----------------------------------------------------------------------
 
 popd
 
+# HACK for GSL library resolution
+ln -s $vendordir/gsl/lib/libgsl* $vendordir/R/lib64/R/lib
+
 # TODO: remove unneeded files to make buildpack smaller
 
 # compress and upload to S3 bucket
 pushd $vendordir
-tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo R
+tar czf "R-$r_version-binaries-$build_no.tar.gz" freetype DirectFB libpng pixman fontconfig cairo gsl gcc glibc R
 popd
 
 echo
 echo Uploading binaries to S3
+bundle install
 bundle exec ruby ./s3_upload.rb "$vendordir/R-$r_version-binaries-$build_no.tar.gz"

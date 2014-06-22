@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#
+# use this script to build the R binaries on a vulcan instance
+#
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+  echo "Please edit the .env file and supply your AWS credentials before continuing."
+  exit 1
+fi
+
+r_version="${1:-3.1.0}"
+build_no="${2:-`date +%Y%m%d-%H%M`}"
+
+vulcan create heroku-buildpack-r
+
+rm build.tgz &> /dev/null
+tar czf build.tgz Gemfile Gemfile.lock s3_upload.rb build-r features.h vars.mk .env
+
+vulcan build --source=./build.tgz \
+             --prefix=/app/vendor \
+             --command="./build-r $rversion $build_no" \
+             --verbose

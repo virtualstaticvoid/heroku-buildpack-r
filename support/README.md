@@ -1,30 +1,37 @@
-# Building R binaries for buildpack
+# Building the R binaries for buildpack
 
-The binaries for the build pack can be built using Heroku's [vulcan](https://github.com/heroku/vulcan) build server.
+The binaries for the build pack can be built in several ways.
 
-## Steps for building R on vulcan
-Create a build server using vulcan:
+* [Heroku](https://www.heroku.com) - Creates a production build of R
+* [Vagrant](http://www.vagrantup.com) - For development, debugging and testing scripts
+* [Vulcan](https://github.com/heroku/vulcan) build server (deprecated)
 
-```
-vulcan create vulcan-build-r
-```
+In each case, the scripts support specifying the R version and optionally the build version number to use.
 
-Where `vulcan-build-r` is the name of the Heroku application created.
+  E.g.
 
-Initiate the build by running the [`vulcan-build`](../../master/support/vulcan-build) executable script:
+  To build `R-3.0.4` on Heroku
 
-```
-$ ./vulcan-build
-```
+  `$ build_with_heroku 3.0.4`
 
-The [build-r](../../master/support/build-r) script will be uploaded to the vulcan build server and executed.
-The R sources and dependencies are downloaded and compiled, and the binary output downloaded.
-During the build process, the outputs from `configure` and `make` will be displayed in the console.
+  or, build `R-3.1.0` on Heroku, with a build version of `20140101_31`
 
-## Notes
-* To configure the R version to build, edit the `rversion` variable in the [vulcan-build](../../master/support/vulcan-build) file.
-* The binaries output file must be uploaded to S3.
-* Update the path in the [compile](../../master/bin/compile#L20) file for your S3 bucket name and path.
+  `$ build_with_heroku 3.1.0 20140101_31`
 
-## Credits
-Build script inspired by [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.
+## Building R on Heroku
+
+`$ build_with_heroku [R_VERSION [BUILD_NO]]`
+
+## Building R on Vagrant
+
+This method uses a Vagrant virtual machine, which runs a [cedar like stack](https://github.com/ejholmes/vagrant-heroku) so that
+you can develop, debug and test the build scripts in an interactive way before building using the Heroku method.
+
+`$ build_with_vagrant [R_VERSION [BUILD_NO]]`
+
+## Building R with Vulcan (DEPRECATED)
+
+This method builds R using the Vulcan build server, which runs on Heroku. This method is deprecated since the
+build service is no longer maintained or supported, and it's no longer recommended for building binaries.
+
+`$ build_with_vulcan [R_VERSION [BUILD_NO]]`
