@@ -1,10 +1,11 @@
 #!/bin/bash
+source ../test.config
 rm -rf .git
 git init
 git add --all
 git commit -m "initial"
 
-heroku create -s cedar -b https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+heroku create -s cedar -b  $buildpack_url 
 
 app=`heroku apps:info -s | grep ^name=`
 app=${app:5}

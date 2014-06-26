@@ -1,6 +1,6 @@
 # Building R binaries for the buildpack
 
-The binaries for the build pack can be built using a Vagrant virtual machine.
+This directory contains the files necessary for building the R binaries to be used with the buildpack.  The binaries for the buildpack can be built using a Vagrant virtual machine.
 
 ## Steps for building R with Vagrant
 ### Set-up
