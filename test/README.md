@@ -4,7 +4,7 @@ This directory contains various tests that can be run against the buildpack.
 
 ## Set-up
 * Update the test.config file to point to the buildpack url that you wish the tests to run against.
-* Update ruby/.buildpacks file to point to the buildpack url that you wish the test to run against.  This test uses the multi buildpack (https://github.com/ddollar/heroku-buildpack-multi) to install both R and Ruby, the test.config file cannot be used to specify the R buildpack url.
+* Update ruby/.buildpacks file to point to the buildpack url that you wish the test to run against.  This test uses the multi buildpack (https://github.com/ddollar/heroku-buildpack-multi) to install both R and Ruby, as a result the test.config file cannot be used to specify the R buildpack url.
 
 ## Running the tests
 * Navigate to the test directory and run the install file, i.e.
