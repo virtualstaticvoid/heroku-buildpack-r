@@ -45,8 +45,8 @@ S3_BUCKET="r-buildpack"
 # <<< END CONFIGURABLE SETTINGS
 ###################################################
 
-# R_BINARIES="https://s3.amazonaws.com/${S3_BUCKET}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
-R_BINARIES="https://s3.amazonaws.com/r-buildpack/R-3.1.0-binaries-20140625-1902.tar.gz"
+R_BINARIES="https://s3.amazonaws.com/${S3_BUCKET}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+# R_BINARIES="https://s3.amazonaws.com/r-buildpack/R-3.1.0-binaries-20140625-1902.tar.gz"
 echo "THE Binaries URL: $R_BINARIES"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
