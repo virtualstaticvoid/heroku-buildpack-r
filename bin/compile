@@ -46,7 +46,7 @@ S3_BUCKET="r-buildpack"
 ###################################################
 
 R_BINARIES="https://s3.amazonaws.com/${S3_BUCKET}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
-echo "Buildpack URL: $R_BINARIES"
+echo "THE Buildpack URL: $R_BINARIES"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
 R_BASE="$VENDOR_DIR/R"
