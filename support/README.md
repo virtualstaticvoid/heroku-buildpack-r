@@ -17,7 +17,7 @@ $ vagrant up
 * Run the build
 
 ```
-$ vagrant ssh -c \"cd /vagrant && ./build-r &> build-r.log\"
+$ vagrant ssh -c "cd /vagrant && ./build-r &> build-r.log"
 ```
 
 * Alternatively the build can be run by SSH'ing into Vagrant
