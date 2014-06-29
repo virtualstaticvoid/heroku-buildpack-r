@@ -34,19 +34,14 @@ BUILDPACK_DIR="$(dirname $(dirname $0))"
 ###################################################
 # >>> CONFIGURABLE SETTINGS, change as appropriate
 ###################################################
-BUILD_PACK_VERSION="20140625-1902"
+R_BINARIES="https://s3.amazonaws.com/r-buildpack/R-3.1.0-binaries-20140625-1902.tar.gz"
 
+R_VERSION="3.1.0"
 GCC_VERSION="4.3"
 GLIBC_VERSION="2.7"
-R_VERSION="3.1.0"
-
-S3_BUCKET="r-buildpack"
 ###################################################
 # <<< END CONFIGURABLE SETTINGS
 ###################################################
-
-R_BINARIES="https://s3.amazonaws.com/${S3_BUCKET}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
-echo "Retrieving R Binaries from: $R_BINARIES"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
 R_BASE="$VENDOR_DIR/R"

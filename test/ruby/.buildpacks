@@ -1,2 +1,2 @@
-https://github.com/riebeekn/test-bp.git
+https://github.com/riebeekn/heroku-buildpack-r.git#r-3.1.0
 https://github.com/heroku/heroku-buildpack-ruby.git

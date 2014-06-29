@@ -30,7 +30,21 @@ $ ./build-r
 * The output of the build will placed in "heroku-buildpack-r/support/output/".  
 * Upload the zip file in the "heroku-buildpack-r/support/output/" folder to S3.
 * Set the S3 permissions on the uploaded zip file to Public.
-* Update the R_BINARIES setting in the buildpack ... !!!alter this step once make buildpack changes!!!
+* Update the R binaries URL and version information in the configuration settings section of the bin/compile file:
+
+```
+ ###################################################
+ # >>> CONFIGURABLE SETTINGS, change as appropriate
+ ###################################################
+ R_BINARIES="https://s3.amazonaws.com/r-buildpack/R-3.1.0-binaries-20140625-1902.tar.gz"
+
+ R_VERSION="3.1.0"
+ GCC_VERSION="4.3"
+ GLIBC_VERSION="2.7"
+ ###################################################
+ # <<< END CONFIGURABLE SETTINGS
+ ###################################################
+```
 
 ## Notes
 If wanting to test the R build from within the Vagrant virtual machine, this can be done by SSH'ing into the virtual machine and setting a few environment variable, i.e.
