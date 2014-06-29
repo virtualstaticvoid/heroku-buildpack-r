@@ -6,6 +6,7 @@ This directory contains the files necessary for building the R binaries to be us
 ### Set-up
 * Download and install Vagrant, http://www.vagrantup.com/
 * Update the build-r.config file.  This file is what determines the version and url of the source files that will be used by the build.  When the build starts, a "heroku-buildpack-r/support/sources/"" directory will be created and the source files will be downloaded to this directory.
+
 ### Build
 * Start the Vagrant virtual machine.
 
