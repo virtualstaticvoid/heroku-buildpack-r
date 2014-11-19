@@ -4,7 +4,6 @@ The binaries for the build pack can be built in several ways.
 
 * [Heroku](https://www.heroku.com) - Creates a production build of R
 * [Vagrant](http://www.vagrantup.com) - For development, debugging and testing scripts
-* [Vulcan](https://github.com/heroku/vulcan) build server (deprecated)
 
 In each case, the scripts support specifying the R version and optionally the build version number to use.
 
@@ -28,10 +27,3 @@ This method uses a Vagrant virtual machine, which runs a [cedar like stack](http
 you can develop, debug and test the build scripts in an interactive way before building using the Heroku method.
 
 `$ build_with_vagrant [R_VERSION [BUILD_NO]]`
-
-## Building R with Vulcan (DEPRECATED)
-
-This method builds R using the Vulcan build server, which runs on Heroku. This method is deprecated since the
-build service is no longer maintained or supported, and it's no longer recommended for building binaries.
-
-`$ build_with_vulcan [R_VERSION [BUILD_NO]]`
