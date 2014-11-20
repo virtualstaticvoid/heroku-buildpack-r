@@ -124,10 +124,11 @@ echo Building dependencies...
 echo ============================================================
 
 build "$basedir/freetype-$freetype_version" freetype
-build "$basedir/DirectFB-$directfb_version" DirectFB
+build "$basedir/jpeg-$libjpeg_version" libjpeg
 build "$basedir/libpng-$libpng_version" libpng
 build "$basedir/pixman-$pixman_version" pixman
 build "$basedir/fontconfig-$fontconfig_version" fontconfig
+build "$basedir/DirectFB-$directfb_version" DirectFB
 build "$basedir/cairo-$cairo_version" cairo
 build "$basedir/gsl-$gsl_version" gsl
 
