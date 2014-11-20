@@ -33,8 +33,12 @@ function build() {
   echo Building $@...
   echo ----------------------------------------------------------------------
   echo
+
   pushd $1
-    ./configure --prefix=$vendordir/$2 ${@:3} && make && make install && make clean
+    ./configure --prefix=$vendordir/$2 ${@:3}
+    make
+    make install > /dev/null
+    make clean > /dev/null
   popd > /dev/null
   echo
   echo
@@ -43,6 +47,7 @@ function build() {
   export LD_LIBRARY_PATH="$vendordir/$2:$LD_LIBRARY_PATH"
   export PKG_CONFIG_PATH="$vendordir/$2/lib/pkgconfig:$PKG_CONFIG_PATH"
 
+  echo ----------------------------------------------------------------------
 }
 
 ## SCRIPT
