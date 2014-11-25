@@ -48,7 +48,7 @@ mkdir -p $CACHE_DIR
 echo "Vendoring R $R_VERSION for $STACK stack" | indent
 
 # download and unpack binaries
-echo "Downloading and unpacking R binaries" | indent
+echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
 # need to copy the binaries to /app/vendor so that R works
