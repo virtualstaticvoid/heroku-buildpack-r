@@ -12,4 +12,6 @@ app=${app:5}
 git push heroku master
 
 # run R console
-heroku run "R --no-save" --app $app
+heroku run "R --no-save -e 'demo(nlm)'" --app $app
+
+echo Run "heroku apps:destroy $app --confirm $app" to clean up
