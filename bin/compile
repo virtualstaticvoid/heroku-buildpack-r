@@ -51,33 +51,25 @@ echo "Vendoring R $R_VERSION for $STACK stack" | indent
 echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
 mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 
-# need to copy the binaries to /app/vendor so that R works
-mkdir -p /app/vendor/gcc
-cp -R $VENDOR_DIR/gcc/* /app/vendor/gcc
+# need to copy the binaries to /app/vendor so that R works when compiling packages
 
-mkdir -p /app/vendor/glibc
-cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
-
-mkdir -p /app/vendor/gsl
-cp -R $VENDOR_DIR/gsl/* /app/vendor/gsl
+mkdir -p /app/.apt
+rm -rf $VENDOR_DIR/.apt/lib/R > /dev/null
+cp -R $VENDOR_DIR/.apt/* /app/.apt
 
 mkdir -p /app/vendor/R
-cp -R $VENDOR_DIR/R/* /app/vendor/R
+cp -R $VENDOR_DIR/vendor/R/* /app/vendor/R
 
-# HACK: need to copy over the gcc libs so that packages can find them
-mkdir -p /app/vendor/R/lib64/R/lib
-cp /app/vendor/gcc/lib64/* /app/vendor/R/lib64/R/lib
-
-# R needs to know where gfortran and glibc header files are
-export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
-
-export LDFLAGS="-L/app/vendor/gcc/lib64 -L/app/vendor/gsl/lib"
-export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include"
-export PKG_LDFLAGS=$LDFLAGS
-export PKG_CPPFLAGS=$CPPFLAGS
-
-export R_HOME=$R_BASE/lib64/R
-export R_INCLUDE=$R_HOME/include
+export R_BASE="$vendordir/R"
+export R_INCLUDE="$R_BASE/lib64/R/include"
+export PATH="/app/vendor/R/bin:/app/.apt/usr/bin:/app/bin:/usr/ruby1.9.2/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+export LD_LIBRARY_PATH="/app/.apt/usr/lib/libblas:/app/.apt/usr/lib/lapack:/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LD_LIBRARY_PATH"
+export LIBRARY_PATH="/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LIBRARY_PATH"
+export INCLUDE_PATH="/app/.apt/usr/include:$INCLUDE_PATH"
+export CPATH="$INCLUDE_PATH"
+export CPPPATH="$INCLUDE_PATH"
+export PKG_CONFIG_PATH="/app/.apt/usr/lib/x86_64-linux-gnu/pkgconfig:/app/.apt/usr/lib/i386-linux-gnu/pkgconfig:/app/.apt/usr/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-L/app/.apt/usr/lib/libblas -L/app/.apt/usr/lib/lapack $LDFLAGS"
 
 # copy over environment
 mkdir -p $BUILD_DIR/.profile.d
@@ -103,4 +95,4 @@ RPROG
 echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any installed packages are included in the slug
-cp -R /app/vendor/R/* $VENDOR_DIR/R
+cp -R /app/vendor/R/* $VENDOR_DIR/vendor/R
