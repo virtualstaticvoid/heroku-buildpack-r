@@ -56,7 +56,7 @@ mkdir -p /app/.apt
 cp -R $VENDOR_DIR/.apt/* /app/.apt
 
 mkdir -p /app/vendor/R
-cp -R $VENDOR_DIR/R/* /app/vendor/R
+cp -R $VENDOR_DIR/vendor/R/* /app/vendor/R
 
 # needed for compiling packages
 export PATH="/app/vendor/R/bin:/app/.apt/usr/bin:/app/bin:/usr/ruby1.9.2/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
@@ -94,5 +94,5 @@ echo "R $R_VERSION successfully installed" | indent
 
 # need to copy binaries back so that any
 # installed packages are included in the slug
-rm -rf $VENDOR_DIR/R
-cp -R /app/vendor/R/* $VENDOR_DIR/R
+rm -rf $VENDOR_DIR/vendor
+mkdir -p $VENDOR_DIR/R && cp -R /app/vendor/R/* $VENDOR_DIR/R
