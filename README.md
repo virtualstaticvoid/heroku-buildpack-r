@@ -78,7 +78,7 @@ See the example [test applications](test) which show how to use R from the conso
 ## R Binaries
 The binaries used by the buildpack are hosted on the AWS S3 at [s3://heroku-buildpack-r](https://heroku-buildpack-r.s3.amazonaws.com).
 
-See the [building guide](support/README.md) for building the R binaries yourself.
+See the [heroku-buildpack-r-build](https://github.com/virtualstaticvoid/heroku-buildpack-r-build) repository for building the R binaries yourself.
 
 ## Caveats
 Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 98Mb.

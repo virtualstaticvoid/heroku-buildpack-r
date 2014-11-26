@@ -1,9 +1,0 @@
-#!/bin/bash
-
-#
-# If you have the heroku-buildpacks plugin, publish it
-#
-#  See https://github.com/heroku/heroku-buildpacks for details
-#
-
-heroku buildpacks:publish virtualstaticvoid/heroku-buildpack-r
