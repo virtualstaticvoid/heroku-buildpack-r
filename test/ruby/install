@@ -1,5 +1,12 @@
 #!/bin/bash
-rm -rf .git
+
+shopt -s extglob
+set -e
+
+dir=`mktemp -d`
+cp -r . $dir
+pushd $dir
+
 git init
 git add --all
 git commit -m "initial"
@@ -13,3 +20,9 @@ git push heroku master
 
 # check...
 heroku logs --app $app
+
+popd
+
+# clean up
+heroku apps:destroy $app --confirm $app
+rm -rf $dir

@@ -1,5 +1,12 @@
 #!/bin/bash
-rm -rf .git
+
+shopt -s extglob
+set -e
+
+dir=`mktemp -d`
+cp -r . $dir
+pushd $dir
+
 git init
 git add --all
 git commit -m "initial"
@@ -14,4 +21,8 @@ git push heroku master
 # run R console
 heroku run "R --no-save -e 'demo(nlm)'" --app $app
 
-echo Run "heroku apps:destroy $app --confirm $app" to clean up
+popd
+
+# clean up
+heroku apps:destroy $app --confirm $app
+rm -rf $dir
