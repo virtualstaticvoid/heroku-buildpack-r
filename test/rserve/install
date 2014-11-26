@@ -21,6 +21,8 @@ git push heroku master
 # start rserve process
 heroku ps:scale rserve=1
 
+sleep 60
+
 # check
 heroku logs --app $app
 

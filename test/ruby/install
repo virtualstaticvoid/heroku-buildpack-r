@@ -18,6 +18,8 @@ app=${app:5}
 
 git push heroku master
 
+sleep 60
+
 # check...
 heroku logs --app $app
 
