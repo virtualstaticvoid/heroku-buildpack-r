@@ -39,7 +39,6 @@ S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
-R_BASE="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 
 mkdir -p $CACHE_DIR
@@ -54,15 +53,14 @@ mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
 # need to copy the binaries to /app/vendor so that R works when compiling packages
 
 mkdir -p /app/.apt
-rm -rf $VENDOR_DIR/.apt/lib/R > /dev/null
 cp -R $VENDOR_DIR/.apt/* /app/.apt
 
 mkdir -p /app/vendor/R
-cp -R $VENDOR_DIR/vendor/R/* /app/vendor/R
+cp -R $VENDOR_DIR/R/* /app/vendor/R
 
-export R_BASE="$vendordir/R"
-export R_INCLUDE="$R_BASE/lib64/R/include"
+# needed for compiling packages
 export PATH="/app/vendor/R/bin:/app/.apt/usr/bin:/app/bin:/usr/ruby1.9.2/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+export R_INCLUDE="/app/vendor/R/lib64/R/include"
 export LD_LIBRARY_PATH="/app/.apt/usr/lib/libblas:/app/.apt/usr/lib/lapack:/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LD_LIBRARY_PATH"
 export LIBRARY_PATH="/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LIBRARY_PATH"
 export INCLUDE_PATH="/app/.apt/usr/include:$INCLUDE_PATH"
@@ -94,5 +92,7 @@ RPROG
 
 echo "R $R_VERSION successfully installed" | indent
 
-# need to copy binaries back so that any installed packages are included in the slug
-cp -R /app/vendor/R/* $VENDOR_DIR/vendor/R
+# need to copy binaries back so that any
+# installed packages are included in the slug
+rm -rf $VENDOR_DIR/R
+cp -R /app/vendor/R/* $VENDOR_DIR/R
