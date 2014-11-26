@@ -18,7 +18,7 @@ Example usage:
 $ ls
 init.r prog1.r prog2.r ...
 
-$ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git
+$ heroku create --stack cedar-14 --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
 
 $ git push heroku master
 ...
@@ -37,7 +37,7 @@ The R runtime is vendored into your slug, and includes the gcc compiler for fort
 To reference a specific version of the build pack, add the Git branch or tag name to the end of the build pack URL.
 
 ```
-$ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#master
+$ heroku create --stack cedar-14 --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#master
 ```
 
 ## Installing R packages
@@ -73,15 +73,15 @@ _Note that the Heroku slug is read-only, so any changes you make during the sess
 This buildpack can be used in conjunction with other supported language stacks on Heroku by
 using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
 
-See the example [test applications](test) which show how to use R from the console and a simple Ruby application.
+See the example [test applications](test) which show how to use R from the console and various other examples.
 
 ## R Binaries
-The binaries used by the buildpack are hosted on the AWS S3 at [s3://heroku-buildpack-r](https://heroku-buildpack-r.s3.amazonaws.com).
+The binaries used by the buildpack are hosted on AWS S3 at [s3://heroku-buildpack-r](https://heroku-buildpack-r.s3.amazonaws.com).
 
 See the [heroku-buildpack-r-build](https://github.com/virtualstaticvoid/heroku-buildpack-r-build) repository for building the R binaries yourself.
 
 ## Caveats
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 98Mb.
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
 If additional R packages are installed by the `init.r` script then the slug size will increase.
 
 ## Credits
