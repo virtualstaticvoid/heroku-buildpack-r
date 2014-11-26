@@ -11,7 +11,7 @@ git init
 git add --all
 git commit -m "initial"
 
-heroku create --stack cedar-14 --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
+heroku create --stack cedar-14 --buildpack https://github.com/ddollar/heroku-buildpack-multi.git
 
 app=`heroku apps:info -s | grep ^name=`
 app=${app:5}
