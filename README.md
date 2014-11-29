@@ -11,6 +11,16 @@ the [R project homepage](http://www.r-project.org/) for further information.
 [CRAN](http://cran.r-project.org/) is a network of ftp and web servers around the world that
 store identical, up-to-date, versions of code and documentation for R.
 
+## NOTE - Heroku `cedar-14`
+
+For the Heroku `cedar-14` stack, please use the [cedar-14](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/cedar-14) branch.
+
+You can specify `cedar-14` branch in the buildpack url as follows:
+
+```
+$ heroku create --stack cedar-14 --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
+```
+
 ## Usage
 Example usage:
 
