@@ -38,15 +38,15 @@ BUILDPACK_DIR="$(dirname $(dirname $0))"
 # config
 
 # read in R version if file exists
-if [[ -f .r-version ]]; then
-  R_VERSION=`read_var .r-version`
+if [[ -f $BUILD_DIR/.r-version ]]; then
+  R_VERSION=`read_var $BUILD_DIR/.r-version`
 else
   R_VERSION="3.1.0"
 fi
 
 # read in buildback binary version if file exists
-if [[ -f .r-buildpack-version ]]; then
-  BUILD_PACK_VERSION=`read_var .r-buildpack-version`
+if [[ -f $BUILD_DIR/.r-buildpack-version ]]; then
+  BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
 else
   BUILD_PACK_VERSION="20141127-0021"
 fi
