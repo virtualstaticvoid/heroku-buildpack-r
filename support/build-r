@@ -41,7 +41,7 @@ function build() {
 
 ## SCRIPT
 
-r_version="${1:-3.1.0}"
+r_version="${1:-3.1.2}"
 r_version_major=${r_version:0:1}
 build_no="${2:-`date +%Y%m%d-%H%M`}"
 
@@ -50,7 +50,7 @@ if ([ -z "$r_version" ] || [ -z "$build_no" ]); then
   echo
   echo "USAGE: $0 VERSION [BUILDNUM]"
   echo
-  echo "  VERSION    is the R version. E.g. 3.1.0"
+  echo "  VERSION    is the R version. E.g. 3.1.2"
   echo "  BUILDNUM   the build number. E.g. 20140608-2010"
   echo
   exit 1
@@ -83,8 +83,9 @@ download "http://directfb.org/downloads/Core/DirectFB-$directfb_ver_major/Direct
 tar xzf DirectFB-$directfb_version.tar.gz
 
 # http://www.libpng.org/pub/png/libpng.html
-libpng_version=1.2.51
-download "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-$libpng_version.tar.gz" libpng-$libpng_version.tar.gz
+libpng_version=1.6.16
+libpng_ver=${libpng_version:0:1}${libpng_version:2:1}
+download "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng$libpng_ver/libpng-$libpng_version.tar.gz" libpng-$libpng_version.tar.gz
 tar xzf libpng-$libpng_version.tar.gz
 
 # http://www.cairographics.org
