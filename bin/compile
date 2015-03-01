@@ -45,7 +45,7 @@ CRAN_MIRROR="http://cran.revolutionanalytics.com"
 mkdir -p $CACHE_DIR
 
 # vendor R into the slug
-echo "Vendoring R $R_VERSION" | indent
+echo "Vendoring R $R_VERSION ($BUILD_PACK_VERSION)" | indent
 
 # download and unpack binaries
 echo "Downloading and unpacking R binaries" | indent
