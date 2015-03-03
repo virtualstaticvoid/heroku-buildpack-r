@@ -1,0 +1,32 @@
+#!/bin/bash
+
+shopt -s extglob
+set -e
+
+stack=${1:-cedar-14}
+branch=${2:-cedar-14}
+
+dir=`mktemp -d`
+cp -r . $dir
+pushd $dir
+
+git init
+git add --all
+git commit -m "initial"
+
+heroku create --stack $stack \
+              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
+
+app=`heroku apps:info -s | grep ^name=`
+app=${app:5}
+
+git push heroku master
+
+# run R console
+heroku run "R --no-save -f ./prog.r" --app $app
+
+popd
+
+# clean up
+heroku apps:destroy $app --confirm $app
+rm -rf $dir
