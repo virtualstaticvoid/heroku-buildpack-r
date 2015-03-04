@@ -6,6 +6,9 @@
 ###########################################################
 # Update this line with the R packages to install:
 
+# install older version of colorspace package
+install.packages("http://cran.r-project.org/src/contrib/Archive/colorspace/colorspace_1.2-4.tar.gz", repos=NULL, type="source")
+
 my_packages = c("ggplot2")
 
 ###########################################################
