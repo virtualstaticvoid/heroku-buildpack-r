@@ -6,4 +6,4 @@
 ###########################################################
 # Update this line with the R packages to install:
 
-# file here for builpack detection
+# file here for buildpack detection
