@@ -1,10 +1,17 @@
 #!/bin/bash
-rm -rf .git
+
+shopt -s extglob
+set -e
+
+dir=`mktemp -d`
+cp -r . $dir
+pushd $dir
+
 git init
 git add --all
 git commit -m "initial"
 
-heroku create -s cedar -b https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+heroku create --stack cedar-14 --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
 
 app=`heroku apps:info -s | grep ^name=`
 app=${app:5}
@@ -14,5 +21,22 @@ git push heroku master
 # start rserve process
 heroku ps:scale rserve=1
 
+sleep 60
+
 # check
 heroku logs --app $app
+
+# run the ruby client app, passing in the host name (assuming Ruby installed)
+bundle install
+bundle exec ruby ./client.rb $app.herokuapp.com
+
+# run the python client app, passing in the host name (assuming Python installed)
+# assumes dependencies are installed
+pip install -r requirements.txt
+python ./client.py $app.herokuapp.com
+
+popd
+
+# clean up
+heroku apps:destroy $app --confirm $app
+rm -rf $dir

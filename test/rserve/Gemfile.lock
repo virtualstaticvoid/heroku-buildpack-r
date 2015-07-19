@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rserve-client (0.3.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rserve-client

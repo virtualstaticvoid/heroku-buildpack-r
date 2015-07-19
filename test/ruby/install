@@ -1,15 +1,30 @@
 #!/bin/bash
-rm -rf .git
+
+shopt -s extglob
+set -e
+
+dir=`mktemp -d`
+cp -r . $dir
+pushd $dir
+
 git init
 git add --all
 git commit -m "initial"
 
-heroku create -s cedar -b https://github.com/ddollar/heroku-buildpack-multi.git
+heroku create --stack cedar-14 --buildpack https://github.com/ddollar/heroku-buildpack-multi.git
 
 app=`heroku apps:info -s | grep ^name=`
 app=${app:5}
 
 git push heroku master
 
+sleep 60
+
 # check...
 heroku logs --app $app
+
+popd
+
+# clean up
+heroku apps:destroy $app --confirm $app
+rm -rf $dir

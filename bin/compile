@@ -22,6 +22,10 @@ function indent() {
   esac
 }
 
+function read_var() {
+  echo $(head -n 1 $1)
+}
+
 # clean up leaking environment
 unset GIT_DIR
 
@@ -32,52 +36,54 @@ LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
 # config
-R_VERSION="3.1.2"
-BUILD_PACK_VERSION="20150301-1046"
+
+# read in R version if file exists
+if [[ -f $BUILD_DIR/.r-version ]]; then
+  R_VERSION=`read_var $BUILD_DIR/.r-version`
+else
+  R_VERSION="3.2.1"
+fi
+
+# read in buildback binary version if file exists
+if [[ -f $BUILD_DIR/.r-buildpack-version ]]; then
+  BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
+else
+  BUILD_PACK_VERSION="20150719-0045"
+fi
 
 S3_BUCKET="heroku-buildpack-r"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
 VENDOR_DIR="$BUILD_DIR/vendor"
-R_BASE="$VENDOR_DIR/R"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 
 mkdir -p $CACHE_DIR
 
 # vendor R into the slug
-echo "Vendoring R $R_VERSION ($BUILD_PACK_VERSION)" | indent
+echo "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)" | indent
 
 # download and unpack binaries
-echo "Downloading and unpacking R binaries" | indent
-mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
+echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
+curl $R_BINARIES -s -o - | tar xzf - -C $BUILD_DIR
 
-# need to copy the binaries to /app/vendor so that R works
-mkdir -p /app/vendor/gcc
-cp -R $VENDOR_DIR/gcc/* /app/vendor/gcc
+# need to copy the binaries to /app/vendor so that R works when compiling packages
 
-mkdir -p /app/vendor/glibc
-cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
-
-mkdir -p /app/vendor/gsl
-cp -R $VENDOR_DIR/gsl/* /app/vendor/gsl
+mkdir -p /app/.apt
+cp -R $VENDOR_DIR/.apt/* /app/.apt
 
 mkdir -p /app/vendor/R
 cp -R $VENDOR_DIR/R/* /app/vendor/R
 
-# HACK: need to copy over the gcc libs so that packages can find them
-mkdir -p /app/vendor/R/lib64/R/lib
-cp /app/vendor/gcc/lib64/* /app/vendor/R/lib64/R/lib
-
-# R needs to know where gfortran and glibc header files are
-export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
-
-export LDFLAGS="-L/app/vendor/gcc/lib64 -L/app/vendor/gsl/lib"
-export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include"
-export PKG_LDFLAGS=$LDFLAGS
-export PKG_CPPFLAGS=$CPPFLAGS
-
-export R_HOME=$R_BASE/lib64/R
-export R_INCLUDE=$R_HOME/include
+# needed for compiling packages
+export PATH="/app/vendor/R/bin:/app/.apt/usr/bin:/app/bin:/usr/ruby1.9.2/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+export R_INCLUDE="/app/vendor/R/lib64/R/include"
+export LD_LIBRARY_PATH="/app/.apt/usr/lib/libblas:/app/.apt/usr/lib/lapack:/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LD_LIBRARY_PATH"
+export LIBRARY_PATH="/app/.apt/usr/lib/x86_64-linux-gnu:/app/.apt/usr/lib/i386-linux-gnu:/app/.apt/usr/lib:$LIBRARY_PATH"
+export INCLUDE_PATH="/app/.apt/usr/include:$INCLUDE_PATH"
+export CPATH="$INCLUDE_PATH"
+export CPPPATH="$INCLUDE_PATH"
+export PKG_CONFIG_PATH="/app/.apt/usr/lib/x86_64-linux-gnu/pkgconfig:/app/.apt/usr/lib/i386-linux-gnu/pkgconfig:/app/.apt/usr/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-L/app/.apt/usr/lib/libblas -L/app/.apt/usr/lib/lapack $LDFLAGS"
 
 # copy over environment
 mkdir -p $BUILD_DIR/.profile.d
@@ -102,5 +108,8 @@ RPROG
 
 echo "R $R_VERSION successfully installed" | indent
 
-# need to copy binaries back so that any installed packages are included in the slug
+# need to copy binaries back so that any
+# installed packages are included in the slug
+rm -rf $VENDOR_DIR/R
+mkdir -p $VENDOR_DIR/R
 cp -R /app/vendor/R/* $VENDOR_DIR/R

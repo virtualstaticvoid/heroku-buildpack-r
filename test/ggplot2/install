@@ -3,8 +3,8 @@
 shopt -s extglob
 set -e
 
-stack=${1:-cedar}
-branch=${2:-cedar}
+stack=${1:-cedar-14}
+branch=${2:-cedar-14}
 
 dir=`mktemp -d`
 cp -r . $dir

@@ -10,10 +10,10 @@ dataframe <- data.frame(time=factor(c("Lunch", "Dinner"), levels = c("Lunch", "D
 
 plot = ggplot(data=dataframe, aes(x=time, y=total_bill)) + geom_bar(stat="identity")
 
-filename <- tempfile(fileext='.png')
+filename_pdf <- tempfile(fileext='.pdf')
+ggsave(filename=filename_pdf, height=5, width=15, plot)
 
-ggsave(filename=filename, height=5, width=15, type="cairo", plot)
+filename_png <- tempfile(fileext='.png')
+ggsave(filename=filename_png, height=5, width=15, type="cairo", plot)
 
 # TODO: store output file somewhere persistent. E.g. S3
-
-print(filename)
