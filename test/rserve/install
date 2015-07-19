@@ -26,6 +26,15 @@ sleep 60
 # check
 heroku logs --app $app
 
+# run the ruby client app, passing in the host name (assuming Ruby installed)
+bundle install
+bundle exec ruby ./client.rb $app.herokuapp.com
+
+# run the python client app, passing in the host name (assuming Python installed)
+# assumes dependencies are installed
+pip install -r requirements.txt
+python ./client.py $app.herokuapp.com
+
 popd
 
 # clean up
