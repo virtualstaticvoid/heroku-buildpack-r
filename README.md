@@ -82,7 +82,9 @@ See the [heroku-buildpack-r-build](https://github.com/virtualstaticvoid/heroku-b
 
 ## R Versions
 Optionally, the R version and buildpack version can be configured by providing a `.r-version` and `.r-buildpack-version` file in the root directory.
-These files should contain 1 line of text containing the respective version. The following versions are available:
+These files should contain 1 line of text containing the respective version. See [alternate-versions](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/cedar-14/test/alternate-versions) for an example.
+
+The following versions are available:
 
 ### Cedar 10
 
