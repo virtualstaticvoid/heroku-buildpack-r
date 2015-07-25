@@ -69,6 +69,13 @@ Type `q()` to exit the console when you are finished.
 
 _Note that the Heroku slug is read-only, so any changes you make during the session will be discarded._
 
+## Scheduling a recurring job
+You can use the [Heroku scheduler](https://addons.heroku.com/scheduler) to schedule a recurring R process.
+
+The following command would run `prog.r`:
+
+`R -f ./prog.r --gui-none --no-save`
+
 ## Using in your applications
 This buildpack can be used in conjunction with other supported language stacks on Heroku by
 using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
