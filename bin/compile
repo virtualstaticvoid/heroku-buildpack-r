@@ -35,6 +35,12 @@ CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 
+# fix STACK variable if unset
+if [ -z "${STACK}" ];
+then
+  STACK="cedar-14"
+fi
+
 # config
 
 # read in R version if file exists
