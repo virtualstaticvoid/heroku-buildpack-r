@@ -25,8 +25,8 @@ git add Gemfile Gemfile.lock s3_upload.rb build-r features.h vars.mk .env
 git commit -m "build scripts"
 
 heroku apps:create --stack cedar
-app=`heroku apps:info -s | grep ^name=`
-app=${app:5}
+app=`heroku apps:info -s | grep ^git-url=`
+app=${app:23:-4}
 
 git push heroku master
 

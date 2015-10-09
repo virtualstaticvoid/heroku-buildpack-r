@@ -6,8 +6,8 @@ git commit -m "initial"
 
 heroku create -s cedar -b https://github.com/ddollar/heroku-buildpack-multi.git
 
-app=`heroku apps:info -s | grep ^name=`
-app=${app:5}
+app=`heroku apps:info -s | grep ^git-url=`
+app=${app:23:-4}
 
 git push heroku master
 
