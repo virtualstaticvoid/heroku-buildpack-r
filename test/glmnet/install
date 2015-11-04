@@ -19,7 +19,7 @@ app=${app:23:-4}
 git push heroku master
 
 # run R console
-heroku run "R --no-save -f prog.r" --app $app
+heroku run 'R --no-save -f prog.r' --app $app
 
 popd
 
