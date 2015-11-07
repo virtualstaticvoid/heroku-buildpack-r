@@ -15,10 +15,9 @@ get '/' do
   begin
 
     R.eval "x <- rnorm(#{sample_size})"
-    R.eval "summary(x)"
     R.eval "sdx <- sd(x)"
 
-    html += "<p>Suceeded running R code</p>"
+    html += "<p>Succeeded running R code</p>"
     html += "<pre>x = #{R.x}</pre>"
     html += "<pre>sd(x) = #{R.sdx}</pre>"
 
