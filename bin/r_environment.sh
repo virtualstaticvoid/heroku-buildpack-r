@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH="$HOME/vendor/R/bin:$HOME/vendor/R/sbin:$HOME/.apt/usr/bin:$HOME/.apt/usr/sbin:$HOME/bin:$HOME/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
+export PATH="$HOME/vendor/R/bin:$HOME/vendor/R/sbin:$HOME/.apt/bin:$HOME/.apt/sbin:$HOME/.apt/usr/bin:$HOME/.apt/usr/sbin:$HOME/bin:$HOME/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH"
 export LD_LIBRARY_PATH="$HOME/.apt/usr/lib/libblas:$HOME/.apt/usr/lib/lapack:$HOME/.apt/usr/lib/x86_64-linux-gnu:$HOME/.apt/usr/lib/i386-linux-gnu:$HOME/.apt/usr/lib:$LD_LIBRARY_PATH"
 export LIBRARY_PATH="$HOME/.apt/usr/lib/x86_64-linux-gnu:$HOME/.apt/usr/lib/i386-linux-gnu:$HOME/.apt/usr/lib:$LIBRARY_PATH"
 export INCLUDE_PATH="$HOME/.apt/usr/include:$INCLUDE_PATH"
