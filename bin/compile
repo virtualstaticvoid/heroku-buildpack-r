@@ -34,6 +34,7 @@ BUILD_DIR=$1
 CACHE_DIR="$2/vendor"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
+GCC_VERSION=4.8
 
 # fix STACK variable if unset
 if [ -z "${STACK}" ];
@@ -80,6 +81,12 @@ cp -R $BUILD_DIR/.apt/* /app/.apt
 
 mkdir -p /app/vendor/R
 cp -R $VENDOR_DIR/R/* /app/vendor/R
+
+# trialed and errored on this; copy over libs to gfortran, so
+# that liblto_plugin.so and others can be found
+# (tried using LDFLAGS, LD_LIBRARY_PATH and LIBRARY_PATH but didn't work)
+cp -R /usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/* /app/.apt/usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION
+# cp /usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/liblto_plugin.so /app/.apt/usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/liblto_plugin.so
 
 # set environment variables, needed for compiling packages
 source "$BUILDPACK_DIR/bin/r_environment.sh"
