@@ -48,14 +48,14 @@ fi
 if [[ -f $BUILD_DIR/.r-version ]]; then
   R_VERSION=`read_var $BUILD_DIR/.r-version`
 else
-  R_VERSION="3.2.2"
+  R_VERSION="3.2.3"
 fi
 
 # read in buildback binary version if file exists
 if [[ -f $BUILD_DIR/.r-buildpack-version ]]; then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
 else
-  BUILD_PACK_VERSION="20151031-1711"
+  BUILD_PACK_VERSION="20151214-2343"
 fi
 
 S3_BUCKET="heroku-buildpack-r"
