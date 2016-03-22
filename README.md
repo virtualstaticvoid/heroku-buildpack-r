@@ -115,6 +115,7 @@ NB: Remember to use the `http://github.com/virtualstaticvoid/heroku-buildpack-r.
 | 3.2.1     | 20151119-2338     | [R-3.2.1-binaries-20151119-2338.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar-14/R-3.2.1-binaries-20151119-2338.tar.gz) |
 | 3.2.2     | 20151120-0000     | [R-3.2.2-binaries-20151120-0000.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar-14/R-3.2.2-binaries-20151120-0000.tar.gz) |
 | 3.2.3     | 20151214-2343     | [R-3.2.2-binaries-20151214-2343.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar-14/R-3.2.3-binaries-20151214-2343.tar.gz) |
+| 3.2.4     | 20160322-0811     | [R-3.2.2-binaries-20160322-0811.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar-14/R-3.2.4-binaries-20160322-0811.tar.gz) |
 
 NB: Remember to use the `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14` branch for the buildpack URL.
 
