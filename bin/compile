@@ -72,7 +72,13 @@ echo "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)" | indent
 # download and unpack binaries
 echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
 curl $R_BINARIES -s -o - | tar xzf - -C $BUILD_DIR
-mv $VENDOR_DIR/.apt/ $BUILD_DIR
+
+# also using buildpack-apt?
+if [ -d $BUILD_DIR/.apt ]; then
+  cp -r $VENDOR_DIR/.apt/ $BUILD_DIR
+else
+  mv $VENDOR_DIR/.apt/ $BUILD_DIR
+fi
 
 # need to copy the binaries to /app/vendor so that R works when compiling packages
 
