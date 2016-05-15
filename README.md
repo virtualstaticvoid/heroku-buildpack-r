@@ -78,7 +78,7 @@ The following command would run `prog.r`:
 
 ## Using in your applications
 This buildpack can be used in conjunction with other supported language stacks on Heroku by
-using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
+using multiple buildpacks. See [Using Multiple Buildpacks for an App](https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app).
 
 See the example [test applications](test) which show how to use R from the console and various other examples.
 

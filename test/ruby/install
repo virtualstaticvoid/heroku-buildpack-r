@@ -11,10 +11,13 @@ git init
 git add --all
 git commit -m "initial"
 
-heroku create --stack cedar-14 --buildpack https://github.com/ddollar/heroku-buildpack-multi.git
+heroku create --stack cedar-14
 
 app=`heroku apps:info -s | grep ^git-url=`
 app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
+
+heroku buildpacks:add https://github.com/heroku/heroku-buildpack-ruby.git --app $app
+heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14 --app $app
 
 git push heroku master
 
