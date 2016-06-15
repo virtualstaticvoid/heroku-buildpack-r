@@ -31,7 +31,7 @@ unset GIT_DIR
 
 # parse and derive params
 BUILD_DIR=$1
-CACHE_DIR="$2/vendor"
+CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 GCC_VERSION=4.8
@@ -69,9 +69,16 @@ mkdir -p $CACHE_DIR
 # vendor R into the slug
 echo "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)" | indent
 
-# download and unpack binaries
-echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
-curl $R_BINARIES -s -o - | tar xzf - -C $BUILD_DIR
+# Check if we can pull from cache rather than download tar
+if [ "$(cat $CACHE_DIR/vendor/R/bin/.version 2>/dev/null)" = "$R_VERSION" ]
+then
+  echo "Desired R version ($R_VERSION) cached" | indent
+  cp -R $CACHE_DIR/* $BUILD_DIR
+else
+  # download and unpack binaries
+  echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
+  curl $R_BINARIES -s -o - | tar xzf - -C $BUILD_DIR
+fi
 
 # also using buildpack-apt?
 if [ -d $BUILD_DIR/.apt ]; then
@@ -125,3 +132,10 @@ echo "R $R_VERSION successfully installed" | indent
 rm -rf $VENDOR_DIR/R
 mkdir -p $VENDOR_DIR/R
 cp -R /app/vendor/R/* $VENDOR_DIR/R
+
+# cache
+mkdir -p $CACHE_DIR/vendor/R
+cp -R $VENDOR_DIR/R/* $CACHE_DIR/vendor/R
+mkdir -p $CACHE_DIR/vendor/.apt
+cp -R /app/.apt/* $CACHE_DIR/vendor/.apt
+echo "$R_VERSION" > $CACHE_DIR/vendor/R/bin/.version
