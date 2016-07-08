@@ -116,7 +116,7 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
-/app/vendor/R/bin/R -s <<RPROG > indent
+/app/vendor/R/bin/R -s <<RPROG | indent
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
   setwd("$BUILD_DIR")
   r <- getOption("repos");
