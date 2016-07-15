@@ -105,17 +105,26 @@ fi
 if [ -d $BUILD_DIR/.apt ]; then
 
   # move the app authors binaries
-  mv $BUILD_DIR/.apt /app
+  echo "Copying existing .apt files" | indent
+  cp -r $BUILD_DIR/.apt /app
 
   # the buildpack binaries will be merged with these
   # so there may be issues if different versions
   # are included over those from the R buildpack
 
-fi
+  echo "Merging buildpack .apt files" | indent
+  cp -r $VENDOR_DIR/.apt/* /app/.apt
 
-# move the binary dependances to /app/.apt
-# so that R can find them when compiling packages
-mv $VENDOR_DIR/.apt /app
+  rm -rf $BUILD_DIR/.apt
+  rm -rf $VENDOR_DIR/.apt
+
+else
+
+  # move the binary dependances to /app/.apt
+  # so that R can find them when compiling packages
+  mv $VENDOR_DIR/.apt /app
+
+fi
 
 # move the R binaries to /app/vendor/R
 mv $VENDOR_DIR/R /app/vendor
@@ -155,7 +164,7 @@ echo "Executing init.r script" | indent
 /app/vendor/R/bin/R --no-save -s <<RPROG
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
-  setwd("$BUILD_DIR")
+  setwd("/app")
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
