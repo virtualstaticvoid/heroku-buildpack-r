@@ -88,33 +88,37 @@ else
   echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
   curl $R_BINARIES -s -o - | tar xzf - -C $BUILD_DIR
 
-  #
-  # expected layout of $BUILD_DIR
-  #
-  #  $BUILD_DIR
-  #   |- vendor
-  #      |- .apt
-  #      |- R
-  #
-
 fi
 
-# copy the binary dependances to /app/.apt
-# so that R can find them when compiling packages
-cp -r $VENDOR_DIR/.apt /app
-
-# copy the R binaries to /app/vendor/R
-cp -r $VENDOR_DIR/R /app/vendor
+#
+# expected initial layout of $BUILD_DIR
+#
+#  $BUILD_DIR
+#   |- vendor    # <= $VENDOR_DIR
+#      |- .apt   # <= this is here, to prevent clashes, but will be moved
+#      |- R
+#
 
 # this buildpack may be used together with heroku-buildpack-apt
 # in which case, there may be additional dependancies which need
 # to be copied to /app/.apt, so that R can find them
 if [ -d $BUILD_DIR/.apt ]; then
-  # merge with the R buildpack's .apt, so there may
-  # be issues if different versions of dependancies
+
+  # move the app authors binaries
+  mv $BUILD_DIR/.apt /app
+
+  # the buildpack binaries will be merged with these
+  # so there may be issues if different versions
   # are included over those from the R buildpack
-  cp -r $BUILD_DIR/.apt /app
+
 fi
+
+# move the binary dependances to /app/.apt
+# so that R can find them when compiling packages
+mv $VENDOR_DIR/.apt /app
+
+# move the R binaries to /app/vendor/R
+mv $VENDOR_DIR/R /app/vendor
 
 # trialed and errored on this; copy over libs to gfortran, so
 # that liblto_plugin.so and others can be found
@@ -171,14 +175,19 @@ echo "R $R_VERSION successfully installed" | indent
 mkdir -p "$BUILD_DIR/.profile.d"
 cp "$BUILDPACK_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
 
-# remove existing and recreate
-rm -rf $VENDOR_DIR/.apt
-mkdir -p $VENDOR_DIR/.apt
-rm -rf $VENDOR_DIR/R
-mkdir -p $VENDOR_DIR/R
-
-cp -r /app/.apt $VENDOR_DIR
+# now copy everything back to the BUILD_DIR
+# which will be used to make the slug
+cp -r /app/.apt $BUILD_DIR
 cp -r /app/vendor/R $VENDOR_DIR
+
+#
+# layout of $BUILD_DIR now
+#
+#  $BUILD_DIR
+#   |- .apt
+#   |- vendor    # <= $VENDOR_DIR
+#      |- R
+#
 
 # copy to the cache directory
 echo "$R_VERSION" > "$CACHE_DIR/.r-version"
