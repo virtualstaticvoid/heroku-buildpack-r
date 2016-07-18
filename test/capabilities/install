@@ -19,7 +19,7 @@ app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
 git push heroku master
 
 # run R console
-heroku run 'R --no-save -e "capabilities()"' --app $app
+heroku run 'R --no-save -f prog.r' --app $app
 
 popd
 
