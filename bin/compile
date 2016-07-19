@@ -30,9 +30,9 @@ function read_var() {
 unset GIT_DIR
 
 # parse and derive params
-BUILDPACK_DIR="$(dirname $(dirname $0))"
 BUILD_DIR=$1
 CACHE_DIR=$2
+LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # ensure exist
 mkdir -p $BUILD_DIR
@@ -154,7 +154,7 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 #
 
 # set environment variables, needed for compiling packages
-source "$BUILDPACK_DIR/bin/r_environment.sh"
+source "$LP_DIR/bin/r_environment.sh"
 
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
@@ -182,7 +182,7 @@ echo "R $R_VERSION successfully installed" | indent
 
 # copy over environment
 mkdir -p "$BUILD_DIR/.profile.d"
-cp "$BUILDPACK_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
+cp "$LP_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
 
 # now copy everything back to the BUILD_DIR
 # which will be used to make the slug
@@ -204,3 +204,6 @@ echo "$BUILD_PACK_VERSION" > "$CACHE_DIR/.r-buildpack-version"
 mkdir -p $CACHE_DIR/vendor
 cp -r /app/.apt $CACHE_DIR/vendor
 cp -r /app/vendor/R $CACHE_DIR/vendor
+
+# give environment to later buildpacks
+export | grep -E -e ' (PATH|LIBRARY_PATH|LD_LIBRARY_PATH|LDFLAGS|PKG_LIBS|PKG_CPPFLAGS|PKG_CONFIG_PATH|INCLUDE_PATH|CPATH|CPPPATH|R_INCLUDE)=' >> "$LP_DIR/export"
