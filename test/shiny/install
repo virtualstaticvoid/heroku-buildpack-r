@@ -3,28 +3,44 @@
 shopt -s extglob
 set -e
 
-dir=`mktemp -d`
+branch=${1:-cedar-14}
+
+# create a temporary directory and copy
+# the test application to it
+dir=$(mktemp -d)
 cp -r . $dir
 pushd $dir
 
+# commit to git for push to heroku
 git init
 git add --all
 git commit -m "initial"
 
-heroku create --stack cedar-14 --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
+# create the app with R buildpack
+heroku create --stack cedar-14 \
+              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
 
+# trick to get the app name
 app=`heroku apps:info -s | grep ^git-url=`
 app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
 
 git push heroku master
 
-sleep 20
+popd
 
-# check...
-heroku logs --app $app
+# browse to the web application
+gnome-open https://$app.herokuapp.com
 
-# popd
+GREEN='\033[1;32m'
+RESET='\033[0m'
+echo -e "${GREEN} ********************************************************************************"
+echo -e ""
+echo -e " Run the following command to destroy the test application when you are done."
+echo -e ""
+echo -e "  heroku apps:destroy $app"
+echo -e ""
+echo -e "********************************************************************************"
+echo -e "${RESET}"
 
-# # clean up
-# heroku apps:destroy $app --confirm $app
-# rm -rf $dir
+# tail the log
+heroku logs --tail --app $app
