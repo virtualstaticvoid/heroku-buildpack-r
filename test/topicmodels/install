@@ -1,0 +1,42 @@
+#!/bin/bash
+
+shopt -s extglob
+set -e
+
+branch=${1:-cedar-14}
+destroy=${2:-1}
+
+# create a temporary directory and copy
+# the test application to it
+dir=$(mktemp -d)
+cp -r . $dir
+pushd $dir
+
+# commit to git for push to heroku
+git init
+git add --all
+git commit -m "initial"
+
+# create the app with R buildpack
+heroku create --stack cedar-14 \
+              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
+
+# trick to get the app name
+app=`heroku apps:info -s | grep ^git-url=`
+app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
+
+git push heroku master
+
+# run R console
+heroku run 'R --no-save -f prog.r' --app $app
+
+popd
+
+# destroy the app, and clean up temporary files
+if [[ "$destroy" -eq "1" ]]; then
+
+  # clean up
+  heroku apps:destroy $app --confirm $app
+  rm -rf $dir
+
+fi
