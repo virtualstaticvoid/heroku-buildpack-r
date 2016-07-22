@@ -158,6 +158,10 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 # set environment variables, needed for compiling packages
 source "$LP_DIR/bin/r_environment.sh"
 
+# trialed and errored on this; delete .a files to prevent
+# relocation compile errors with shared objects
+rm /app/.apt/usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/*.a
+
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 
