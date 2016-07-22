@@ -3,16 +3,30 @@
 shopt -s extglob
 set -e
 
-dir=`mktemp -d`
+branch=${1:-cedar-14}
+
+# create a temporary directory and copy
+# the test application to it
+dir=$(mktemp -d)
 cp -r . $dir
 pushd $dir
 
+# assuming Ruby and Python are already installed,
+# install dependancies
+echo Installing dependancies...
+bundle install
+pip install -r requirements.txt
+
+# commit to git for push to heroku
 git init
 git add --all
 git commit -m "initial"
 
-heroku create --stack cedar-14 --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
+# create the app with R buildpack
+heroku create --stack cedar-14 \
+              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
 
+# trick to get the app name
 app=`heroku apps:info -s | grep ^git-url=`
 app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
 
@@ -21,22 +35,30 @@ git push heroku master
 # start rserve process
 heroku ps:scale rserve=1
 
-sleep 60
-
-# check
-heroku logs --app $app
-
-# run the ruby client app, passing in the host name (assuming Ruby installed)
-bundle install
-bundle exec ruby ./client.rb $app.herokuapp.com
-
-# run the python client app, passing in the host name (assuming Python installed)
-# assumes dependencies are installed
-pip install -r requirements.txt
-python ./client.py $app.herokuapp.com
+YELLOW='\033[1;33m'
+RESET='\033[0m'
+echo -e "${YELLOW}"
+echo -e " !!! PLEASE NOTE !!!"
+echo -e ""
+echo -e " Authentication is DISABLED in the RServe configuration file (rserve.conf)."
+echo -e " Please ensure you configure authentication correctly for a production system."
+echo -e "${RESET}"
 
 popd
 
-# clean up
-heroku apps:destroy $app --confirm $app
-rm -rf $dir
+GREEN='\033[1;32m'
+RESET='\033[0m'
+echo -e "${GREEN} ********************************************************************************"
+echo -e ""
+echo -e " Run the following commands to try out the Ruby or Python clients"
+echo -e ""
+echo -e "  bundle exec ruby ./client.rb $app.herokuapp.com"
+echo -e ""
+echo -e "  python ./client.py $app.herokuapp.com"
+echo -e ""
+echo -e " Run the following command to destroy the test application when you are done."
+echo -e ""
+echo -e "  heroku apps:destroy $app"
+echo -e ""
+echo -e "********************************************************************************"
+echo -e "${RESET}"
