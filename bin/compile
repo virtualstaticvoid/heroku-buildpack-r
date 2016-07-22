@@ -52,6 +52,7 @@ GCC_VERSION=4.8
 if [[ -f "$BUILD_DIR/.r-version" ]];
 then
   R_VERSION=`read_var $BUILD_DIR/.r-version`
+  echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
   R_VERSION="3.3.1"
 fi
@@ -60,6 +61,7 @@ fi
 if [[ -f "$BUILD_DIR/.r-buildpack-version" ]];
 then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
+  echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
 else
   BUILD_PACK_VERSION="20160720-0331"
 fi
