@@ -158,6 +158,12 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 # set environment variables, needed for compiling packages
 source "$LP_DIR/bin/r_environment.sh"
 
+# hook for before compilation
+if [[ -f "$BUILD_DIR/before_compile" ]]; then
+  echo "-----> Executing before compile hook"
+  source "$BUILD_DIR/before_compile"
+fi
+
 # trialed and errored on this; delete .a files to prevent
 # relocation compile errors with shared objects
 rm /app/.apt/usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/*.a
@@ -181,6 +187,12 @@ RPROG
 # TODO: determine whether the R script failed
 echo
 echo "R $R_VERSION successfully installed" | indent
+
+# hook for after compilation
+if [[ -f "$BUILD_DIR/after_compile" ]]; then
+  echo "-----> Executing after compile hook"
+  source "$BUILD_DIR/after_compile"
+fi
 
 #
 # need to copy binaries back to the build directory so that any
