@@ -166,7 +166,7 @@ fi
 
 # trialed and errored on this; delete .a files to prevent
 # relocation compile errors with shared objects
-rm /app/.apt/usr/lib/*.a
+# rm /app/.apt/usr/lib/*.a
 rm /app/.apt/usr/lib/$ARCH/*.a
 rm /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION/*.a
 
