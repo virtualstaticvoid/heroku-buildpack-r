@@ -158,12 +158,20 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 # set environment variables, needed for compiling packages
 source "$LP_DIR/bin/r_environment.sh"
 
+# Makevars?
+if [[ -f "$BUILD_DIR/Makevars" ]]; then
+  echo "Setting Makevars" | indent
+  mkdir -p /app/.R
+  cp $BUILD_DIR/Makevars /app/.R/Makevars
+fi
+
 # hook for before compilation
 if [[ -f "$BUILD_DIR/before_compile" ]]; then
   echo "-----> Executing before compile hook"
   source "$BUILD_DIR/before_compile"
 fi
 
+# https://cran.r-project.org/doc/manuals/r-release/R-exts.html
 # trialed and errored on this; delete .a files to prevent
 # relocation compile errors with shared objects
 # rm /app/.apt/usr/lib/*.a
