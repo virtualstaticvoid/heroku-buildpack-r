@@ -4,18 +4,7 @@ This page lists previous builds of the R binaries used by the buildpack.
 
 It is recommended to use the latest builds listed in the [README](README.md#r-versions).
 
-The following versions are available:
-
-## Cedar 10
-
-| R Version | Buildpack Version | Binary |
-|-----------|-------------------|--------|
-| 2.15.1    | 20131211-0028     | [R-2.15.1-binaries-20131211-0028.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-2.15.1-binaries-20131211-0028.tar.gz) |
-| 3.0.2     | 20140218-0019     | [R-3.0.2-binaries-20140218-0019.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.0.2-binaries-20140218-0019.tar.gz ) |
-| 3.1.0     | 20141127-0021     | [R-3.1.0-binaries-20141127-0021.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.1.0-binaries-20141127-0021.tar.gz ) |
-| 3.1.2     | 20150301-1046     | [R-3.1.2-binaries-20150301-1046.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.1.2-binaries-20150301-1046.tar.gz ) |
-
-NB: Remember to use the `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar` branch for the buildpack URL.
+The following versions are available, but are _deprecated_:
 
 ## Cedar 14
 
