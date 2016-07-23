@@ -38,6 +38,10 @@ GREEN='\033[1;32m'
 RESET='\033[0m'
 echo -e "${GREEN} ********************************************************************************"
 echo -e ""
+echo -e " Tail the log using:"
+echo -e ""
+echo -e "  heroku logs --tail --app $app"
+echo -e ""
 echo -e " Run the following command to destroy the test application when you are done."
 echo -e ""
 echo -e "  heroku apps:destroy $app"
@@ -45,5 +49,6 @@ echo -e ""
 echo -e "********************************************************************************"
 echo -e "${RESET}"
 
-# tail the log
-heroku logs --tail --app $app
+sleep 30
+
+heroku logs --num 1000 --app $app
