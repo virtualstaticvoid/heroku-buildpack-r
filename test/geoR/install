@@ -17,13 +17,16 @@ git init
 git add --all
 git commit -m "initial"
 
-# create the app with R buildpack
-heroku create --stack cedar-14 \
-              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
+# create the app
+heroku create --stack cedar-14
 
 # trick to get the app name
 app=`heroku apps:info -s | grep ^git-url=`
 app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
+
+# add buildpacks for Apt and R
+heroku buildpacks:add https://github.com/heroku/heroku-buildpack-apt.git --app $app
+heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r#$branch --app $app
 
 git push heroku master
 
