@@ -136,6 +136,22 @@ mv $VENDOR_DIR/R /app/vendor
 # (tried using LDFLAGS, LD_LIBRARY_PATH and LIBRARY_PATH but didn't work)
 cp -r /usr/lib/gcc/$ARCH/$GCC_VERSION/* /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION
 
+# fix up package config files ~ point them to /app/.apt/usr/... instead of /usr/...
+for pcfile in /app/.apt/usr/lib/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
+
+for pcfile in /app/.apt/usr/lib/$ARCH/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
+
+for pcfile in /app/.apt/usr/share/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
+
 # prevent warnings when building packages
 # since these directories/files aren't included
 # in the buildpack to make it smaller
