@@ -20,6 +20,7 @@ get '/' do
     html += "<p>Succeeded running R code</p>"
     html += "<pre>x = #{R.x}</pre>"
     html += "<pre>sd(x) = #{R.sdx}</pre>"
+    html += "<img src=\"plot.png\"></img>"
 
   rescue => e
     html += "<p>Failed running R code...</p>"
@@ -28,4 +29,19 @@ get '/' do
 
   html += "</html>"
 
+end
+
+get '/plot.png' do
+  file = Tempfile.new('plot')
+  code = <<-RCODE
+    png("#{file.path}", type="cairo")
+    plot(1:5,1:5)
+    dev.off()
+  RCODE
+  R.eval(code)
+
+  send_file file.path, :type => :png
+
+  file.close
+  file.unlink
 end
