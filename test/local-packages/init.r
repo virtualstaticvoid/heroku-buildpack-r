@@ -2,6 +2,5 @@
 # Example R program to installed package from local path
 #
 
-install.packages("./localpkgs/Rstem_0.4-1.tar.gz", repos=NULL, type="source")
-install.packages("tm", dependencies = TRUE)
-install.packages("./localpkgs/sentiment_0.2.tar.gz", repos=NULL, type="source")
+# install from local archive
+install.packages("./localpkgs/Rnlminb2_2110.79.tar.gz", repos=NULL, type="source")
