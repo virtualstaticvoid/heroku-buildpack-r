@@ -202,7 +202,7 @@ echo "Executing init.r script" | indent
 /app/vendor/R/bin/R --no-save -s <<RPROG 2>&1 | indent
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
-  setwd("/app")
+  setwd("$BUILD_DIR")
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
