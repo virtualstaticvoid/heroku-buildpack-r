@@ -62,3 +62,16 @@ echo -e "  heroku apps:destroy $app"
 echo -e ""
 echo -e "********************************************************************************"
 echo -e "${RESET}"
+
+sleep 360
+
+heroku logs --num 1000 --app $app
+
+# destroy the app, and clean up temporary files
+if [[ "$destroy" -eq "1" ]]; then
+
+  # clean up
+  heroku apps:destroy $app --confirm $app
+  rm -rf $dir
+
+fi

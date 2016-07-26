@@ -4,6 +4,8 @@ shopt -s extglob
 set -e
 
 branch=${1:-cedar-14}
+destroy=${2:-0}
+wait_time=${3:-10}
 
 # create a temporary directory and copy
 # the test application to it
@@ -34,21 +36,32 @@ popd
 # browse to the web application
 gnome-open https://$app.herokuapp.com
 
-GREEN='\033[1;32m'
-RESET='\033[0m'
-echo -e "${GREEN} ********************************************************************************"
-echo -e ""
-echo -e " Tail the log using:"
-echo -e ""
-echo -e "  heroku logs --tail --app $app"
-echo -e ""
-echo -e " Run the following command to destroy the test application when you are done."
-echo -e ""
-echo -e "  heroku apps:destroy $app"
-echo -e ""
-echo -e "********************************************************************************"
-echo -e "${RESET}"
-
-sleep 30
+sleep $wait_time
 
 heroku logs --num 1000 --app $app
+
+# destroy the app, and clean up temporary files
+if [[ "$destroy" -eq "1" ]]; then
+
+  # clean up
+  heroku apps:destroy $app --confirm $app
+  rm -rf $dir
+
+else
+
+  GREEN='\033[1;32m'
+  RESET='\033[0m'
+  echo -e "${GREEN} ********************************************************************************"
+  echo -e ""
+  echo -e " Tail the log using:"
+  echo -e ""
+  echo -e "  heroku logs --tail --app $app"
+  echo -e ""
+  echo -e " Run the following command to destroy the test application when you are done."
+  echo -e ""
+  echo -e "  heroku apps:destroy $app"
+  echo -e ""
+  echo -e "********************************************************************************"
+  echo -e "${RESET}"
+
+fi

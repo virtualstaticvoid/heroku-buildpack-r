@@ -3,12 +3,13 @@
 set -e
 
 branch=${1:-cedar-14}
+destroy=${2:-1}
 
 function test() {
   dir=$1
   pushd $dir > /dev/null
 
-  /bin/bash install $branch &> log
+  /bin/bash install $branch $destroy 360 &> log
 
   # read log for errors
   if [[ -f log ]]; then
