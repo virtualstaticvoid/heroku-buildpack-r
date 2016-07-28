@@ -51,7 +51,7 @@ GCC_VERSION=4.8
 # init.r file may be init.R
 if [ -f $BUILD_DIR/init.r ]; then
   INITR="init.r"
-elif [ -f $BUILD_DIR/init.r ]; then
+elif [ -f $BUILD_DIR/init.R ]; then
   INITR="init.R"
 fi
 
