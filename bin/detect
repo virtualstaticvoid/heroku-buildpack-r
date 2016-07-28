@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-if [ -f $1/init.r ]; then
+if [ -f $1/init.r ] || [ -f $1/init.R ]; then
   echo "R" && exit 0
 else
   echo "no" && exit 1
