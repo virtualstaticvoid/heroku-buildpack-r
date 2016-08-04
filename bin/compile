@@ -30,9 +30,9 @@ function read_var() {
 unset GIT_DIR
 
 # parse and derive params
-BUILDPACK_DIR="$(dirname $(dirname $0))"
 BUILD_DIR=$1
 CACHE_DIR=$2
+LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # ensure exist
 mkdir -p $BUILD_DIR
@@ -47,26 +47,28 @@ fi
 # config
 VENDOR_DIR="$BUILD_DIR/vendor"
 GCC_VERSION=4.8
+ARCH=`dpkg-architecture -qDEB_HOST_MULTIARCH`
 
 # read in R version if file exists
 if [[ -f "$BUILD_DIR/.r-version" ]];
 then
   R_VERSION=`read_var $BUILD_DIR/.r-version`
+  echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
-  R_VERSION="3.2.4"
+  R_VERSION="3.3.1"
 fi
 
 # read in buildback binary version if file exists
 if [[ -f "$BUILD_DIR/.r-buildpack-version" ]];
 then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
+  echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
 else
-  BUILD_PACK_VERSION="20160322-0811"
+  BUILD_PACK_VERSION="20160720-0331"
 fi
 
 S3_BUCKET="heroku-buildpack-r"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
-CRAN_MIRROR="http://cran.revolutionanalytics.com"
 
 # vendor R into the slug
 echo "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)" | indent
@@ -132,7 +134,23 @@ mv $VENDOR_DIR/R /app/vendor
 # trialed and errored on this; copy over libs to gfortran, so
 # that liblto_plugin.so and others can be found
 # (tried using LDFLAGS, LD_LIBRARY_PATH and LIBRARY_PATH but didn't work)
-cp -r /usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION/* /app/.apt/usr/lib/gcc/x86_64-linux-gnu/$GCC_VERSION
+cp -r /usr/lib/gcc/$ARCH/$GCC_VERSION/* /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION
+
+# fix up package config files ~ point them to /app/.apt/usr/... instead of /usr/...
+for pcfile in /app/.apt/usr/lib/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
+
+for pcfile in /app/.apt/usr/lib/$ARCH/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
+
+for pcfile in /app/.apt/usr/share/pkgconfig/*.pc
+do
+  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+done
 
 # prevent warnings when building packages
 # since these directories/files aren't included
@@ -154,17 +172,37 @@ touch /app/vendor/R/lib64/R/doc/html/R.css
 #
 
 # set environment variables, needed for compiling packages
-source "$BUILDPACK_DIR/bin/r_environment.sh"
+source "$LP_DIR/bin/r_environment.sh"
+
+# Makevars?
+if [[ -f "$BUILD_DIR/Makevars" ]]; then
+  echo "Setting Makevars" | indent
+  mkdir -p /app/.R
+  cp $BUILD_DIR/Makevars /app/.R/Makevars
+fi
+
+# hook for before compilation
+if [[ -f "$BUILD_DIR/before_compile" ]]; then
+  echo "-----> Executing before compile hook"
+  source "$BUILD_DIR/before_compile"
+fi
+
+# https://cran.r-project.org/doc/manuals/r-release/R-exts.html
+# trialed and errored on this; delete .a files to prevent
+# relocation compile errors with shared objects
+# rm /app/.apt/usr/lib/*.a
+# rm /app/.apt/usr/lib/$ARCH/*.a
+# rm /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION/*.a
 
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
 # NOTE: output can't be indented unfortunately
-/app/vendor/R/bin/R --no-save -s <<RPROG
+/app/vendor/R/bin/R --no-save -s <<RPROG 2>&1 | indent
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
-  setwd("/app")
+  setwd("$BUILD_DIR")
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
@@ -176,13 +214,19 @@ RPROG
 echo
 echo "R $R_VERSION successfully installed" | indent
 
+# hook for after compilation
+if [[ -f "$BUILD_DIR/after_compile" ]]; then
+  echo "-----> Executing after compile hook"
+  source "$BUILD_DIR/after_compile"
+fi
+
 #
 # need to copy binaries back to the build directory so that any
 # installed packages and other dependances get included in the slug
 
 # copy over environment
 mkdir -p "$BUILD_DIR/.profile.d"
-cp "$BUILDPACK_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
+cp "$LP_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
 
 # now copy everything back to the BUILD_DIR
 # which will be used to make the slug
@@ -204,3 +248,6 @@ echo "$BUILD_PACK_VERSION" > "$CACHE_DIR/.r-buildpack-version"
 mkdir -p $CACHE_DIR/vendor
 cp -r /app/.apt $CACHE_DIR/vendor
 cp -r /app/vendor/R $CACHE_DIR/vendor
+
+# give environment to later buildpacks
+export | grep -E -e ' (PATH|LIBRARY_PATH|LD_LIBRARY_PATH|LDFLAGS|PKG_LIBS|PKG_CPPFLAGS|PKG_CONFIG_PATH|INCLUDE_PATH|CPATH|CPPPATH|R_INCLUDE)=' >> "$LP_DIR/export"

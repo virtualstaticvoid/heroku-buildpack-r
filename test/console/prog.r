@@ -3,4 +3,3 @@
 #
 
 demo(is.things)
-demo(nlm)

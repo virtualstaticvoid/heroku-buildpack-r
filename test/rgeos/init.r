@@ -6,16 +6,19 @@
 ###########################################################
 # Update this line with the R packages to install:
 
-my_packages = c("rgeos")
+# gdal is tricky!
 
-###########################################################
+# first, `before_compile` script hacks gdal-config to correct the directory locations
+# and then `proj` paths are overridden here via `configure.args` to install.packages
 
-install_if_missing = function(p) {
-  if (p %in% rownames(installed.packages()) == FALSE) {
-    install.packages(p, dependencies = TRUE)
-  }
-  else {
-    cat(paste("Skipping already installed package:", p, "\n"))
-  }
-}
-invisible(sapply(my_packages, install_if_missing))
+install.packages(
+  "rgdal",
+  type="source",
+  configure.args = c(
+    "--with-proj-lib=/app/.apt/usr/local/lib",
+    "--with-proj-include=/app/.apt/usr/local/include",
+    "--with-proj-share=/app/.apt/usr/share/proj"
+  )
+)
+
+install.packages("rgeos")

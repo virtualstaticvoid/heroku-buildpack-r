@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+branch=${1:-cedar-14}
+destroy=${2:-1}
+
+function test() {
+  dir=$1
+  pushd $dir > /dev/null
+
+  /bin/bash install $branch $destroy 360 &> log
+
+  # read log for errors
+  if [[ -f log ]]; then
+    #
+    # errors are output as:
+    #  * removing '/app/vendor/R/lib/R/library/Package'
+    #  ERROR: compilation failed for package ‘RandomFieldsUtils’
+    #  *** caught segfault ***
+    #
+    grep -E "(ERROR|removing|segfault)" log
+    result=$?
+  else
+    echo "No log found..."
+    result=0
+  fi
+
+  if [[ "$result" -eq "0" ]]; then
+    echo -e "\033[1;31mFAILED: $d\033[0m"
+  else
+    echo "SUCCESS: $d"
+  fi
+  popd > /dev/null
+}
+
+for d in */ ; do
+  echo Testing $d...
+  test "$d" || echo
+done

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# fix up gdal-config config variables
+gdal_config_file=$(which gdal-config)
+sed -i 's/\/usr/\/app\/.apt\/usr/g' $gdal_config_file

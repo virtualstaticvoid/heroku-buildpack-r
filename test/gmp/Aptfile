@@ -1,1 +1,4 @@
+libgmp10
 libgmp3-dev
+libmpfr4
+libmpfr-dev
