@@ -124,7 +124,7 @@ _(all versions for cedar-14 have been rebuilt on 2016-07-20 due to improvements 
 
 NB: Remember to use the `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14` branch for the buildpack URL.
 
-See [BUILDS.md](BUILDS) for older/deprecated listing of builds.
+See [BUILDS](BUILDS.md) for older/deprecated listing of builds.
 
 ## Caveats
 Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
