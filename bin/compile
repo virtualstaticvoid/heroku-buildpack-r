@@ -217,7 +217,7 @@ result=$?
 if [[ "$result" -eq "0" ]]; then
   echo "R $R_VERSION successfully installed" | indent
 else
-  echo "ERROR: R $R_VERSION failed while executing \"init.r\". Check the log for details." | indent
+  echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init.r\". Check the log for details.\033[0m" | indent
 fi
 
 # hook for after compilation
