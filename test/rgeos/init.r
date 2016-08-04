@@ -15,10 +15,13 @@ install.packages(
   "rgdal",
   type="source",
   configure.args = c(
-    "--with-proj-lib=/app/.apt/usr/local/lib",
-    "--with-proj-include=/app/.apt/usr/local/include",
-    "--with-proj-share=/app/.apt/usr/share/proj"
-  )
+    "--with-gdal-config=/app/.apt/usr/bin/gdal-config",
+    "--with-proj-lib=/app/.apt/usr/lib",
+    "--with-proj-include=/app/.apt/usr/include",
+    "--with-proj-share=/app/.apt/usr/share/proj",
+    "--with-proj-data=/app/.apt/usr/share/doc/proj-data"
+  ),
+  verbose=TRUE
 )
 
-install.packages("rgeos")
+# install.packages("rgeos")

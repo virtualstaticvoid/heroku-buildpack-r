@@ -25,7 +25,7 @@ app=`heroku apps:info -s | grep ^git-url=`
 app=${app:31:-4}  # git-url=https://git.heroku.com/app-name-number.git
 
 # add buildpacks for Apt and R
-heroku buildpacks:add https://github.com/heroku/heroku-buildpack-apt.git --app $app
+heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-apt.git --app $app
 heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r#$branch --app $app
 
 git push heroku master
