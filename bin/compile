@@ -258,9 +258,18 @@ cp -r /app/vendor/R/* $VENDOR_DIR/R
 # copy to the cache directory
 echo "$R_VERSION" > "$CACHE_DIR/.r-version"
 echo "$BUILD_PACK_VERSION" > "$CACHE_DIR/.r-buildpack-version"
-mkdir -p $CACHE_DIR/vendor
-cp -r /app/.apt $CACHE_DIR/vendor
-cp -r /app/vendor/R $CACHE_DIR/vendor
+
+if [ -d $CACHE_DIR/vendor/.apt ]; then
+  rm -rf $CACHE_DIR/vendor/.apt
+fi
+mkdir -p $CACHE_DIR/vendor/.apt
+cp -r /app/.apt/* $CACHE_DIR/vendor/.apt
+
+if [ -d $CACHE_DIR/vendor/R ]; then
+  rm -rf $CACHE_DIR/vendor/R
+fi
+mkdir -p $CACHE_DIR/vendor/R
+cp -r /app/vendor/R/* $CACHE_DIR/vendor/R
 
 # give environment to later buildpacks
 export | grep -E -e ' (PATH|LIBRARY_PATH|LD_LIBRARY_PATH|LDFLAGS|PKG_LIBS|PKG_CPPFLAGS|PKG_CONFIG_PATH|INCLUDE_PATH|CPATH|CPPPATH|R_INCLUDE)=' >> "$LP_DIR/export"
