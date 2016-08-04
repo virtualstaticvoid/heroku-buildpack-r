@@ -82,8 +82,11 @@ then
 
   # copy from cache to the build directory
   echo "Retrieving R binaries and packages from cache" | indent
-  mkdir -p $BUILD_DIR/vendor
-  cp -r $CACHE_DIR/vendor/* $BUILD_DIR/vendor
+  mkdir -p $VENDOR_DIR/.apt
+  cp -r $CACHE_DIR/vendor/.apt/* $VENDOR_DIR/.apt
+
+  mkdir -p $VENDOR_DIR/R
+  cp -r $CACHE_DIR/vendor/R/* $VENDOR_DIR/R
 
 else
 
