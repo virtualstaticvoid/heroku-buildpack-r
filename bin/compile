@@ -197,18 +197,10 @@ if [[ -f "$BUILD_DIR/before_compile" ]]; then
   source "$BUILD_DIR/before_compile"
 fi
 
-# https://cran.r-project.org/doc/manuals/r-release/R-exts.html
-# trialed and errored on this; delete .a files to prevent
-# relocation compile errors with shared objects
-# rm /app/.apt/usr/lib/*.a
-# rm /app/.apt/usr/lib/$ARCH/*.a
-# rm /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION/*.a
-
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
-# NOTE: output can't be indented unfortunately
 /app/vendor/R/bin/R --no-save -s <<RPROG 2>&1 | indent
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
