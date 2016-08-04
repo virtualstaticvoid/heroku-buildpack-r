@@ -82,7 +82,8 @@ then
 
   # copy from cache to the build directory
   echo "Retrieving R binaries and packages from cache" | indent
-  cp -r $CACHE_DIR/vendor $BUILD_DIR
+  mkdir -p $BUILD_DIR/vendor
+  cp -r $CACHE_DIR/vendor/* $BUILD_DIR/vendor
 
 else
 
@@ -108,7 +109,8 @@ if [ -d $BUILD_DIR/.apt ]; then
 
   # copy application author binaries
   echo "Copying existing .apt files" | indent
-  cp -r $BUILD_DIR/.apt /app
+  mkdir -p /app/.apt
+  cp -r $BUILD_DIR/.apt/* /app/.apt
 
   # the buildpack binaries will be merged with these
   # so there may be issues if mulitple versions
@@ -126,7 +128,8 @@ else
   # copy the binary dependances to /app/.apt
   # so that R can find them when compiling packages
   echo "Copying buildpack .apt files" | indent
-  cp -r $VENDOR_DIR/.apt /app
+  mkdir -p /app/.apt
+  cp -r $VENDOR_DIR/.apt/* /app/.apt
 
 fi
 
@@ -135,7 +138,8 @@ fi
 rm -rf $VENDOR_DIR/.apt
 
 # copy the R binaries to /app/vendor/R
-cp -r $VENDOR_DIR/R /app/vendor
+mkdir -p /app/vendor/R
+cp -r $VENDOR_DIR/R/* /app/vendor/R
 
 # remove redundant R files now that
 # they are in the correct location
@@ -236,8 +240,11 @@ cp "$LP_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
 
 # now copy everything back to the BUILD_DIR
 # which will be used to make the slug
-cp -r /app/.apt $BUILD_DIR
-cp -r /app/vendor/R $VENDOR_DIR
+mkdir -p $BUILD_DIR/.apt
+cp -r /app/.apt/* $BUILD_DIR/.apt
+
+mkdir -p $VENDOR_DIR/R
+cp -r /app/vendor/R/* $VENDOR_DIR/R
 
 #
 # layout of $BUILD_DIR now
