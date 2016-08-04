@@ -209,12 +209,16 @@ echo "Executing init.r script" | indent
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
   `cat $BUILD_DIR/init.r`
-  cat("\n=====> init.r Completed Successfully\n")
+  cat("\n=====> init.r Completed\n")
 RPROG
 
-# TODO: determine whether the R script failed
-echo
-echo "R $R_VERSION successfully installed" | indent
+# determine whether the R script failed
+result=$?
+if [[ "$result" -eq "0" ]]; then
+  echo "R $R_VERSION successfully installed" | indent
+else
+  echo "ERROR: R $R_VERSION failed while executing \"init.r\". Check the log for details." | indent
+fi
 
 # hook for after compilation
 if [[ -f "$BUILD_DIR/after_compile" ]]; then
