@@ -106,30 +106,40 @@ fi
 # to be copied to /app/.apt, so that R can find them
 if [ -d $BUILD_DIR/.apt ]; then
 
-  # move the app authors binaries
+  # copy application author binaries
   echo "Copying existing .apt files" | indent
   cp -r $BUILD_DIR/.apt /app
 
   # the buildpack binaries will be merged with these
-  # so there may be issues if different versions
-  # are included over those from the R buildpack
+  # so there may be issues if mulitple versions
+  # are included with those from the R buildpack
 
   echo "Merging buildpack .apt files" | indent
   cp -r $VENDOR_DIR/.apt/* /app/.apt
 
+  # remove redundant apt files now that
+  # they are in the correct location
   rm -rf $BUILD_DIR/.apt
-  rm -rf $VENDOR_DIR/.apt
 
 else
 
-  # move the binary dependances to /app/.apt
+  # copy the binary dependances to /app/.apt
   # so that R can find them when compiling packages
-  mv $VENDOR_DIR/.apt /app
+  echo "Copying buildpack .apt files" | indent
+  cp -r $VENDOR_DIR/.apt /app
 
 fi
 
-# move the R binaries to /app/vendor/R
-mv $VENDOR_DIR/R /app/vendor
+# remove redundant apt files now that
+# they are in the correct location
+rm -rf $VENDOR_DIR/.apt
+
+# copy the R binaries to /app/vendor/R
+cp -r $VENDOR_DIR/R /app/vendor
+
+# remove redundant R files now that
+# they are in the correct location
+rm -rf $VENDOR_DIR/R
 
 # trialed and errored on this; copy over libs to gfortran, so
 # that liblto_plugin.so and others can be found
