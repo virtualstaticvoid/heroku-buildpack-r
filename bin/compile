@@ -156,17 +156,23 @@ cp -r /usr/lib/gcc/$ARCH/$GCC_VERSION/* /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION
 # fix up package config files ~ point them to /app/.apt/usr/... instead of /usr/...
 for pcfile in /app/.apt/usr/lib/pkgconfig/*.pc
 do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  if [[ -f "$pcfile" ]]; then
+    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  fi
 done
 
 for pcfile in /app/.apt/usr/lib/$ARCH/pkgconfig/*.pc
 do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  if [[ -f "$pcfile" ]]; then
+    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  fi
 done
 
 for pcfile in /app/.apt/usr/share/pkgconfig/*.pc
 do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  if [[ -f "$pcfile" ]]; then
+    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+  fi
 done
 
 # prevent warnings when building packages
