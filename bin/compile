@@ -26,6 +26,18 @@ function read_var() {
   echo $(head -n 1 $1)
 }
 
+function update_pkgconfig() {
+  # fix package config files
+  # point them to /app/.apt/usr/... instead of /usr/...
+  search_path=$1
+  for pcfile in $search_path/*.pc
+  do
+    if [[ -f "$pcfile" ]]; then
+      sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+    fi
+  done;
+}
+
 # clean up leaking environment
 unset GIT_DIR
 
@@ -154,26 +166,9 @@ rm -rf $VENDOR_DIR/R
 cp -r /usr/lib/gcc/$ARCH/$GCC_VERSION/* /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION
 
 # fix up package config files ~ point them to /app/.apt/usr/... instead of /usr/...
-for pcfile in /app/.apt/usr/lib/pkgconfig/*.pc
-do
-  if [[ -f "$pcfile" ]]; then
-    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-  fi
-done
-
-for pcfile in /app/.apt/usr/lib/$ARCH/pkgconfig/*.pc
-do
-  if [[ -f "$pcfile" ]]; then
-    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-  fi
-done
-
-for pcfile in /app/.apt/usr/share/pkgconfig/*.pc
-do
-  if [[ -f "$pcfile" ]]; then
-    sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-  fi
-done
+update_pkgconfig "/app/.apt/usr/lib/pkgconfig"
+update_pkgconfig "/app/.apt/usr/lib/$ARCH/pkgconfig"
+update_pkgconfig "/app/.apt/usr/share/pkgconfig"
 
 # prevent warnings when building packages
 # since these directories/files aren't included
