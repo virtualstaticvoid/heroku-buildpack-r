@@ -4,6 +4,7 @@ set -e
 
 branch=${1:-cedar-14}
 destroy=${2:-1}
+log="${3:-test-`date +%Y%m%d-%H%M`}.log"
 
 function test() {
   dir=$1
@@ -34,7 +35,13 @@ function test() {
   popd > /dev/null
 }
 
+echo > $log
+echo Testing using $branch branch >> $log
+echo >> $log
+
 for d in */ ; do
   echo Testing $d...
-  test "$d" || echo
+  test "$d" &>> $log || echo
 done
+
+echo >> $log

@@ -26,6 +26,18 @@ function read_var() {
   echo $(head -n 1 $1)
 }
 
+function update_pkgconfig() {
+  # fix package config files
+  # point them to /app/.apt/usr/... instead of /usr/...
+  search_path=$1
+  for pcfile in $search_path/*.pc
+  do
+    if [[ -f "$pcfile" ]]; then
+      sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
+    fi
+  done;
+}
+
 # clean up leaking environment
 unset GIT_DIR
 
@@ -82,7 +94,11 @@ then
 
   # copy from cache to the build directory
   echo "Retrieving R binaries and packages from cache" | indent
-  cp -r $CACHE_DIR/vendor $BUILD_DIR
+  mkdir -p $VENDOR_DIR/.apt
+  cp -r $CACHE_DIR/vendor/.apt/* $VENDOR_DIR/.apt
+
+  mkdir -p $VENDOR_DIR/R
+  cp -r $CACHE_DIR/vendor/R/* $VENDOR_DIR/R
 
 else
 
@@ -106,30 +122,43 @@ fi
 # to be copied to /app/.apt, so that R can find them
 if [ -d $BUILD_DIR/.apt ]; then
 
-  # move the app authors binaries
+  # copy application author binaries
   echo "Copying existing .apt files" | indent
-  cp -r $BUILD_DIR/.apt /app
+  mkdir -p /app/.apt
+  cp -r $BUILD_DIR/.apt/* /app/.apt
 
   # the buildpack binaries will be merged with these
-  # so there may be issues if different versions
-  # are included over those from the R buildpack
+  # so there may be issues if mulitple versions
+  # are included with those from the R buildpack
 
   echo "Merging buildpack .apt files" | indent
   cp -r $VENDOR_DIR/.apt/* /app/.apt
 
+  # remove redundant apt files now that
+  # they are in the correct location
   rm -rf $BUILD_DIR/.apt
-  rm -rf $VENDOR_DIR/.apt
 
 else
 
-  # move the binary dependances to /app/.apt
+  # copy the binary dependances to /app/.apt
   # so that R can find them when compiling packages
-  mv $VENDOR_DIR/.apt /app
+  echo "Copying buildpack .apt files" | indent
+  mkdir -p /app/.apt
+  cp -r $VENDOR_DIR/.apt/* /app/.apt
 
 fi
 
-# move the R binaries to /app/vendor/R
-mv $VENDOR_DIR/R /app/vendor
+# remove redundant apt files now that
+# they are in the correct location
+rm -rf $VENDOR_DIR/.apt
+
+# copy the R binaries to /app/vendor/R
+mkdir -p /app/vendor/R
+cp -r $VENDOR_DIR/R/* /app/vendor/R
+
+# remove redundant R files now that
+# they are in the correct location
+rm -rf $VENDOR_DIR/R
 
 # trialed and errored on this; copy over libs to gfortran, so
 # that liblto_plugin.so and others can be found
@@ -137,20 +166,9 @@ mv $VENDOR_DIR/R /app/vendor
 cp -r /usr/lib/gcc/$ARCH/$GCC_VERSION/* /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION
 
 # fix up package config files ~ point them to /app/.apt/usr/... instead of /usr/...
-for pcfile in /app/.apt/usr/lib/pkgconfig/*.pc
-do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-done
-
-for pcfile in /app/.apt/usr/lib/$ARCH/pkgconfig/*.pc
-do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-done
-
-for pcfile in /app/.apt/usr/share/pkgconfig/*.pc
-do
-  sed -i 's/\/usr/\/app\/.apt\/usr/g' $pcfile
-done
+update_pkgconfig "/app/.apt/usr/lib/pkgconfig"
+update_pkgconfig "/app/.apt/usr/lib/$ARCH/pkgconfig"
+update_pkgconfig "/app/.apt/usr/share/pkgconfig"
 
 # prevent warnings when building packages
 # since these directories/files aren't included
@@ -187,18 +205,11 @@ if [[ -f "$BUILD_DIR/before_compile" ]]; then
   source "$BUILD_DIR/before_compile"
 fi
 
-# https://cran.r-project.org/doc/manuals/r-release/R-exts.html
-# trialed and errored on this; delete .a files to prevent
-# relocation compile errors with shared objects
-# rm /app/.apt/usr/lib/*.a
-# rm /app/.apt/usr/lib/$ARCH/*.a
-# rm /app/.apt/usr/lib/gcc/$ARCH/$GCC_VERSION/*.a
-
 # install dependencies from CRAN
 echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
-# NOTE: output can't be indented unfortunately
+# working directory must be BUILD_DIR so that local packages/scripts can be found
 /app/vendor/R/bin/R --no-save -s <<RPROG 2>&1 | indent
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
@@ -207,12 +218,16 @@ echo "Executing init.r script" | indent
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
   `cat $BUILD_DIR/init.r`
-  cat("\n=====> init.r Completed Successfully\n")
+  cat("\n=====> init.r Completed\n")
 RPROG
 
-# TODO: determine whether the R script failed
-echo
-echo "R $R_VERSION successfully installed" | indent
+# determine whether the R script failed
+result=$?
+if [[ "$result" -eq "0" ]]; then
+  echo "R $R_VERSION successfully installed" | indent
+else
+  echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init.r\". Check the log for details.\033[0m" | indent
+fi
 
 # hook for after compilation
 if [[ -f "$BUILD_DIR/after_compile" ]]; then
@@ -230,8 +245,11 @@ cp "$LP_DIR/bin/r_environment.sh" "$BUILD_DIR/.profile.d/r_environment.sh"
 
 # now copy everything back to the BUILD_DIR
 # which will be used to make the slug
-cp -r /app/.apt $BUILD_DIR
-cp -r /app/vendor/R $VENDOR_DIR
+mkdir -p $BUILD_DIR/.apt
+cp -r /app/.apt/* $BUILD_DIR/.apt
+
+mkdir -p $VENDOR_DIR/R
+cp -r /app/vendor/R/* $VENDOR_DIR/R
 
 #
 # layout of $BUILD_DIR now
@@ -245,9 +263,18 @@ cp -r /app/vendor/R $VENDOR_DIR
 # copy to the cache directory
 echo "$R_VERSION" > "$CACHE_DIR/.r-version"
 echo "$BUILD_PACK_VERSION" > "$CACHE_DIR/.r-buildpack-version"
-mkdir -p $CACHE_DIR/vendor
-cp -r /app/.apt $CACHE_DIR/vendor
-cp -r /app/vendor/R $CACHE_DIR/vendor
+
+if [ -d $CACHE_DIR/vendor/.apt ]; then
+  rm -rf $CACHE_DIR/vendor/.apt
+fi
+mkdir -p $CACHE_DIR/vendor/.apt
+cp -r /app/.apt/* $CACHE_DIR/vendor/.apt
+
+if [ -d $CACHE_DIR/vendor/R ]; then
+  rm -rf $CACHE_DIR/vendor/R
+fi
+mkdir -p $CACHE_DIR/vendor/R
+cp -r /app/vendor/R/* $CACHE_DIR/vendor/R
 
 # give environment to later buildpacks
 export | grep -E -e ' (PATH|LIBRARY_PATH|LD_LIBRARY_PATH|LDFLAGS|PKG_LIBS|PKG_CPPFLAGS|PKG_CONFIG_PATH|INCLUDE_PATH|CPATH|CPPPATH|R_INCLUDE)=' >> "$LP_DIR/export"
