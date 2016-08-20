@@ -209,6 +209,7 @@ fi
 echo "Executing init.r script" | indent
 
 # set the CRAN mirror and run the init.r program
+# working directory must be BUILD_DIR so that local packages/scripts can be found
 /app/vendor/R/bin/R --no-save -s <<RPROG 2>&1 | indent
   cat("\n=====> init.r Starting...\n")
   Sys.setenv(BUILD_DIR="$BUILD_DIR")
