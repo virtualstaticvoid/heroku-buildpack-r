@@ -1,0 +1,72 @@
+#!/bin/bash
+
+shopt -s extglob
+set -e
+
+branch=${1:-cedar-14-chroot}
+destroy=${2:-0}
+waitfor=${3:-0} # used when testing
+
+# create a temporary directory and copy
+# the test application to it
+dir=$(mktemp -d)
+cp -r . $dir
+pushd $dir
+
+# commit to git for push to heroku
+git init
+git add --all
+git commit -m "initial"
+
+# create the app
+heroku create --stack cedar-14
+
+# trick to get the app name
+app=$(heroku apps:info -j | jq -r '.app.name')
+
+# add buildpacks for Ruby and R
+heroku buildpacks:add https://github.com/heroku/heroku-buildpack-ruby.git --app $app
+heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r#$branch --app $app
+
+git push heroku master
+
+popd
+
+# browse to the web application
+heroku open --app $app
+
+# wait?
+if [[ "$waitfor" -ne "0" ]]; then
+
+  sleep $waitfor
+
+  # output log
+  heroku logs --num 1000 --app $app
+
+fi
+
+# destroy the app, and clean up temporary files
+if [[ "$destroy" -eq "1" ]]; then
+
+  # clean up
+  heroku apps:destroy $app --confirm $app
+  rm -rf $dir
+
+else
+
+  GREEN='\033[1;32m'
+  RESET='\033[0m'
+  echo -e "${GREEN} ********************************************************************************"
+  echo -e ""
+  echo -e " Run the following command to destroy the test application when you are done."
+  echo -e ""
+  echo -e "  heroku apps:destroy $app"
+  echo -e ""
+  echo -e "********************************************************************************"
+  echo -e "${RESET}"
+
+  # tail the log, Ctrl+C to stop
+  echo "Press CTRL+C to STOP tailing the log"
+  heroku logs --tail --app $app
+
+fi

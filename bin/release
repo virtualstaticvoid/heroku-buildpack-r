@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# bin/release <build-dir>
+
+if [ -f "$1/run.R" ]; then
+
+	# shiny app
+	cat <<EOF
+---
+default_process_types:
+  console: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R --no-save'
+  web: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R -f run.R --gui-none --no-save'
+EOF
+
+else
+
+	# console app
+	cat <<EOF
+---
+default_process_types:
+  console: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R --no-save'
+EOF
+
+fi

@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+#
+# NOTES:
+#
+# R presents some unique challenges when used on Heroku
+#
+# The buildpack includes all the binaries required for R to run however,
+# application authors need to include additional packages which need to be built
+# in order to be included in the slug compilation. This means a build environment
+# is needed at slug compilation time.
+#
+# R is built (by default) with the path prefix of "/usr".
+# (See https://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installation for
+# details on the prefix configure options.)
+#
+# This is a problem on Heroku, since /usr is locked down and cannot be modified.
+#
+# In the previous version of the R buildpack, R was built from source using "/app" for
+# the prefix. While this worked, there were several issues with resolution of dependencies
+# for which there were many "hacks" employed. E.g. overriding LD_LIBRARY_PATH and other
+# environment variables, using symlinks, and changing paths in ldconfig files etc.
+#
+# Further complexity is created by the way Heroku slug compilation works, in that the BUILD_DIR
+# is not same path as that in the final deployment, so further hacks were required to move files
+# around, to and from /app and BUILD_DIR. This caused issues with symlinks and since the files for
+# the slug are compressed in a tar.gz file, the "untarring" caused further issues.
+#
+# Worse still, is that version mismatches between components emerged, which caused segfaults
+# and other hard to solve problems.
+#
+# The solution? Try to use "official" packaged R versions, installed to default locations.
+#
+# Another version of the builpack used the Apt buildpack, so that apt-get could be used to
+# install R and it's dependencies, but this approach proved to be fraught with similar path issues
+#
+# Finally, (this version) uses a chroot method, which provides a sandbox in which to install R
+# correctly, and all it's dependencies, with all symlinks and paths intact.
+#
+# A small complication to this approach is, since Heroku cannot run chroot under sudo, a fake chroot
+# has to be used, to allow for chroot to work under the normal user.
+#
+# The upside of this approach are:
+#
+#  * less hacks applied, thus less details of R need to be known by the buildpack
+#  * more maintainable when newer R versions need to be supported
+#  * more stable, since dependencies and pathings are standard
+#  * no segfaults or other hard to track down errors
+#
+# The downsides of this approach are:
+#
+#  * much larger slug of ~220MB,
+#
+#  * an "ugly" command line to run R
+#
+#    I.e. `fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R ... --no-save'`
+#
+#  * application author files are in /app, which need to be symlinked into the chroot, which
+#    can cause issues if the `base::normalizePath(..., mustWork=TRUE)` method is used.
+#
+#  * still requires moving files between /app and BUILD_DIR, so that packages can be compiled under
+#    the same paths as at runtime
+#
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+shopt -s extglob
+
+# helper functions
+
+function topic() {
+  echo "-----> $*"
+}
+
+function indent() {
+  c='s/^/       /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *)      sed -u "$c";;
+  esac
+}
+
+function read_var() {
+  echo $(head -n 1 $1)
+}
+
+# parse and derive params
+LP_DIR=`cd $(dirname $0); cd ..; pwd`
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+# fix STACK variable if unset
+if [ -z "${STACK}" ];
+then
+  STACK="cedar-14"
+fi
+
+# read in R version if file exists
+if [[ -f "$BUILD_DIR/.r-version" ]]; then
+  R_VERSION=`read_var $BUILD_DIR/.r-version`
+  echo "NOTE: Using R version override [$R_VERSION]" | indent
+else
+  R_VERSION="3.3.2"
+fi
+
+# read in buildback binary version if file exists
+if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
+  BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
+  echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
+else
+  BUILD_PACK_VERSION="20161206-1031"
+fi
+
+# environment
+S3_BUCKET="heroku-buildpack-r"
+APP_DIR="/app"
+TOOLS_DIR="$APP_DIR/.tools"
+FAKECHROOT_DIR="$TOOLS_DIR/fakechroot"
+CHROOT_DIR="$APP_DIR/.root"
+CRAN_MIRROR="http://cran.revolutionanalytics.com"
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+
+# vendor R into the slug
+topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
+
+# download and unpack binaries
+echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
+
+mkdir -p $APP_DIR
+pushd $APP_DIR > /dev/null
+curl $R_BINARIES -s -o - | tar xzf - -C .
+popd > /dev/null
+
+pushd $CHROOT_DIR > /dev/null
+
+# link app dir into chroot
+ln -s $APP_DIR app
+
+# make APP_DIR the home directory since application
+# authors will expect the same behaviour within the chroot
+# as the heroku instance. I.e. /app exists and contains their code etc.
+sed -i 's/root:x:0:0:root:\/root:\/bin\/bash/root:x:0:0:root:$APP_DIR:\/bin\/bash/g' etc/passwd
+
+popd > /dev/null
+
+# patch up relative symlinks which don't work when chroot
+pushd $CHROOT_DIR/usr/lib
+
+#
+# FIXME:
+#  there may be more symlinks which need fixing
+#  not sure why libraries in /usr/lib/x86_64-linux-gnu aren't being resolved
+#
+ln -sfn $CHROOT_DIR/usr/lib/R/lib/libR.so libR.so
+ln -sfn $CHROOT_DIR/usr/lib/x86_64-linux-gnu/libgfortran.so.3 libgfortran.so.3
+ln -sfn $CHROOT_DIR/usr/lib/x86_64-linux-gnu/libgfortran.so.3.0.0 libgfortran.so.3.0.0
+
+popd > /dev/null
+
+# Aptfile?
+if [[ -f "$BUILD_DIR/Aptfile" ]]; then
+
+  topic "Installing binary dependencies from Aptfile"
+
+  # TODO: add support for deb files
+
+  PACKAGES=""
+  while IFS='' read -r PACKAGE || [[ -n "$PACKAGE" ]]; do
+    PACKAGES="$PACKAGES $PACKAGE"
+  done < "$BUILD_DIR/Aptfile"
+
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+    apt-get update && apt-get install -y $PACKAGES
+
+fi
+
+# install application author dependencies from CRAN
+topic "Executing init.r script"
+
+# get the init.r file to use
+# it can be init.[rR] or run.R
+if [[ -f "$BUILD_DIR/.init.r" ]]; then
+  INIT_FILE="$BUILD_DIR/init.r"
+elif [[ -f "$BUILD_DIR/.init.R" ]]; then
+  INIT_FILE="$BUILD_DIR/init.R"
+else
+  # assuming run.R is present
+  unset INIT_FILE
+fi
+
+# got one? there shouldn't be one for shiny apps...
+if [[ -z "$INIT_FILE" ]]; then
+
+  # set the CRAN mirror and run the init.r program
+  # working directory must be /app so that provided packages/scripts can be found
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -s <<RPROG 2>&1 | indent
+    cat("\n=====> init.r Starting...\n");
+    setwd("$APP_DIR");
+    r <- getOption("repos");
+    r["CRAN"] <- "$CRAN_MIRROR";
+    options(repos=r);
+    `cat $INIT_FILE`
+    cat("\n=====> init.r Completed\n");
+RPROG
+
+  # determine whether the R script failed
+  result=$?
+  if [[ "$result" -eq "0" ]]; then
+    echo "R $R_VERSION successfully installed" | indent
+  else
+    echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
+  fi
+
+else
+
+  echo "R $R_VERSION successfully installed" | indent
+
+fi
+
+#
+# copy over, preserving symlinks
+# therefore under BUILD_DIR path, symlinks are invalid
+#
+cp --recursive --preserve=links $CHROOT_DIR $BUILD_DIR
+cp --recursive --preserve=links $TOOLS_DIR $BUILD_DIR
+
+# copy over environment
+mkdir -p "$BUILD_DIR/.profile.d"
+cp "$LP_DIR/bin/renv.sh" "$BUILD_DIR/.profile.d/renv.sh"
+
+# $BUILD_DIR will now be compressed for slug compilation
+
+# TODO: cache build

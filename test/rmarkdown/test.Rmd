@@ -1,0 +1,32 @@
+---
+title: "Test Document"
+output: html_document
+---
+
+Header 1
+----------------------------------------------------------------------
+This is an R Markdown document.
+
+Use an asterisk mark, to provide emphasis such as *italics* and **bold**.
+
+Create lists with a dash:
+- Item 1
+- Item 2
+- Item 3
+
+You can write `in-line` code with a back-tick.
+
+```
+Code blocks display with
+a fixed-width fonts
+```
+
+> Block quotes are offset
+
+And code can be evaluated 1 + 1 = `r 1 + 1`
+
+Equations can be embedded, such as:
+
+  $\frac{1}{n} \sum_{i=i}^{n} x_{i}$
+
+Hyperlinks can be [included](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).

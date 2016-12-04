@@ -1,0 +1,5 @@
+#
+# Example R program
+#
+
+capabilities()
