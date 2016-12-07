@@ -95,8 +95,7 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 
 # fix STACK variable if unset
-if [ -z "${STACK}" ];
-then
+if [ -z "${STACK}" ]; then
   STACK="cedar-14"
 fi
 
@@ -175,7 +174,7 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
   done < "$BUILD_DIR/Aptfile"
 
   $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
-    apt-get update && apt-get install -y $PACKAGES
+    apt-get update && apt-get install -y $PACKAGES 2>&1 | indent
 
 fi
 
@@ -184,9 +183,9 @@ topic "Executing init.r script"
 
 # get the init.r file to use
 # it can be init.[rR] or run.R
-if [[ -f "$BUILD_DIR/.init.r" ]]; then
+if [[ -f "$BUILD_DIR/init.r" ]]; then
   INIT_FILE="$BUILD_DIR/init.r"
-elif [[ -f "$BUILD_DIR/.init.R" ]]; then
+elif [[ -f "$BUILD_DIR/init.R" ]]; then
   INIT_FILE="$BUILD_DIR/init.R"
 else
   # assuming run.R is present
@@ -194,7 +193,7 @@ else
 fi
 
 # got one? there shouldn't be one for shiny apps...
-if [[ -z "$INIT_FILE" ]]; then
+if [[ ! -z "$INIT_FILE" ]]; then
 
   # set the CRAN mirror and run the init.r program
   # working directory must be /app so that provided packages/scripts can be found
