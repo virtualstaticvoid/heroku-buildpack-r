@@ -143,7 +143,8 @@ ln -s $BUILD_DIR app
 # make APP_DIR the home directory since application
 # authors will expect the same behaviour within the chroot
 # as the heroku instance. I.e. /app exists and contains their code etc.
-sed -i 's/root:x:0:0:root:\/root:\/bin\/bash/root:x:0:0:root:$APP_DIR:\/bin\/bash/g' etc/passwd
+# note: using # as separator as APP_DIR will contain /
+sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:$APP_DIR:/bin/bash#g" etc/passwd
 
 popd > /dev/null
 
@@ -195,37 +196,19 @@ fi
 # got one? there shouldn't be one for shiny apps...
 if [[ ! -z "$INIT_FILE" ]]; then
 
-  # set the CRAN mirror and run the init.r program
+  # prepare wrapper script
+  WRAPPER="$BUILD_DIR/wrapper.R"
+  cp "$LP_DIR/bin/wrapper.R" $WRAPPER
+
+  # perform insertions
+  ruby "$LP_DIR/bin/util.rb" "$WRAPPER" "$INIT_FILE" "$BUILD_DIR" "$CRAN_MIRROR"
+
+  # execute the init wrapper
   # working directory must be /app so that provided packages/scripts can be found
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -s <<RPROG 2>&1 | indent
-
-cat("\n=====> init.r Starting...\n");
-
-oldnormalizePath <- base::normalizePath;
-newnormalizePath <- function(path, winslash="\\", mustWork=NA) {
-  # override mustWork to FALSE
-  return(oldnormalizePath(path, winslash, mustWork=FALSE));
-};
-assignInNamespace(x="normalizePath", value=newnormalizePath, ns="base");
-
-setwd("${APP_DIR}");
-r <- getOption("repos");
-r["CRAN"] <- "$CRAN_MIRROR";
-options(repos=r);
-
-`cat $INIT_FILE`
-
-cat("\n=====> init.r Completed\n");
-
-# write a file to indicate success
-fileConn<-file("${APP_DIR}/status")
-writeLines(c("1"), fileConn)
-close(fileConn)
-
-RPROG
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -f /app/wrapper.R 2>&1 | indent
 
   # determine whether the R script failed
-  if [[ -f "$APP_DIR/status" ]]; then
+  if [[ -f "$CHROOT_DIR/app/status" ]]; then
     echo "R $R_VERSION successfully installed (with init)" | indent
   else
     echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
