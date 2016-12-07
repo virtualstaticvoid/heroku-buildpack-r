@@ -138,7 +138,7 @@ popd > /dev/null
 pushd $CHROOT_DIR > /dev/null
 
 # link app dir into chroot
-ln -s $APP_DIR app
+ln -s $BUILD_DIR app
 
 # make APP_DIR the home directory since application
 # authors will expect the same behaviour within the chroot
@@ -198,18 +198,35 @@ if [[ ! -z "$INIT_FILE" ]]; then
   # set the CRAN mirror and run the init.r program
   # working directory must be /app so that provided packages/scripts can be found
   $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -s <<RPROG 2>&1 | indent
+
     cat("\n=====> init.r Starting...\n");
-    setwd("$APP_DIR");
+
+    # HACK normalizePath method, so that it works for /app symlink
+    oldnormalizePath <- base::normalizePath
+    newnormalizePath <- function(path, winslash="\\", mustWork=NA) \{
+      # override mustWork to FALSE
+      return(oldnormalizePath(path, winslash, mustWork=FALSE))
+    \}
+    assignInNamespace(x="normalizePath", value=newnormalizePath, ns="base")
+
+    setwd("${APP_DIR}");
     r <- getOption("repos");
     r["CRAN"] <- "$CRAN_MIRROR";
     options(repos=r);
+
     `cat $INIT_FILE`
+
     cat("\n=====> init.r Completed\n");
+
+    # write a file to indicate success
+    fileConn<-file("${APP_DIR}/status")
+    writeLines(c("1"), fileConn)
+    close(fileConn)
+
 RPROG
 
   # determine whether the R script failed
-  result=$?
-  if [[ "$result" -eq "0" ]]; then
+  if [[ -f "$APP_DIR/status" ]]; then
     echo "R $R_VERSION successfully installed (with init)" | indent
   else
     echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
@@ -220,6 +237,12 @@ else
   echo "R $R_VERSION successfully installed" | indent
 
 fi
+
+# fix up /app symlink for runtime location
+pushd $CHROOT_DIR > /dev/null
+rm app
+ln -s $APP_DIR app
+popd > /dev/null
 
 #
 # copy over, preserving symlinks
