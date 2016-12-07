@@ -199,29 +199,28 @@ if [[ ! -z "$INIT_FILE" ]]; then
   # working directory must be /app so that provided packages/scripts can be found
   $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -s <<RPROG 2>&1 | indent
 
-    cat("\n=====> init.r Starting...\n");
+cat("\n=====> init.r Starting...\n");
 
-    # HACK normalizePath method, so that it works for /app symlink
-    oldnormalizePath <- base::normalizePath
-    newnormalizePath <- function(path, winslash="\\", mustWork=NA) \{
-      # override mustWork to FALSE
-      return(oldnormalizePath(path, winslash, mustWork=FALSE))
-    \}
-    assignInNamespace(x="normalizePath", value=newnormalizePath, ns="base")
+oldnormalizePath <- base::normalizePath;
+newnormalizePath <- function(path, winslash="\\", mustWork=NA) {
+  # override mustWork to FALSE
+  return(oldnormalizePath(path, winslash, mustWork=FALSE));
+};
+assignInNamespace(x="normalizePath", value=newnormalizePath, ns="base");
 
-    setwd("${APP_DIR}");
-    r <- getOption("repos");
-    r["CRAN"] <- "$CRAN_MIRROR";
-    options(repos=r);
+setwd("${APP_DIR}");
+r <- getOption("repos");
+r["CRAN"] <- "$CRAN_MIRROR";
+options(repos=r);
 
-    `cat $INIT_FILE`
+`cat $INIT_FILE`
 
-    cat("\n=====> init.r Completed\n");
+cat("\n=====> init.r Completed\n");
 
-    # write a file to indicate success
-    fileConn<-file("${APP_DIR}/status")
-    writeLines(c("1"), fileConn)
-    close(fileConn)
+# write a file to indicate success
+fileConn<-file("${APP_DIR}/status")
+writeLines(c("1"), fileConn)
+close(fileConn)
 
 RPROG
 
