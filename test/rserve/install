@@ -29,6 +29,7 @@ pip install -r requirements.txt
 
 # commit to git for push to heroku
 git init
+echo *.log > .gitignore
 git add --all
 git commit -m "initial"
 
