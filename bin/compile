@@ -175,7 +175,13 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
   done < "$BUILD_DIR/Aptfile"
 
   $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
-    apt-get update && apt-get install -y $PACKAGES 2>&1 | indent
+    apt-get update > /dev/null
+
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+    apt-get install -y $PACKAGES 2>&1 | indent
+
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+    apt-get clean > /dev/null
 
 fi
 
