@@ -1,6 +1,2 @@
 libgdal1h
 libgdal-dev
-libproj0
-libproj-dev
-proj-data
-libgeos-dev
