@@ -124,6 +124,10 @@ CHROOT_DIR="$APP_DIR/.root"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
+# this makes no sense, but within the chroot, it works
+export LD_LIBRARY_PATH="/app/.root/usr/lib:/app/.root/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
 # vendor R into the slug
 topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
 
@@ -152,13 +156,12 @@ popd > /dev/null
 pushd $CHROOT_DIR/usr/lib
 
 #
-# FIXME:
-#  there may be more symlinks which need fixing
-#  not sure why libraries in /usr/lib/x86_64-linux-gnu aren't being resolved
+# FIXME: might be a bug in fakechroot, which doesn't
+# work for relative symlinks, or it's during tar and untar of binaries
+#
+#  libR.so -> R/lib/libR.so
 #
 ln -sfn $CHROOT_DIR/usr/lib/R/lib/libR.so libR.so
-ln -sfn $CHROOT_DIR/usr/lib/x86_64-linux-gnu/libgfortran.so.3 libgfortran.so.3
-ln -sfn $CHROOT_DIR/usr/lib/x86_64-linux-gnu/libgfortran.so.3.0.0 libgfortran.so.3.0.0
 
 popd > /dev/null
 
