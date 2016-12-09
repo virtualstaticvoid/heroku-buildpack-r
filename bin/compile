@@ -183,6 +183,10 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
   $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
     apt-get clean > /dev/null
 
+  # remove unneeded files
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+    rm -rf /var/lib/apt/lists/* > /dev/null
+
 fi
 
 # install application author dependencies from CRAN
