@@ -14,7 +14,7 @@ my_packages = c("glmnet")
 
 install_if_missing = function(p) {
   if (p %in% rownames(installed.packages()) == FALSE) {
-    install.packages(p, dependencies = TRUE)
+    install.packages(p)
   }
   else {
     cat(paste("Skipping already installed package:", p, "\n"))

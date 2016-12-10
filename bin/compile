@@ -112,7 +112,7 @@ if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
   echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
 else
-  BUILD_PACK_VERSION="20161208-2355"
+  BUILD_PACK_VERSION="20161213-1256"
 fi
 
 # environment
@@ -126,6 +126,7 @@ R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binarie
 
 # this makes no sense, but within the chroot, it works
 export LD_LIBRARY_PATH="/app/.root/usr/lib:/app/.root/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig:$PKG_CONFIG_PATH"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # vendor R into the slug
@@ -218,7 +219,8 @@ if [[ ! -z "$INIT_FILE" ]]; then
 
   # execute the init wrapper
   # working directory must be /app so that provided packages/scripts can be found
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR /usr/bin/R --no-save -f /app/wrapper.R 2>&1 | indent
+  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+    /usr/bin/R --no-save -f /app/wrapper.R 2>&1 | indent
 
   # determine whether the R script failed
   if [[ -f "$CHROOT_DIR/app/status" ]]; then
@@ -232,6 +234,12 @@ else
   echo "R $R_VERSION successfully installed" | indent
 
 fi
+
+# remove unneeded files to reduce slug size
+rm -rf $CHROOT_DIR/tmp/*.rds
+rm -rf $CHROOT_DIR/tmp/downloaded_packages/*
+rm -rf $CHROOT_DIR/var/cache/apt
+rm -rf $CHROOT_DIR/var/lib/apt/lists/*
 
 # fix up /app symlink for runtime location
 pushd $CHROOT_DIR > /dev/null
