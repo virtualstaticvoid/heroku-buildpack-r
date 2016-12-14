@@ -26,7 +26,7 @@ heroku create --stack cedar-14
 app=$(heroku apps:info -j | jq -r '.app.name')
 
 # add buildpacks for Ruby and R
-heroku buildpacks:add https://github.com/heroku/heroku-buildpack-ruby.git --app $app
+heroku buildpacks:add https://github.com/heroku/heroku-buildpack-ruby --app $app
 heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r#$branch --app $app
 
 git push heroku master
