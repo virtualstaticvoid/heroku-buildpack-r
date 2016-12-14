@@ -112,7 +112,7 @@ if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
   echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
 else
-  BUILD_PACK_VERSION="20161213-1256"
+  BUILD_PACK_VERSION="20161214-1127"
 fi
 
 # environment
