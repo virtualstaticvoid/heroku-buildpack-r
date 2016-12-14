@@ -207,7 +207,6 @@ else
   unset INIT_FILE
 fi
 
-# got one? there shouldn't be one for shiny apps...
 if [[ ! -z "$INIT_FILE" ]]; then
 
   # prepare wrapper script

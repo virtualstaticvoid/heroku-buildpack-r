@@ -2,8 +2,10 @@
 # bin/detect <build-dir>
 
 # look for init.r or init.R or run.R
-if [ -f $1/init.r ] || [ -f $1/init.R ] || [ -f $1/run.R ]; then
-  echo "R" && exit 0
+if [ -f $1/run.R ]; then
+  echo "R Shiny" && exit 0
+elif [ -f $1/init.r ] || [ -f $1/init.R ]; then
+  echo "R Console" && exit 0
 else
   echo "no" && exit 1
 fi
