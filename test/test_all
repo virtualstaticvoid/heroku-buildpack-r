@@ -16,12 +16,15 @@ function test() {
   # read log for errors (in this directory)
   if [[ -f $log ]]; then
     #
-    # errors are output as:
+    # example error outputs matched:
     #  * removing '/app/vendor/R/lib/R/library/Package'
-    #  ERROR: compilation failed for package ‘RandomFieldsUtils’
+    #  ERROR: compilation failed for package ‘Package’
     #  *** caught segfault ***
+    #  Execution halted
+    #  fatal: An unhandled exception occurred
+    #  !     Push rejected, failed to compile R app.
     #
-    grep -E "(ERROR|removing|segfault)" $log
+    grep -E "(ERROR|removing|segfault|halted|fatal|rejected)" $log
     result=$?
   else
     echo "No log found..."
