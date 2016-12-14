@@ -10,6 +10,9 @@ function test() {
   dir=$1
   pushd $dir > /dev/null
 
+  echo "#---------- Testing $dir ----------"
+  echo "# see $dir$log..."
+
   # wait for 60 seconds
   /bin/bash install $branch $destroy 60 &> $log
 
@@ -23,8 +26,9 @@ function test() {
     #  Execution halted
     #  fatal: An unhandled exception occurred
     #  !     Push rejected, failed to compile R app.
+    #  Warning: Error in loadNamespace: there is no package called 'xxx'
     #
-    grep -E "(ERROR|removing|segfault|halted|fatal|rejected)" $log
+    grep -E "(ERROR|Error|removing|segfault|halted|fatal|rejected)" $log
     result=$?
   else
     echo "No log found..."
@@ -36,6 +40,7 @@ function test() {
   else
     echo "SUCCESS: $d"
   fi
+  echo
   popd > /dev/null
 }
 

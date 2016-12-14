@@ -67,7 +67,7 @@
 set -e
 
 # debug
-set -x
+# set -x
 
 shopt -s extglob
 
@@ -112,7 +112,7 @@ if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
   BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
   echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
 else
-  BUILD_PACK_VERSION="20161214-1127"
+  BUILD_PACK_VERSION="20161216-1434"
 fi
 
 # environment
@@ -124,10 +124,7 @@ CHROOT_DIR="$APP_DIR/.root"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
-# this makes no sense, but within the chroot, it works
-export LD_LIBRARY_PATH="/app/.root/usr/lib:/app/.root/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig:$PKG_CONFIG_PATH"
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+export PATH="$FAKECHROOT_DIR/sbin:$FAKECHROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # vendor R into the slug
 topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
@@ -151,18 +148,23 @@ ln -s $BUILD_DIR app
 # note: using # as separator as APP_DIR will contain /
 sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:$APP_DIR:/bin/bash#g" etc/passwd
 
-popd > /dev/null
+###
+# HACKS
 
-# patch up relative symlinks which don't work when chroot
-pushd $CHROOT_DIR/usr/lib
+fakechroot fakeroot chroot $CHROOT_DIR \
+  /bin/sh -c 'cd /usr/lib/x86_64-linux-gnu && ln -s libgfortran.so.3 libgfortran.so'
 
 #
-# FIXME: might be a bug in fakechroot, which doesn't
-# work for relative symlinks, or it's during tar and untar of binaries
+# FIXME: might be a bug in fakechroot, which doesn't work for relative symlinks,
+#         or it's during tar and untar of binaries that the symlink breaks
 #
 #  libR.so -> R/lib/libR.so
 #
-ln -sfn $CHROOT_DIR/usr/lib/R/lib/libR.so libR.so
+
+fakechroot fakeroot chroot $CHROOT_DIR \
+  /bin/sh -c 'cd /usr/lib && ln -sfn /usr/lib/R/lib/libR.so libR.so'
+
+###
 
 popd > /dev/null
 
@@ -178,17 +180,17 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
     PACKAGES="$PACKAGES $PACKAGE"
   done < "$BUILD_DIR/Aptfile"
 
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+  fakechroot fakeroot chroot $CHROOT_DIR \
     apt-get update > /dev/null
 
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+  fakechroot fakeroot chroot $CHROOT_DIR \
     apt-get install -y $PACKAGES 2>&1 | indent
 
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+  fakechroot fakeroot chroot $CHROOT_DIR \
     apt-get clean > /dev/null
 
   # remove unneeded files
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+  fakechroot fakeroot chroot $CHROOT_DIR \
     rm -rf /var/lib/apt/lists/* > /dev/null
 
 fi
@@ -218,7 +220,7 @@ if [[ ! -z "$INIT_FILE" ]]; then
 
   # execute the init wrapper
   # working directory must be /app so that provided packages/scripts can be found
-  $FAKECHROOT_DIR/bin/fakechroot -l $FAKECHROOT_DIR/lib/fakechroot/libfakechroot.so /usr/bin/fakeroot /usr/sbin/chroot $CHROOT_DIR \
+  fakechroot fakeroot chroot $CHROOT_DIR \
     /usr/bin/R --no-save -f /app/wrapper.R 2>&1 | indent
 
   # determine whether the R script failed
@@ -238,7 +240,7 @@ fi
 rm -rf $CHROOT_DIR/tmp/*.rds
 rm -rf $CHROOT_DIR/tmp/downloaded_packages/*
 rm -rf $CHROOT_DIR/var/cache/apt
-rm -rf $CHROOT_DIR/var/lib/apt/lists/*
+rm -rf $CHROOT_DIR/var/lib/dpkg
 
 # fix up /app symlink for runtime location
 pushd $CHROOT_DIR > /dev/null
