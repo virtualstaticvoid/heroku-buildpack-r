@@ -34,7 +34,7 @@ git push heroku master
 popd
 
 # browse to the web application
-heroku open --app $app
+heroku open --app $app || echo
 
 # wait?
 if [[ "$waitfor" -ne "0" ]]; then
