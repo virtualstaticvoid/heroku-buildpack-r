@@ -195,6 +195,9 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
 
 fi
 
+# write normalizePath hack to Rprofile.site
+cp "$LP_DIR/bin/Rprofile.site" "$CHROOT_DIR/usr/lib/R/etc/Rprofile.site"
+
 # install application author dependencies from CRAN
 topic "Executing init.r script"
 
