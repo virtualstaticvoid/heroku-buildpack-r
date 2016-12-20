@@ -135,7 +135,7 @@ See the [ruby](test/ruby) application which shows how to use R together with a R
 
 ## R Versions
 
-There buildpack includes R 3.3.2 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
+The buildpack uses R 3.3.2 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
 The following R versions are supported:
 
@@ -171,7 +171,8 @@ If additional R packages are installed then the slug size will increase.
 
 * Original inspiration from [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.
 * [heroku-buildpack-apt](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt) buildpack.
-* [heroku-buildpack-fakesu](https://github.com/fabiokung/heroku-buildpack-fakesu) builpack.
+* [heroku-buildpack-fakesu](https://github.com/fabiokung/heroku-buildpack-fakesu) buildpack.
+* [fakechroot](https://github.com/dex4er/fakechroot)
 
 ## License
 

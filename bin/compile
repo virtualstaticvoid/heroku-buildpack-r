@@ -32,35 +32,36 @@
 #
 # The solution? Try to use "official" packaged R versions, installed to default locations.
 #
-# Another version of the builpack used the Apt buildpack, so that apt-get could be used to
-# install R and it's dependencies, but this approach proved to be fraught with similar path issues
+# Yet another version of the buildpack used the Apt buildpack, so that apt-get could be used to
+# install R and it's dependencies, but this approach proved to be fraught with similar path issues.
 #
 # Finally, (this version) uses a chroot method, which provides a sandbox in which to install R
 # correctly, and all it's dependencies, with all symlinks and paths intact.
 #
-# A small complication to this approach is, since Heroku cannot run chroot under sudo, a fake chroot
-# has to be used, to allow for chroot to work under the normal user.
+# A small complication to this approach is that since Heroku cannot run chroot under sudo, a fake chroot
+# has to be used to allow for chroot to work under the standard user.
 #
 # The upside of this approach are:
 #
-#  * less hacks applied, thus less details of R need to be known by the buildpack
-#  * more maintainable when newer R versions need to be supported
-#  * more stable, since dependencies and pathings are standard
-#  * no segfaults or other hard to track down errors
+#  * Less hacks applied, thus less details of R need to be known by the buildpack.
+#  * More maintainable when newer R versions need to be supported.
+#  * More stable, since dependencies and pathings are standard.
+#  * No segfaults or other hard to track down errors.
 #
 # The downsides of this approach are:
 #
-#  * much larger slug of ~220MB,
+#  * Slightly larger slug of ~110MB,
 #
-#  * an "ugly" command line to run R
+#  * An "ugly" command line to run R
 #
-#    I.e. `fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R ... --no-save'`
+#    I.e. `fakechroot fakeroot chroot /app/.root /usr/bin/R ... --no-save`
 #
-#  * application author files are in /app, which need to be symlinked into the chroot, which
-#    can cause issues if the `base::normalizePath(..., mustWork=TRUE)` method is used.
+#  * Application author files are in /app, which are symlinked into the chroot, which
+#    can cause issues if the R `base::normalizePath(..., mustWork=TRUE)` method is used.
+#    A "method replacement hack" in `Rprofile.site` solves this issue.
 #
-#  * still requires moving files between /app and BUILD_DIR, so that packages can be compiled under
-#    the same paths as at runtime
+#  * Still requires moving files between /app and BUILD_DIR, so that packages can be compiled under
+#    the same paths as at runtime, so care is taken to ensure symlinks are preserved.
 #
 
 # fail fast
@@ -146,18 +147,21 @@ sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:$APP_DIR:/bin/bash#g" 
 ###
 # HACKS
 
-fakechroot fakeroot chroot $CHROOT_DIR \
-  /bin/sh -c 'cd /usr/lib/x86_64-linux-gnu && ln -s libgfortran.so.3 libgfortran.so'
-
 #
-# FIXME: might be a bug in fakechroot, which doesn't work for relative symlinks,
-#         or it's during tar and untar of binaries that the symlink breaks
+# FIXME: might be a bug in fakechroot, which doesn't work for relative symlinks on sub-directories,
+#         or breaks during tar and untar of binaries that the symlink breaks...
+#
+# E.g.
 #
 #  libR.so -> R/lib/libR.so
 #
 
 fakechroot fakeroot chroot $CHROOT_DIR \
   /bin/sh -c 'cd /usr/lib && ln -sfn /usr/lib/R/lib/libR.so libR.so'
+
+# add missing symlink for libgfortran.so
+fakechroot fakeroot chroot $CHROOT_DIR \
+  /bin/sh -c 'cd /usr/lib/x86_64-linux-gnu && ln -s libgfortran.so.3 libgfortran.so'
 
 ###
 
@@ -214,6 +218,8 @@ if [[ ! -z "$INIT_FILE" ]]; then
   cp "$LP_DIR/bin/wrapper.R" $WRAPPER
 
   # perform insertions
+  #  would have preferred to use sed or awk for this, but it's real tricky with multi-line
+  #  replacements, so using a Ruby program, as Ruby is installed on Heroku by default
   ruby "$LP_DIR/bin/util.rb" "$WRAPPER" "$INIT_FILE" "$BUILD_DIR" "$CRAN_MIRROR"
 
   # execute the init wrapper
