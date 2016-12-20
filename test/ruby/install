@@ -34,7 +34,13 @@ git push heroku master
 popd
 
 # browse to the web application
-heroku open --app $app || echo
+if [ -z $DESKTOP_SESSION ]; then
+  url=$(heroku apps:info -j | jq -r '.app.web_url')
+  sleep 10
+  curl $url --verbose
+else
+  heroku open --app $app
+fi
 
 # wait?
 if [[ "$waitfor" -ne "0" ]]; then
