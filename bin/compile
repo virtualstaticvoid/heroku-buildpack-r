@@ -107,13 +107,8 @@ else
   R_VERSION="3.3.2"
 fi
 
-# read in buildback binary version if file exists
-if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
-  BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
-  echo "NOTE: Using buildback version override [$BUILD_PACK_VERSION]" | indent
-else
-  BUILD_PACK_VERSION="20161217-0954"
-fi
+# there is only one!
+BUILD_PACK_VERSION="20161220-0722"
 
 # environment
 S3_BUCKET="heroku-buildpack-r"
