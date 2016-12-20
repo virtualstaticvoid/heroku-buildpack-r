@@ -139,7 +139,6 @@ There buildpack includes R 3.3.2 by default, however it is possible to use a dif
 
 The following R versions are supported:
 
-* 3.0.0
 * 3.1.3
 * 3.2.5
 * 3.3.2
