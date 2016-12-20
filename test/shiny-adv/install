@@ -25,12 +25,12 @@ heroku create --stack cedar-14 \
 
 # trick to get the app name
 app=$(heroku apps:info -j | jq -r '.app.name')
+url=$(heroku apps:info -j | jq -r '.app.web_url')
 
 git push heroku master
 
 # browse to the web application
 if [ -z $DESKTOP_SESSION ]; then
-  url=$(heroku apps:info -j | jq -r '.app.web_url')
   sleep 10
   curl $url --verbose
 else
