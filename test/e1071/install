@@ -14,7 +14,7 @@ pushd $dir
 
 # commit to git for push to heroku
 git init
-echo *.log > .gitignore
+echo "*.log" > .gitignore
 git add --all
 git commit -m "initial"
 
