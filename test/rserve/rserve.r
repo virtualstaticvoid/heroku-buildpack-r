@@ -4,4 +4,10 @@ require('Rserve')
 port <- Sys.getenv('PORT')
 
 # run Rserve in process
-run.Rserve(debug = FALSE, port, args = NULL, config.file = "./rserve.conf")
+# needed for non-daemon mode!
+run.Rserve(
+	debug = TRUE,
+	port,
+	args = "--no-save",
+	config.file = "/app/rserve.conf"
+)

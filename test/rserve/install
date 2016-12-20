@@ -42,9 +42,6 @@ app=$(heroku apps:info -j | jq -r '.app.name')
 
 git push heroku master
 
-# start rserve process
-heroku ps:scale rserve=1
-
 popd
 
 # destroy the app, and clean up temporary files
@@ -72,6 +69,14 @@ else
   echo -e ""
   echo -e "********************************************************************************"
   echo -e "${RESET}"
+
+  trap ctrl_c INT
+
+  function ctrl_c() {
+    # clean up
+    heroku apps:destroy $app --confirm $app
+    rm -rf $dir
+  }
 
   # tail the log, Ctrl+C to stop
   echo "Press CTRL+C to STOP tailing the log"
