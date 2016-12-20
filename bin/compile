@@ -49,6 +49,13 @@ VENDOR_DIR="$BUILD_DIR/vendor"
 GCC_VERSION=4.8
 ARCH=`dpkg-architecture -qDEB_HOST_MULTIARCH`
 
+# init.r file may be init.R
+if [ -f $BUILD_DIR/init.r ]; then
+  INITR="init.r"
+elif [ -f $BUILD_DIR/init.R ]; then
+  INITR="init.R"
+fi
+
 # read in R version if file exists
 if [[ -f "$BUILD_DIR/.r-version" ]];
 then
@@ -206,7 +213,7 @@ echo "Executing init.r script" | indent
   r <- getOption("repos");
   r["CRAN"] <- "$CRAN_MIRROR";
   options(repos=r);
-  `cat $BUILD_DIR/init.r`
+  `cat $BUILD_DIR/$INITR`
   cat("\n=====> init.r Completed Successfully\n")
 RPROG
 
