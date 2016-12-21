@@ -70,14 +70,6 @@ else
   echo -e "********************************************************************************"
   echo -e "${RESET}"
 
-  trap ctrl_c INT
-
-  function ctrl_c() {
-    # clean up
-    heroku apps:destroy $app --confirm $app
-    rm -rf $dir
-  }
-
   # tail the log, Ctrl+C to stop
   echo "Press CTRL+C to STOP tailing the log"
   heroku logs --tail --app $app

@@ -3,8 +3,10 @@
 require 'rserve'
 
 host = ARGV[0]
-conn = Rserve::Connection.new(:hostname => host, :port_number => 80)
-x = conn.eval('x<-rnorm(1)')
-conn.close()
+port = ARGV[1] || 80
 
-puts x
+conn = Rserve::Connection.new(:hostname => host, :port_number => port)
+x = conn.eval('x <- rnorm(1)')
+puts x.to_f
+
+conn.close()
