@@ -39,7 +39,7 @@ This version of the buildpack uses a fake chroot in order to properly support R 
 
 The directory layout of the buildpack places the chroot in `/app/.root` and symlinks `/app` into `/app/.root/app` so that file paths are unaffected.
 
-*NB*: If your application provides a `Procfile` or provides it's own process types, you will need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, to execute R correctly. See [rserve](test/rserve/Procfile) for an example.
+*NB*: If your application provides a `Procfile` or provides it's own process types, you will need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, to execute R correctly. See [ruby](test/ruby/Procfile) for an example.
 
 For example, this command runs R within the chroot context:
 
