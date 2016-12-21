@@ -1,1 +1,0 @@
-web: fakechroot fakeroot chroot /app/.root /usr/bin/R --file=/app/rserve.r --gui-none --no-save
