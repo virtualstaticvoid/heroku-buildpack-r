@@ -13,7 +13,9 @@ store identical, up-to-date, versions of code and documentation for R.
 
 It also includes support for the [Shiny](https://shiny.rstudio.com/) web application framework.
 
-_NOTE: This is the `chroot` version_
+To use this version, the buildpack URL is `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14-chroot`.
+
+_NOTE: This is the `chroot` version._
 
 ## Usage
 
