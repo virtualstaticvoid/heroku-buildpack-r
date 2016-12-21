@@ -35,7 +35,7 @@ The buildpack includes the following default process types:
 
 ### Fake Chroot
 
-This version of the buildpack uses a fake chroot in order to properly support R on Heroku. This is because R presents some unique challenges when used on Heroku. Checkout the comments in [`bin/compile`] for more details.
+This version of the buildpack uses a fake chroot in order to properly support R on Heroku. This is because R presents some unique challenges when used on Heroku. Checkout the comments in [`bin/compile`](bin/compile) for more details.
 
 The directory layout of the buildpack places the chroot in `/app/.root` and symlinks `/app` into `/app/.root/app` so that file paths are unaffected.
 
@@ -45,7 +45,7 @@ For example, this command runs R within the chroot context:
 
 `fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save`
 
-*NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in the [Rprofile.site](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
+*NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in the [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
 
 ### Installing R Packages
 
