@@ -1,0 +1,17 @@
+{
+  "name": "node-js-r",
+  "version": "1.0.0",
+  "description": "A sample Node.js app using Express 4 and R on Heroku",
+  "engines": {
+    "node": "5.9.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "4.13.3",
+    "promise": "^7.1.1",
+    "rserve-js": "0.0.5"
+  }
+}
