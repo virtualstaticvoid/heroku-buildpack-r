@@ -44,7 +44,7 @@ app.set('port', (process.env.PORT || 5000));
 
 app.get('/', function(request, response) {
 
-	var rcode = "demo(is.things)";
+  var rcode = "demo(is.things)";
 
   var client = Rserve.connect("localhost", 6311, function() {
 
