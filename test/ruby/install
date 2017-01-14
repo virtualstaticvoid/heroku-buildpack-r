@@ -72,8 +72,4 @@ else
   echo -e "********************************************************************************"
   echo -e "${RESET}"
 
-  # tail the log, Ctrl+C to stop
-  echo "Press CTRL+C to STOP tailing the log"
-  heroku logs --tail --app $app
-
 fi

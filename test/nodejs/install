@@ -60,16 +60,15 @@ if [[ "$destroy" -eq "1" ]]; then
 
 else
 
-  trap ctrl_c INT
-
-  function ctrl_c() {
-    # clean up
-    heroku apps:destroy $app --confirm $app
-    rm -rf $dir
-  }
-
-  # tail the log, Ctrl+C to stop
-  echo "Press CTRL+C to STOP"
-  heroku logs --tail --app $app
+  GREEN='\033[1;32m'
+  RESET='\033[0m'
+  echo -e "${GREEN} ********************************************************************************"
+  echo -e ""
+  echo -e " Run the following command to destroy the test application when you are done."
+  echo -e ""
+  echo -e "  heroku apps:destroy $app"
+  echo -e ""
+  echo -e "********************************************************************************"
+  echo -e "${RESET}"
 
 fi
