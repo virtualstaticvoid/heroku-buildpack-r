@@ -10,6 +10,7 @@ if [ -f "$1/run.R" ]; then
 default_process_types:
   console: fakechroot fakeroot chroot /app/.root /bin/bash
   R: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R --no-save'
+  Rscript: fakechroot fakeroot chroot /app/.root /usr/bin/Rscript
   web: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R -f /app/run.R --gui-none --no-save'
 EOF
 
@@ -22,6 +23,7 @@ else
 default_process_types:
   console: fakechroot fakeroot chroot /app/.root /bin/bash
   R: fakechroot fakeroot chroot /app/.root /bin/sh -c 'cd /app && /usr/bin/R --no-save'
+  Rscript: fakechroot fakeroot chroot /app/.root /usr/bin/Rscript
 EOF
 
 fi
