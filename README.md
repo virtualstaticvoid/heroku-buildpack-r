@@ -30,6 +30,7 @@ The R runtime is vendored into your slug, and the `init.R` program is executed i
 The buildpack includes the following default process types:
 
 * R: Executes `R` in the chroot context
+* Rscript: Executes `Rscript` in the chroot context
 * web: Executes `run.R` to run Shiny in the chroot context
 * console: Executes `bash` in the chroot context, if needed for debugging.
 
@@ -43,7 +44,11 @@ The directory layout of the buildpack places the chroot in `/app/.root` and syml
 
 For example, this command runs R within the chroot context:
 
-`fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save`
+`fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save ...`
+
+Or, for running Rscript:
+
+`fakechroot fakeroot chroot /app/.root /usr/bin/Rscript ...`
 
 *NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in the [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
 
