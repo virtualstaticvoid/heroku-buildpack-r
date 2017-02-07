@@ -239,6 +239,7 @@ if [[ ! -z "$INIT_FILE" ]]; then
     echo "R $R_VERSION successfully installed (with init)" | indent
   else
     echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
+    exit 1
   fi
 
 else
