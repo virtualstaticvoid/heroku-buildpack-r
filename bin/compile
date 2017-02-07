@@ -90,8 +90,20 @@ function read_var() {
   echo $(head -n 1 $1)
 }
 
+function patch_chroot() {
+  old=$1
+  new=$2
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/bin/env.fakechroot"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/bin/fakechroot"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/bin/ldd.fakechroot"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/etc/fakechroot/chroot.env"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/etc/fakechroot/debootstrap.env"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/etc/fakechroot/rinse.env"
+  sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/lib/fakechroot/libfakechroot.la"
+}
+
 # parse and derive params
-LP_DIR=`cd $(dirname $0); cd ..; pwd`
+BUILDPACK_DIR=`cd $(dirname $0); cd ..; pwd`
 BUILD_DIR=$1
 CACHE_DIR=$2
 
@@ -109,14 +121,13 @@ else
 fi
 
 # there is only one!
-BUILD_PACK_VERSION="20161220-0722"
+BUILD_PACK_VERSION="20170207-2229"
 
 # environment
 S3_BUCKET="heroku-buildpack-r"
-APP_DIR="/app"
-TOOLS_DIR="$APP_DIR/.tools"
+TOOLS_DIR="$BUILD_DIR/.tools"
 FAKECHROOT_DIR="$TOOLS_DIR/fakechroot"
-CHROOT_DIR="$APP_DIR/.root"
+CHROOT_DIR="$BUILD_DIR/.root"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
 R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
@@ -128,41 +139,37 @@ topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
 # download and unpack binaries
 echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
 
-mkdir -p $APP_DIR
-pushd $APP_DIR > /dev/null
+pushd $BUILD_DIR > /dev/null
 curl $R_BINARIES -s -o - | tar xzf - -C .
 popd > /dev/null
+
+# set to build dir, so packages can be installed
+patch_chroot "/app" "$BUILD_DIR"
 
 pushd $CHROOT_DIR > /dev/null
 
 # link app dir into chroot
-ln -s $BUILD_DIR app
+ln -sf ../ app
 
-# make APP_DIR the home directory since application
+# make /app the home directory since application
 # authors will expect the same behaviour within the chroot
 # as the heroku instance. I.e. /app exists and contains their code etc.
-# note: using # as separator as APP_DIR will contain /
-sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:$APP_DIR:/bin/bash#g" etc/passwd
+sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:/app:/bin/bash#g" etc/passwd
 
 ###
 # HACKS
-
 #
 # FIXME: might be a bug in fakechroot, which doesn't work for relative symlinks on sub-directories,
 #         or breaks during tar and untar of binaries that the symlink breaks...
-#
 # E.g.
 #
 #  libR.so -> R/lib/libR.so
 #
 
 fakechroot fakeroot chroot $CHROOT_DIR \
-  /bin/sh -c 'cd /usr/lib && ln -sfn /usr/lib/R/lib/libR.so libR.so'
+  /bin/sh -c 'cd /usr/lib && ln -sf ../lib/R/lib/libR.so libR.so'
 
-# add missing symlink for libgfortran.so
-fakechroot fakeroot chroot $CHROOT_DIR \
-  /bin/sh -c 'cd /usr/lib/x86_64-linux-gnu && ln -s libgfortran.so.3 libgfortran.so'
-
+#
 ###
 
 popd > /dev/null
@@ -195,7 +202,7 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
 fi
 
 # write normalizePath hack to Rprofile.site
-cp "$LP_DIR/bin/Rprofile.site" "$CHROOT_DIR/usr/lib/R/etc/Rprofile.site"
+cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
 # install application author dependencies from CRAN
 topic "Executing init.r script"
@@ -215,12 +222,12 @@ if [[ ! -z "$INIT_FILE" ]]; then
 
   # prepare wrapper script
   WRAPPER="$BUILD_DIR/wrapper.R"
-  cp "$LP_DIR/bin/wrapper.R" $WRAPPER
+  cp "$BUILDPACK_DIR/bin/wrapper.R" $WRAPPER
 
   # perform insertions
   #  would have preferred to use sed or awk for this, but it's real tricky with multi-line
   #  replacements, so using a Ruby program, as Ruby is installed on Heroku by default
-  ruby "$LP_DIR/bin/util.rb" "$WRAPPER" "$INIT_FILE" "$BUILD_DIR" "$CRAN_MIRROR"
+  ruby "$BUILDPACK_DIR/bin/util.rb" "$WRAPPER" "$INIT_FILE" "$BUILD_DIR" "$CRAN_MIRROR"
 
   # execute the init wrapper
   # working directory must be /app so that provided packages/scripts can be found
@@ -246,23 +253,22 @@ rm -rf $CHROOT_DIR/tmp/downloaded_packages/*
 rm -rf $CHROOT_DIR/var/cache/apt
 rm -rf $CHROOT_DIR/var/lib/dpkg
 
-# fix up /app symlink for runtime location
-pushd $CHROOT_DIR > /dev/null
-rm app
-ln -s $APP_DIR app
-popd > /dev/null
-
-#
-# copy over, preserving symlinks
-# therefore under BUILD_DIR path, symlinks are invalid
-#
-cp --recursive --preserve=links $CHROOT_DIR $BUILD_DIR
-cp --recursive --preserve=links $TOOLS_DIR $BUILD_DIR
+# when deployed, the path will be /app
+patch_chroot "$BUILD_DIR" "/app"
 
 # copy over environment
 mkdir -p "$BUILD_DIR/.profile.d"
-cp "$LP_DIR/bin/renv.sh" "$BUILD_DIR/.profile.d/renv.sh"
+cp "$BUILDPACK_DIR/bin/renv.sh" "$BUILD_DIR/.profile.d/renv.sh"
 
 # $BUILD_DIR will now be compressed for slug compilation
 
 # TODO: cache build
+
+# give environment to later buildpacks
+cat > "$BUILDPACK_DIR/export" <<EOL
+declare -x S3_BUCKET="$S3_BUCKET"
+declare -x TOOLS_DIR="$TOOLS_DIR"
+declare -x FAKECHROOT_DIR="$FAKECHROOT_DIR"
+declare -x CHROOT_DIR="$CHROOT_DIR"
+declare -x CRAN_MIRROR="$CRAN_MIRROR"
+EOL
