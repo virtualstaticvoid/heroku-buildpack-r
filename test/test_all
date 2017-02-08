@@ -4,7 +4,8 @@ set -e
 
 branch=${1:-cedar-14-chroot}
 destroy=${2:-1}
-log="${3:-test-`date +%Y%m%d-%H%M`}.log"
+repo=${3:-github.com/virtualstaticvoid}
+log="${4:-test-`date +%Y%m%d-%H%M`}.log"
 
 function test() {
   dir=$1
@@ -14,7 +15,7 @@ function test() {
   echo "# see $dir$log..."
 
   # wait for 60 seconds
-  /bin/bash install $branch $destroy 60 &> $log
+  /bin/bash install $branch $destroy $repo 60 &> $log
 
   # read log for errors (in this directory)
   if [[ -f $log ]]; then

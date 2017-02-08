@@ -5,7 +5,8 @@ set -e
 
 branch=${1:-cedar-14}
 destroy=${2:-0}
-waitfor=${3:-0} # used when testing
+repo=${3:-github.com/virtualstaticvoid}
+waitfor=${4:-0} # used when testing
 
 # create a temporary directory and copy
 # the test application to it
@@ -21,7 +22,7 @@ git commit -m "initial"
 
 # create the app with R buildpack
 heroku create --stack cedar-14 \
-              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#$branch
+              --buildpack https://$repo/heroku-buildpack-r.git#$branch
 
 # trick to get the app name
 app=$(heroku apps:info -j | jq -r '.app.name')

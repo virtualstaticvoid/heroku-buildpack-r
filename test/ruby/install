@@ -5,7 +5,8 @@ set -e
 
 branch=${1:-cedar-14-chroot}
 destroy=${2:-0}
-waitfor=${3:-0} # used when testing
+repo=${3:-github.com/virtualstaticvoid}
+waitfor=${4:-0} # used when testing
 
 # create a temporary directory and copy
 # the test application to it
