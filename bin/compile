@@ -52,16 +52,17 @@
 #
 #  * Slightly larger slug of ~110MB,
 #
-#  * An "ugly" command line to run R
+#  * Under certain circumstances, an "ugly" command line to run R is used
+#    E.g. `fakechroot fakeroot chroot /app/.root /usr/bin/R ... --no-save`
+#    There are however wrapper scripts for R and Rscript which take care of this.
 #
-#    I.e. `fakechroot fakeroot chroot /app/.root /usr/bin/R ... --no-save`
-#
-#  * Application author files are in /app, which are symlinked into the chroot, which
+#  * Your application files are in /app, which need to be symlinked into the chroot, which
 #    can cause issues if the R `base::normalizePath(..., mustWork=TRUE)` method is used.
 #    A "method replacement hack" in `Rprofile.site` solves this issue.
 #
-#  * Still requires moving files between /app and BUILD_DIR, so that packages can be compiled under
-#    the same paths as at runtime, so care is taken to ensure symlinks are preserved.
+#  * Some third party libraries for R cannot be used, since R needs to run in the chroot, and
+#    the library is not executed in the chroot, making R inaccessible.
+#    RServe is the most viable interface to R in this case. See the node.js example application.
 #
 
 # fail fast
@@ -90,6 +91,10 @@ function read_var() {
   echo $(head -n 1 $1)
 }
 
+#
+# chroot scripts embed fully qualified path
+# this functional allows you to rewrite the path
+#
 function patch_chroot() {
   old=$1
   new=$2
@@ -157,13 +162,13 @@ ln -sf ../ app
 sed -i "s#root:x:0:0:root:/root:/bin/bash#root:x:0:0:root:/app:/bin/bash#g" etc/passwd
 
 ###
-# HACKS
 #
-# FIXME: might be a bug in fakechroot, which doesn't work for relative symlinks on sub-directories,
-#         or breaks during tar and untar of binaries that the symlink breaks...
-# E.g.
+# FIXME:
+#   might be a bug in fakechroot, which doesn't work when a relative symlink refers to a child in the same directory,
 #
-#  libR.so -> R/lib/libR.so
+#   e.g. /usr/lib/libR.so => R/lib/libR.so
+#        changing the symlink to the following works
+#        /usr/lib/libR.so => ../lib/R/lib/libR.so
 #
 
 fakechroot fakeroot chroot $CHROOT_DIR \
