@@ -111,9 +111,7 @@ shiny::runApp(
 
 You can use the [Heroku scheduler](https://addons.heroku.com/scheduler) to schedule a recurring R process.
 
-The following command would run `prog.r`:
-
-`R -f ./prog.r --gui-none --no-save`
+An example command for the scheduler, to run `prog.r`, would be `R -f /app/prog.r --gui-none --no-save`.
 
 ## Technical Details
 
