@@ -25,38 +25,13 @@ If only a `run.R` file is found, then the buildpack will be configured as a Shin
 
 The R runtime is vendored into your slug, and the `init.R` program is executed in order to install any additional R packages.
 
-### Process Types
-
-The buildpack includes the following default process types:
-
-* R: Executes `R` in the chroot context
-* Rscript: Executes `Rscript` in the chroot context
-* web: Executes `run.R` to run Shiny in the chroot context
-* console: Executes `bash` in the chroot context, if needed for debugging.
-
-### Fake Chroot
-
-This version of the buildpack uses a fake chroot in order to properly support R on Heroku. This is because R presents some unique challenges when used on Heroku. Checkout the comments in [`bin/compile`](bin/compile) for more details.
-
-The directory layout of the buildpack places the chroot in `/app/.root` and symlinks `/app` into `/app/.root/app` so that file paths are unaffected.
-
-*NB*: If your application provides a `Procfile` or provides it's own process types, you will need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, to execute R correctly. See [ruby](test/ruby/Procfile) for an example.
-
-For example, this command runs R within the chroot context:
-
-`fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save ...`
-
-Or, for running Rscript:
-
-`fakechroot fakeroot chroot /app/.root /usr/bin/Rscript ...`
-
-*NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in the [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
-
 ### Installing R Packages
 
 The `init.R` file is executed during slug compilation, so it can be used to install R packages if required.
 
-The following file can be used to install packages if they aren't already installed. Add the package names you want to install to the `my_packages` list:
+The following file can be used to install packages if they aren't already installed.
+
+Add the package names you want to install to the `my_packages` list:
 
 ```
 # init.R
@@ -88,13 +63,31 @@ install.packages("/app/PackageName-Version.tar.gz", repos=NULL, type="source")
 
 *NOTE:* The path to the package archive needs to be an absolute path, based off the `/app` root path, which is the location of your applications files on Heroku.
 
-### Installing Package Dependencies
+### Installing Binary Dependencies
 
 If the R packages have binary dependencies, they can be specified by providing an `Aptfile` which contains the Ubuntu package names to install.
 
 Examples include [gmp](test/gmp/Aptfile), [rgeos](test/rgeos/Aptfile) and [topicmodels](test/topicmodels/Aptfile) where Ubuntu packages are installed during slug compilation.
 
 This is based on the same technique as used by the [heroku-buildpack-apt](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt) buildpack.
+
+### R Console
+
+You can run the R console application as follows:
+
+```
+$ heroku run R ...
+```
+
+Type `q()` to exit the console when you are finished.
+
+You can run the Rscript utility as follows:
+
+```
+$ heroku run Rscript ...
+```
+
+_Note that the Heroku slug is read-only, so any changes you make during the session will be discarded._
 
 ### Shiny Applications
 
@@ -114,33 +107,17 @@ shiny::runApp(
 )
 ```
 
-## R Console
-
-You can run the R console application as follows:
-
-```
-$ heroku run R
-```
-
-Type `q()` to exit the console when you are finished.
-
-_Note that the Heroku slug is read-only, so any changes you make during the session will be discarded._
-
-## Scheduling a Recurring Job
+### Scheduling a Recurring Job
 
 You can use the [Heroku scheduler](https://addons.heroku.com/scheduler) to schedule a recurring R process.
 
 The following command would run `prog.r`:
 
-`fakechroot fakeroot chroot /app/.root /usr/bin/R -f ./prog.r --gui-none --no-save`
+`R -f ./prog.r --gui-none --no-save`
 
-## Multiple Buildpacks
+## Technical Details
 
-This buildpack can be used in conjunction with other supported language stacks on Heroku by using multiple buildpacks. See [Using Multiple Buildpacks for an App](https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app).
-
-See the [ruby](test/ruby) application which shows how to use R together with a Ruby Sinatra web application and the [`rinruby`](https://rubygems.org/gems/rinruby) gem.
-
-## R Versions
+### R Versions
 
 The buildpack uses R 3.3.2 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
@@ -150,7 +127,7 @@ The following R versions are supported:
 * 3.2.5
 * 3.3.2
 
-## Buildpack Versions
+### Buildpack Versions
 
 To reference a specific version of the buildpack, add the Git branch or tag name to the end of the build pack URL when creating or configuring your Heroku application.
 
@@ -163,15 +140,48 @@ $ heroku create --stack cedar-14 \
 
 *NOTE:* The `.buildpack-version` file is no longer supported and will be ignored.
 
-## Buildpack Binaries
+### Buildpack Binaries
 
 The binaries used by the buildpack are hosted on AWS S3 at [https://heroku-buildpack-r.s3.amazonaws.com](https://heroku-buildpack-r.s3.amazonaws.com).
 
 See the [heroku-buildpack-r-build](https://github.com/virtualstaticvoid/heroku-buildpack-r-build) repository for building the R binaries yourself.
 
+### Process Types
+
+The buildpack includes the following default process types:
+
+* console: Executes `bash` in the chroot context, if needed for debugging.
+* web: Executes `run.R` to run Shiny in the chroot context
+
+The `R` and `Rscript` executables are available like any other executable, via the `heroku run` command.
+
+### Fake Chroot
+
+This version of the buildpack uses a fake chroot in order to properly support R on Heroku. This is because R presents some unique challenges when used on Heroku. Checkout the comments in [`bin/compile`](bin/compile) for more details.
+
+The directory layout of the buildpack places the chroot in `/app/.root` and symlinks `/app` into `/app/.root/app` so that file paths are unaffected.
+
+*NB*: If your application provides a `Procfile` or provides it's own process types, you will need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, to execute R correctly. See [ruby](test/ruby/Procfile) for an example.
+
+For example, this command runs R within the chroot context:
+
+`fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save ...`
+
+Or, for running Rscript:
+
+`fakechroot fakeroot chroot /app/.root /usr/bin/Rscript ...`
+
+*NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in the [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
+
+### Multiple Buildpacks
+
+This buildpack can be used in conjunction with other supported language stacks on Heroku by using multiple buildpacks. See [Using Multiple Buildpacks for an App](https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app).
+
+See the [ruby](test/ruby) application which shows how to use R together with a Ruby Sinatra web application and the [`rinruby`](https://rubygems.org/gems/rinruby) gem.
+
 ## Caveats
 
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 106Mb.
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 110Mb.
 If additional R packages are installed then the slug size will increase.
 
 ## Credits
