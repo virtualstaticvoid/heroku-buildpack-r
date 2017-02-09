@@ -30,7 +30,7 @@ app=$(heroku apps:info -j | jq -r '.app.name')
 git push heroku master
 
 # run R console
-heroku run fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save -f /app/prog.R --app $app
+heroku run R --no-save -f /app/prog.R --app $app
 
 popd
 
