@@ -154,7 +154,7 @@ patch_chroot "/app" "$BUILD_DIR"
 pushd $CHROOT_DIR > /dev/null
 
 # link app dir into chroot
-ln -sf ../ app
+ln -sf $BUILD_DIR app
 
 # make /app the home directory since application
 # authors will expect the same behaviour within the chroot
@@ -252,6 +252,12 @@ else
   echo "R $R_VERSION successfully installed" | indent
 
 fi
+
+# fix up /app symlink for runtime location
+pushd $CHROOT_DIR > /dev/null
+rm app
+ln -s /app app
+popd > /dev/null
 
 # remove unneeded files to reduce slug size
 rm -rf $CHROOT_DIR/tmp/*.rds
