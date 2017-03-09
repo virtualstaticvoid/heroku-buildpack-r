@@ -140,22 +140,22 @@ else
   R_VERSION="3.3.3"
 fi
 
-# there is only one!
-BUILD_PACK_VERSION="20170207-2229"
-
 # environment
 S3_BUCKET="heroku-buildpack-r"
 TOOLS_DIR="$BUILD_DIR/.tools"
 FAKECHROOT_DIR="$TOOLS_DIR/fakechroot"
 CHROOT_DIR="$BUILD_DIR/.root"
 CRAN_MIRROR="http://cran.revolutionanalytics.com"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
 export PATH="$FAKECHROOT_DIR/sbin:$FAKECHROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # load application environment variables,
 # so that they can be accessed by init.R
 export_env_dir "$ENV_DIR"
+
+# buildpack version can be set via environment
+BUILD_PACK_VERSION=${BUILD_PACK_VERSION:-latest}
+R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
 
 # vendor R into the slug
 topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
