@@ -117,13 +117,14 @@ An example command for the scheduler, to run `prog.r`, would be `R -f /app/prog.
 
 ### R Versions
 
-The buildpack uses R 3.3.2 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
+The buildpack uses R 3.3.3 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
-The following R versions are supported:
+The following R versions are provided:
 
 * 3.1.3
 * 3.2.5
 * 3.3.2
+* 3.3.3
 
 ### Buildpack Versions
 

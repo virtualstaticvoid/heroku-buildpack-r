@@ -137,7 +137,7 @@ if [[ -f "$BUILD_DIR/.r-version" ]]; then
   R_VERSION=`read_var $BUILD_DIR/.r-version`
   echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
-  R_VERSION="3.3.2"
+  R_VERSION="3.3.3"
 fi
 
 # there is only one!
