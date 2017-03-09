@@ -33,7 +33,7 @@ heroku config:set MYVAR1=test123 MYVAR2=test456 --app $app
 git push heroku master
 
 # run R console
-heroku run fakechroot fakeroot chroot /app/.root /usr/bin/R --no-save -f /app/prog.R --app $app
+heroku run R --no-save -f /app/prog.R --app $app
 
 popd
 
