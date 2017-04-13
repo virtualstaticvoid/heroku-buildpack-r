@@ -174,6 +174,18 @@ This buildpack can be used in conjunction with other supported language stacks o
 
 See the [ruby](test/ruby) application which shows how to use R together with a Ruby Sinatra web application and the [`rinruby`](https://rubygems.org/gems/rinruby) gem.
 
+### CRAN Mirror Override
+
+It is possible to override the default CRAN mirror used, by providing the URL via the `CRAN_MIRROR` environment variable.
+
+E.g. Override the URL by setting the variable as follows. **Note**: There is no trailing "slash" in the URL.
+
+```
+heroku config:set CRAN_MIRROR=http://cloud.r-project.org
+```
+
+Check the CRAN [mirror status](https://cran.r-project.org/mirmon_report.html) page to ensure the mirror is available.
+
 ## Caveats
 
 Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 110Mb.
