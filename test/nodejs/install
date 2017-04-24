@@ -28,7 +28,7 @@ url=$(heroku apps:info -j | jq -r '.app.web_url')
 
 # add buildpacks for node.js and R
 heroku buildpacks:add https://github.com/heroku/heroku-buildpack-nodejs --app $app
-heroku buildpacks:add https://github.com/virtualstaticvoid/heroku-buildpack-r#$branch --app $app
+heroku buildpacks:add https://$repo/heroku-buildpack-r.git#$branch --app $app
 
 git push heroku master
 
