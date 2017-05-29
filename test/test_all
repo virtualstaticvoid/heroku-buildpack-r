@@ -2,7 +2,7 @@
 
 set -e
 
-branch=${1:-cedar-14-chroot}
+branch=${1:-heroku-16}
 destroy=${2:-1}
 repo=${3:-github.com/virtualstaticvoid}
 log="${4:-test-`date +%Y%m%d-%H%M`}.log"

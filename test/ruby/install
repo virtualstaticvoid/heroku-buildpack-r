@@ -3,7 +3,7 @@
 shopt -s extglob
 set -e
 
-branch=${1:-cedar-14-chroot}
+branch=${1:-heroku-16}
 destroy=${2:-0}
 repo=${3:-github.com/virtualstaticvoid}
 waitfor=${4:-0} # used when testing
@@ -21,7 +21,7 @@ git add --all
 git commit -m "initial"
 
 # create the app
-heroku create --stack cedar-14
+heroku create --stack heroku-16
 
 # trick to get the app name
 app=$(heroku apps:info -j | jq -r '.app.name')

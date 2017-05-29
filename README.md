@@ -134,7 +134,7 @@ To reference a specific version of the buildpack, add the Git branch or tag name
 E.g. Replace `branch_or_tag_name` with the desired branch or tag name:
 
 ```
-$ heroku create --stack cedar-14 \
+$ heroku create --stack heroku-16 \
     --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#branch_or_tag_name
 ```
 
