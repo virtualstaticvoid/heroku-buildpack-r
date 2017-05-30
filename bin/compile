@@ -157,6 +157,7 @@ fi
 TOOLS_DIR="$BUILD_DIR/.tools"
 FAKECHROOT_DIR="$TOOLS_DIR/fakechroot"
 CHROOT_DIR="$BUILD_DIR/.root"
+# Note: fakeroot is included at buildtime, so no need to reference our copy at this stage
 
 export PATH="$FAKECHROOT_DIR/sbin:$FAKECHROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
