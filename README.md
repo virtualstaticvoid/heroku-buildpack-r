@@ -13,11 +13,9 @@ store identical, up-to-date, versions of code and documentation for R.
 
 It also includes support for the [Shiny](https://shiny.rstudio.com/) web application framework.
 
-_NOTE: This is the `chroot` version._
-
 ## Usage
 
-To use this version, the buildpack URL is `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14-chroot`.
+To use this version, the buildpack URL is `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#heroku-16`.
 
 The buildpack will detect your app makes use of R if it has an `init.R` or `run.R` file in the root directory.
 
@@ -117,15 +115,12 @@ An example command for the scheduler, to run `prog.r`, would be `R -f /app/prog.
 
 ### R Versions
 
-The buildpack uses R 3.3.3 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
+The buildpack uses R 3.4.0 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
-The following R versions are provided:
+The following R versions are provided on the `heroku-16` stack:
 
-* 3.1.3
-* 3.2.5
-* 3.3.2
 * 3.3.3
-* 3.4.0 (unstable)
+* 3.4.0
 
 ### Buildpack Versions
 
@@ -189,7 +184,7 @@ Check the CRAN [mirror status](https://cran.r-project.org/mirmon_report.html) pa
 
 ## Caveats
 
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 110Mb.
+Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 150Mb.
 If additional R packages are installed then the slug size will increase.
 
 ## Credits
