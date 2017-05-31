@@ -44,6 +44,25 @@ then
   STACK="cedar-14"
 fi
 
+# ensure correct stack
+if [[ ! "$STACK" == "cedar-14" ]]; then
+
+  echo
+  echo "-----> ERROR: This version of the buildpack is intended for use with the 'cedar-14' stack"
+  echo
+  echo "       Use the 'heroku stack:set' CLI command to use the 'cedar-14' stack."
+  echo "       See https://devcenter.heroku.com/articles/stack for more information."
+  echo
+  exit 1
+
+fi
+
+# show deprecation notice
+echo
+topic "WARNING: This version of the buildpack is no longer supported."
+echo "Please see https://github.com/virtualstaticvoid/heroku-buildpack-r for more information." | indent
+echo
+
 # config
 VENDOR_DIR="$BUILD_DIR/vendor"
 GCC_VERSION=4.8
