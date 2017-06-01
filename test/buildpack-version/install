@@ -28,7 +28,7 @@ heroku create --stack heroku-16 \
 app=$(heroku apps:info -j | jq -r '.app.name')
 
 # set buildback version to use
-heroku config:set BUILD_PACK_VERSION=20170307-1741 --app $app
+heroku config:set BUILD_PACK_VERSION=20170601-0008 --app $app
 
 git push heroku master
 
