@@ -1,6 +1,6 @@
 # Heroku buildpack: R
 
-**NOTE: This version is DEPRECATED. Please use the [cedar-14-chroot](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/cedar-14-chroot) branch.**
+**NOTE: This version is DEPRECATED. Please use the [heroku-16](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/heroku-16) branch.**
 
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for applications which use
 [R](http://www.r-project.org/) for statistical computing and [CRAN](http://cran.r-project.org/) for R packages.
