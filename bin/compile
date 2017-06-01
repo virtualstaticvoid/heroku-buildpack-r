@@ -9,6 +9,10 @@ set -e
 
 shopt -s extglob
 
+function topic() {
+  echo "-----> $*"
+}
+
 function error() {
   echo " !     $*" >&2
   exit 1
