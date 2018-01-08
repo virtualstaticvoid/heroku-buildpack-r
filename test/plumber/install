@@ -1,0 +1,73 @@
+#!/bin/bash
+
+shopt -s extglob
+set -e
+
+branch=${1:-heroku-16}
+destroy=${2:-0}
+repo=${3:-github.com/virtualstaticvoid}
+waitfor=${4:-0} # used when testing
+
+# create a temporary directory and copy
+# the test application to it
+dir=$(mktemp -d)
+cp -r . $dir
+pushd $dir
+
+# commit to git for push to heroku
+git init
+echo "*.log" > .gitignore
+git add --all
+git commit -m "initial"
+
+# create the app with R buildpack
+heroku create --stack heroku-16 \
+              --buildpack https://$repo/heroku-buildpack-r.git#$branch
+
+# trick to get the app name
+app=$(heroku apps:info -j | jq -r '.app.name')
+url=$(heroku apps:info -j | jq -r '.app.web_url')
+
+git push heroku master
+
+# browse to the web application
+if [ -z $DESKTOP_SESSION ]; then
+  sleep 10
+  curl $url --verbose
+else
+  heroku open --app $app
+fi
+
+# wait?
+if [[ "$waitfor" -ne "0" ]]; then
+
+  sleep $waitfor
+
+  # output log
+  heroku logs --num 1000 --app $app
+
+fi
+
+popd
+
+# destroy the app, and clean up temporary files
+if [[ "$destroy" -eq "1" ]]; then
+
+  # clean up
+  heroku apps:destroy $app --confirm $app
+  rm -rf $dir
+
+else
+
+  GREEN='\033[1;32m'
+  RESET='\033[0m'
+  echo -e "${GREEN} ********************************************************************************"
+  echo -e ""
+  echo -e " Run the following command to destroy the test application when you are done."
+  echo -e ""
+  echo -e "  heroku apps:destroy $app"
+  echo -e ""
+  echo -e "********************************************************************************"
+  echo -e "${RESET}"
+
+fi

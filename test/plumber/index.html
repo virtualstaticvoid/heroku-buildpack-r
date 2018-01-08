@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Plumber Test on Heroku</title>
+  <style type="text/css" media="all">
+    body {
+      font-family: Verdana, Helvetica, Ariel, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <ul>
+
+    <li>
+      Get Action: <a href="mean">Mean</a>
+    </li>
+
+    <li>
+      Post Action <br />
+      <form action="sum" method="post">
+        <p>
+          A: <input type="text" name="a" value="1">
+        </p>
+        <p>
+          B: <input type="text" name="b" value="1">
+        </p>
+
+        <p>
+          <input type="submit" value="Submit" >
+        </p>
+      </form>
+    </li>
+
+    <li>
+      Plot: <a href="plot">All Species</a> <br />
+      <img src="plot" width="400px" height="400px" />
+    </li>
+
+    <li>
+      Plot: <a href="plot?spec=setosa">Setosa Species</a> <br />
+      <img src="plot?spec=setosa" width="400px" height="400px" />
+    </li>
+
+  </ul>
+
+</body>
+</html>
