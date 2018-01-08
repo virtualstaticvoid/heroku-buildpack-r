@@ -121,6 +121,9 @@ The following R versions are provided on the `heroku-16` stack:
 
 * 3.3.3
 * 3.4.0
+* 3.4.1
+* 3.4.2
+* 3.4.3
 
 ### Buildpack Versions
 
