@@ -183,6 +183,14 @@ pushd $BUILD_DIR > /dev/null
 curl $R_BINARIES -s -o - | tar xzf - -C .
 popd > /dev/null
 
+# Check if we can pull from cache rather than downloading
+if [[ -f "$CACHE_DIR/.r-version" ]] &&
+   [[ "$(read_var $CACHE_DIR/.r-version)" = "$R_VERSION" ]];
+then
+  echo "Retrieving R binaries and packages from cache" | indent
+  cp -r $CACHE_DIR/vendor/. $CHROOT_DIR
+fi
+
 # set to build dir, so packages can be installed
 patch_chroot "/app" "$BUILD_DIR"
 
@@ -312,7 +320,18 @@ mkdir -p "$BUILD_DIR/bin"
 cp "$BUILDPACK_DIR/bin/R_wrapper" "$BUILD_DIR/bin/R"
 cp "$BUILDPACK_DIR/bin/Rscript_wrapper" "$BUILD_DIR/bin/Rscript"
 
-# TODO: cache build
+# copy to the cache directory
+echo "$R_VERSION" > "$CACHE_DIR/.r-version"
+mkdir -p $CACHE_DIR/vendor/etc \
+         $CACHE_DIR/vendor/usr/bin \
+         $CACHE_DIR/vendor/usr/lib \
+         $CACHE_DIR/vendor/usr/local/lib/
+
+cp $BUILD_DIR/.r-version $CACHE_DIR/vendor
+cp -r $CHROOT_DIR/etc/R $CACHE_DIR/vendor/etc
+cp -r $CHROOT_DIR/usr/bin/R $CACHE_DIR/vendor/usr/bin
+cp -r $CHROOT_DIR/usr/lib/R $CACHE_DIR/vendor/usr/lib
+cp -r $CHROOT_DIR/usr/local/lib/R $CACHE_DIR/vendor/usr/local/lib/
 
 # give environment to later buildpacks
 cat > "$BUILDPACK_DIR/export" <<EOL
