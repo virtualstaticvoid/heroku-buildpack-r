@@ -1,21 +1,21 @@
 # Heroku buildpack: R
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for applications which use
-[R](http://www.r-project.org/) for statistical computing and [CRAN](http://cran.r-project.org/) for R packages.
+This is a [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) for applications which use
+[R](https://www.r-project.org/) for statistical computing and [CRAN](https://cran.r-project.org/) for R packages.
 
 R is ‘GNU S’, a freely available language and environment for statistical computing and graphics which provides
 a wide variety of statistical and graphical techniques: linear and nonlinear modelling, statistical tests, time
 series analysis, classification, clustering, etc. Please consult
-the [R project homepage](http://www.r-project.org/) for further information.
+the [R project homepage](https://www.r-project.org/) for further information.
 
-[CRAN](http://cran.r-project.org/) is a network of ftp and web servers around the world that
+[CRAN](https://cran.r-project.org/) is a network of ftp and web servers around the world that
 store identical, up-to-date, versions of code and documentation for R.
 
 It also includes support for the [Shiny](https://shiny.rstudio.com/) web application framework.
 
 ## Usage
 
-To use this version, the buildpack URL is `http://github.com/virtualstaticvoid/heroku-buildpack-r.git#heroku-16`.
+To use this version, the buildpack URL is `https://github.com/virtualstaticvoid/heroku-buildpack-r.git#heroku-16`.
 
 The buildpack will detect your app makes use of R if it has an `init.R` or `run.R` file in the root directory.
 
@@ -133,7 +133,7 @@ E.g. Replace `branch_or_tag_name` with the desired branch or tag name:
 
 ```
 $ heroku create --stack heroku-16 \
-    --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#branch_or_tag_name
+    --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#branch_or_tag_name
 ```
 
 *NOTE:* The `.buildpack-version` file is no longer supported and will be ignored.
@@ -180,7 +180,7 @@ It is possible to override the default CRAN mirror used, by providing the URL vi
 E.g. Override the URL by setting the variable as follows. **Note**: There is no trailing "slash" in the URL.
 
 ```
-heroku config:set CRAN_MIRROR=http://cloud.r-project.org
+heroku config:set CRAN_MIRROR=https://cloud.r-project.org
 ```
 
 Check the CRAN [mirror status](https://cran.r-project.org/mirmon_report.html) page to ensure the mirror is available.
