@@ -6,7 +6,7 @@ GIT
     rinruby (2.0.3)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     daemons (1.2.3)
     eventmachine (1.2.0.1)

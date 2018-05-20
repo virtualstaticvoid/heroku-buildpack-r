@@ -28,7 +28,7 @@ heroku create --stack heroku-16 \
 app=$(heroku apps:info -j | jq -r '.app.name')
 
 # override CRAN mirror
-heroku config:set CRAN_MIRROR="http://cloud.r-project.org" --app $app
+heroku config:set CRAN_MIRROR="https://cloud.r-project.org" --app $app
 
 git push heroku master
 

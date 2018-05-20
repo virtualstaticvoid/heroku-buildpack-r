@@ -1,6 +1,6 @@
 ruby '2.3.1'
 
-source "http://rubygems.org"
+source "https://rubygems.org"
 
 gem "bundler"
 gem "thin"
