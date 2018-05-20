@@ -1,6 +1,6 @@
 #
 # Example R program using e1071 library
-# See http://cran.r-project.org/web/packages/e1071/e1071.pdf for documentation
+# See https://cran.r-project.org/web/packages/e1071/e1071.pdf for documentation
 #
 
 library("e1071")

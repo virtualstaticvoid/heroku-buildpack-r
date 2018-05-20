@@ -1,6 +1,6 @@
 library(shiny)
 
-# example from http://shiny.rstudio.com/gallery/kmeans-example.html
+# example from https://shiny.rstudio.com/gallery/kmeans-example.html
 
 palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
 
