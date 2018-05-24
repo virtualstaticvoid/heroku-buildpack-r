@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# bin/compile <build-dir> <cache-dir>
-
+#
+# https://devcenter.heroku.com/articles/buildpack-api#bin-compile
+# bin/compile BUILD_DIR CACHE_DIR ENV_DIR
+#
 #
 # NOTES:
 #
@@ -107,7 +109,7 @@ function export_env_dir() {
 
 #
 # chroot scripts embed fully qualified path
-# this functional allows you to rewrite the path
+# this function allows you to rewrite the path
 #
 function patch_chroot() {
   old=$1
@@ -161,7 +163,7 @@ CHROOT_DIR="$BUILD_DIR/.root"
 
 export PATH="$FAKECHROOT_DIR/sbin:$FAKECHROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
-# load application environment variables,
+# load any application defined environment variables,
 # so that they can be accessed by this script
 export_env_dir "$ENV_DIR"
 
@@ -245,7 +247,7 @@ fi
 cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
 # install application author dependencies from CRAN
-topic "Executing init.r script"
+topic "Executing R init script"
 
 # get the init.r file to use
 # it can be init.[rR] or run.R
