@@ -169,7 +169,7 @@ export_env_dir "$ENV_DIR"
 
 # S3 bucket, cran mirror, buildpack version can be set via environment
 S3_BUCKET=${S3_BUCKET:-"heroku-buildpack-r"}
-CRAN_MIRROR=${CRAN_MIRROR:-"https://cran.revolutionanalytics.com"}
+CRAN_MIRROR=${CRAN_MIRROR:-"https://cloud.r-project.org"}
 BUILD_PACK_VERSION=${BUILD_PACK_VERSION:-latest}
 
 # build up path to binaries on S3
