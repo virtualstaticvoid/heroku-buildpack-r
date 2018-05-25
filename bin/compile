@@ -176,16 +176,35 @@ CRAN_MIRROR=${CRAN_MIRROR:-"https://cloud.r-project.org"}
 BUILD_PACK_VERSION=${BUILD_PACK_VERSION:-latest}
 
 # build up path to binaries on S3
-R_BINARIES="https://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+R_BINARIES_FILE="R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+R_BINARIES="https://${S3_BUCKET}.s3.amazonaws.com/${STACK}/$R_BINARIES_FILE"
 
 # vendor R into the slug
 topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
 
-# download and unpack binaries
-echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
-
 pushd $BUILD_DIR > /dev/null
-curl $R_BINARIES -s -o - | tar xzf - -C .
+
+# check cache
+CACHE_KEY="$STACK-$R_VERSION-$BUILD_PACK_VERSION.tar.gz"
+if [[ -f "$CACHE_DIR/$CACHE_KEY" ]]; then
+
+  echo "Retrieving R binaries from cache" | indent
+  tar xzf "$CACHE_DIR/$CACHE_KEY" -C .
+
+else
+
+  # download and unpack binaries
+  echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
+
+  # if [[ !-f "$CACHE_DIR/$R_BINARIES_FILE" ]]; then
+  #   curl $R_BINARIES -s -o "$CACHE_DIR/$R_BINARIES_FILE"
+  # fi
+  # tar xzf "$CACHE_DIR/$R_BINARIES_FILE" -C .
+
+  curl $R_BINARIES -s -o - | tar xzf - -C .
+
+fi
+
 popd > /dev/null
 
 # set to build dir, so packages can be installed
@@ -287,6 +306,9 @@ if [[ ! -z "$INIT_FILE" ]]; then
     exit 1
   fi
 
+  # clean up
+  rm "$CHROOT_DIR/app/status"
+
 else
 
   echo "R $R_VERSION successfully installed" | indent
@@ -299,14 +321,29 @@ rm app
 ln -s /app app
 popd > /dev/null
 
+# when deployed, the path will be /app
+patch_chroot "$BUILD_DIR" "/app"
+
+###
+#
+topic "Caching build outputs"
+
+pushd $BUILD_DIR > /dev/null
+tar czf "$CACHE_DIR/$CACHE_KEY" .root .tools
+popd > /dev/null
+
+#
+###
+
 # remove unneeded files to reduce slug size
 rm -rf $CHROOT_DIR/tmp/*.rds
 rm -rf $CHROOT_DIR/tmp/downloaded_packages/*
+rm -rf $CHROOT_DIR/usr/share/doc
+rm -rf $CHROOT_DIR/usr/share/info
+rm -rf $CHROOT_DIR/usr/share/man
 rm -rf $CHROOT_DIR/var/cache/apt
+rm -rf $CHROOT_DIR/var/lib/apt/lists/*
 rm -rf $CHROOT_DIR/var/lib/dpkg
-
-# when deployed, the path will be /app
-patch_chroot "$BUILD_DIR" "/app"
 
 # copy over environment
 mkdir -p "$BUILD_DIR/.profile.d"
@@ -316,8 +353,6 @@ cp "$BUILDPACK_DIR/bin/renv.sh" "$BUILD_DIR/.profile.d/renv.sh"
 mkdir -p "$BUILD_DIR/bin"
 cp "$BUILDPACK_DIR/bin/R_wrapper" "$BUILD_DIR/bin/R"
 cp "$BUILDPACK_DIR/bin/Rscript_wrapper" "$BUILD_DIR/bin/Rscript"
-
-# TODO: cache build
 
 # give environment to later buildpacks
 cat > "$BUILDPACK_DIR/export" <<EOL
