@@ -123,6 +123,9 @@ function patch_chroot() {
   sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/lib/fakechroot/libfakechroot.la"
 }
 
+# debug
+START_TIME="$(date -u +%s)"
+
 # parse and derive params
 BUILDPACK_DIR=$(cd $(dirname $0); cd ..; pwd)
 BUILD_DIR=$1
@@ -326,3 +329,8 @@ declare -x CRAN_MIRROR="$CRAN_MIRROR"
 declare -x R_VERSION="$R_VERSION"
 declare -x R_BUILDPACK_VERSION="$BUILD_PACK_VERSION"
 EOL
+
+# debug
+END_TIME="$(date -u +%s)"
+ELAPSED="$(($END_TIME-$START_TIME))"
+echo "Build took $ELAPSED seconds to complete" | indent
