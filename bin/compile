@@ -124,13 +124,13 @@ function patch_chroot() {
 }
 
 # parse and derive params
-BUILDPACK_DIR=`cd $(dirname $0); cd ..; pwd`
+BUILDPACK_DIR=$(cd $(dirname $0); cd ..; pwd)
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
 # fix STACK variable if unset
-if [ -z "${STACK}" ]; then
+if [[ -z "${STACK}" ]]; then
   STACK="heroku-16"
 fi
 
@@ -149,7 +149,7 @@ fi
 
 # read in R version if file exists
 if [[ -f "$BUILD_DIR/.r-version" ]]; then
-  R_VERSION=`read_var $BUILD_DIR/.r-version`
+  R_VERSION=$(read_var "$BUILD_DIR/.r-version")
   echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
   R_VERSION="3.4.0"
