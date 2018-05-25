@@ -213,6 +213,7 @@ patch_chroot "/app" "$BUILD_DIR"
 pushd $CHROOT_DIR > /dev/null
 
 # link app dir into chroot
+rm -rf app # for sanity
 ln -sf $BUILD_DIR app
 
 # make /app the home directory since application
@@ -307,7 +308,7 @@ if [[ ! -z "$INIT_FILE" ]]; then
   fi
 
   # clean up
-  rm "$CHROOT_DIR/app/status"
+  rm "$CHROOT_DIR/app/status" "$WRAPPER"
 
 else
 
