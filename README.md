@@ -115,7 +115,7 @@ An example command for the scheduler, to run `prog.r`, would be `R -f /app/prog.
 
 ### R Versions
 
-The buildpack uses R 3.4.0 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
+The buildpack uses R 3.4.4 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
 The following R versions are provided on the `heroku-16` stack:
 
@@ -124,6 +124,7 @@ The following R versions are provided on the `heroku-16` stack:
 * 3.4.1
 * 3.4.2
 * 3.4.3
+* 3.4.4
 
 ### Buildpack Versions
 
