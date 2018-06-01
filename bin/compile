@@ -241,6 +241,13 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
 
 fi
 
+# separate section for installing ppas
+fakechroot fakeroot chroot $CHROOT_DIR \
+add-apt-repository -y ppa:opencpu/jq
+
+fakechroot fakeroot chroot $CHROOT_DIR \
+apt-get install -y libjq-dev
+
 # write normalizePath hack to Rprofile.site
 cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
