@@ -5,7 +5,9 @@
 if [ -f $1/run.R ]; then
   echo "R Shiny" && exit 0
 elif [ -f $1/init.r ] || [ -f $1/init.R ]; then
-  echo "R Console" && exit 0
+  echo "R (with init file)" && exit 0
+elif [ -f $1/packrat/init.R ]; then
+  echo "R (with Packrat)" && exit 0
 else
   echo "no" && exit 1
 fi
