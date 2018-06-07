@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# bin/compile <build-dir> <cache-dir>
-
+#
+# https://devcenter.heroku.com/articles/buildpack-api#bin-compile
+# bin/compile BUILD_DIR CACHE_DIR ENV_DIR
+#
 #
 # NOTES:
 #
@@ -107,7 +109,7 @@ function export_env_dir() {
 
 #
 # chroot scripts embed fully qualified path
-# this functional allows you to rewrite the path
+# this function allows you to rewrite the path
 #
 function patch_chroot() {
   old=$1
@@ -121,14 +123,17 @@ function patch_chroot() {
   sed -i "s#$old#$new#g" "$BUILD_DIR/.tools/fakechroot/lib/fakechroot/libfakechroot.la"
 }
 
+# debug
+START_TIME="$(date -u +%s)"
+
 # parse and derive params
-BUILDPACK_DIR=`cd $(dirname $0); cd ..; pwd`
+BUILDPACK_DIR=$(cd $(dirname $0); cd ..; pwd)
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
 # fix STACK variable if unset
-if [ -z "${STACK}" ]; then
+if [[ -z "${STACK}" ]]; then
   STACK="heroku-16"
 fi
 
@@ -147,10 +152,10 @@ fi
 
 # read in R version if file exists
 if [[ -f "$BUILD_DIR/.r-version" ]]; then
-  R_VERSION=`read_var $BUILD_DIR/.r-version`
+  R_VERSION=$(read_var "$BUILD_DIR/.r-version")
   echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
-  R_VERSION="3.4.0"
+  R_VERSION="3.4.4"
 fi
 
 # environment
@@ -161,26 +166,45 @@ CHROOT_DIR="$BUILD_DIR/.root"
 
 export PATH="$FAKECHROOT_DIR/sbin:$FAKECHROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
-# load application environment variables,
+# load any application defined environment variables,
 # so that they can be accessed by this script
 export_env_dir "$ENV_DIR"
 
 # S3 bucket, cran mirror, buildpack version can be set via environment
 S3_BUCKET=${S3_BUCKET:-"heroku-buildpack-r"}
-CRAN_MIRROR=${CRAN_MIRROR:-"https://cran.revolutionanalytics.com"}
+CRAN_MIRROR=${CRAN_MIRROR:-"https://cloud.r-project.org"}
 BUILD_PACK_VERSION=${BUILD_PACK_VERSION:-latest}
 
 # build up path to binaries on S3
-R_BINARIES="https://${S3_BUCKET}.s3.amazonaws.com/${STACK}/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+R_BINARIES_FILE="R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+R_BINARIES="https://${S3_BUCKET}.s3.amazonaws.com/${STACK}/$R_BINARIES_FILE"
 
 # vendor R into the slug
 topic "Vendoring R $R_VERSION for $STACK stack ($BUILD_PACK_VERSION)"
 
-# download and unpack binaries
-echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
-
 pushd $BUILD_DIR > /dev/null
-curl $R_BINARIES -s -o - | tar xzf - -C .
+
+# check cache
+CACHE_KEY="$STACK-$R_VERSION-$BUILD_PACK_VERSION.tar.gz"
+if [[ -f "$CACHE_DIR/$CACHE_KEY" ]]; then
+
+  echo "Retrieving R binaries from cache" | indent
+  tar xzf "$CACHE_DIR/$CACHE_KEY" -C .
+
+else
+
+  # download and unpack binaries
+  echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
+
+  # if [[ !-f "$CACHE_DIR/$R_BINARIES_FILE" ]]; then
+  #   curl $R_BINARIES -s -o "$CACHE_DIR/$R_BINARIES_FILE"
+  # fi
+  # tar xzf "$CACHE_DIR/$R_BINARIES_FILE" -C .
+
+  curl $R_BINARIES -s -o - | tar xzf - -C .
+
+fi
+
 popd > /dev/null
 
 # set to build dir, so packages can be installed
@@ -189,6 +213,7 @@ patch_chroot "/app" "$BUILD_DIR"
 pushd $CHROOT_DIR > /dev/null
 
 # link app dir into chroot
+rm -rf app # for sanity
 ln -sf $BUILD_DIR app
 
 # make /app the home directory since application
@@ -245,7 +270,7 @@ fi
 cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
 # install application author dependencies from CRAN
-topic "Executing init.r script"
+topic "Executing R init script"
 
 # get the init.r file to use
 # it can be init.[rR] or run.R
@@ -272,7 +297,7 @@ if [[ ! -z "$INIT_FILE" ]]; then
   # execute the init wrapper
   # working directory must be /app so that provided packages/scripts can be found
   fakechroot fakeroot chroot $CHROOT_DIR \
-    /usr/bin/R --no-save --quiet --slave --file=/app/wrapper.R 2>&1 | indent
+    /usr/bin/R --no-init-file --no-save --quiet --slave --file=/app/wrapper.R 2>&1 | indent
 
   # determine whether the R script failed
   if [[ -f "$CHROOT_DIR/app/status" ]]; then
@@ -281,6 +306,9 @@ if [[ ! -z "$INIT_FILE" ]]; then
     echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
     exit 1
   fi
+
+  # clean up
+  rm "$CHROOT_DIR/app/status" "$WRAPPER"
 
 else
 
@@ -294,14 +322,29 @@ rm app
 ln -s /app app
 popd > /dev/null
 
+# when deployed, the path will be /app
+patch_chroot "$BUILD_DIR" "/app"
+
+###
+#
+topic "Caching build outputs"
+
+pushd $BUILD_DIR > /dev/null
+tar czf "$CACHE_DIR/$CACHE_KEY" .root .tools
+popd > /dev/null
+
+#
+###
+
 # remove unneeded files to reduce slug size
 rm -rf $CHROOT_DIR/tmp/*.rds
 rm -rf $CHROOT_DIR/tmp/downloaded_packages/*
+rm -rf $CHROOT_DIR/usr/share/doc
+rm -rf $CHROOT_DIR/usr/share/info
+rm -rf $CHROOT_DIR/usr/share/man
 rm -rf $CHROOT_DIR/var/cache/apt
+rm -rf $CHROOT_DIR/var/lib/apt/lists/*
 rm -rf $CHROOT_DIR/var/lib/dpkg
-
-# when deployed, the path will be /app
-patch_chroot "$BUILD_DIR" "/app"
 
 # copy over environment
 mkdir -p "$BUILD_DIR/.profile.d"
@@ -312,8 +355,6 @@ mkdir -p "$BUILD_DIR/bin"
 cp "$BUILDPACK_DIR/bin/R_wrapper" "$BUILD_DIR/bin/R"
 cp "$BUILDPACK_DIR/bin/Rscript_wrapper" "$BUILD_DIR/bin/Rscript"
 
-# TODO: cache build
-
 # give environment to later buildpacks
 cat > "$BUILDPACK_DIR/export" <<EOL
 declare -x S3_BUCKET="$S3_BUCKET"
@@ -321,4 +362,11 @@ declare -x TOOLS_DIR="$TOOLS_DIR"
 declare -x FAKECHROOT_DIR="$FAKECHROOT_DIR"
 declare -x CHROOT_DIR="$CHROOT_DIR"
 declare -x CRAN_MIRROR="$CRAN_MIRROR"
+declare -x R_VERSION="$R_VERSION"
+declare -x R_BUILDPACK_VERSION="$BUILD_PACK_VERSION"
 EOL
+
+# debug
+END_TIME="$(date -u +%s)"
+ELAPSED="$(($END_TIME-$START_TIME))"
+echo "Build took $ELAPSED seconds to complete" | indent

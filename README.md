@@ -115,7 +115,7 @@ An example command for the scheduler, to run `prog.r`, would be `R -f /app/prog.
 
 ### R Versions
 
-The buildpack uses R 3.4.0 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
+The buildpack uses R 3.4.4 by default, however it is possible to use a different version if required. This is done by providing a `.r-version` file in the root directory, which contains the R version to use.
 
 The following R versions are provided on the `heroku-16` stack:
 
@@ -124,6 +124,7 @@ The following R versions are provided on the `heroku-16` stack:
 * 3.4.1
 * 3.4.2
 * 3.4.3
+* 3.4.4
 
 ### Buildpack Versions
 
@@ -166,6 +167,26 @@ For example, this command runs bash within the chroot context:
 `fakechroot fakeroot chroot /app/.root /bin/bash`
 
 *NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
+
+### Caching
+
+To improve the time it takes to deploy, the buildpack caches the R binaries, any additional binaries installed using the `Aptfile` and the compiled package binaries.
+
+If you need to purge the cache, it is possible by using [heroku-repo](https://github.com/heroku/heroku-repo) CLI plugin.
+
+To install the plugin run:
+
+```bash
+heroku plugins:install heroku-repo
+```
+
+To purge the buildpack cache, run the following command from your application's source code directory:
+
+```bash
+heroku repo:purge_cache
+```
+
+See the [purge-cache](https://github.com/heroku/heroku-repo#purge-cache) documentation for more information.
 
 ### Multiple Buildpacks
 
