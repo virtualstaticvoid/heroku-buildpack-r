@@ -1,2 +1,3 @@
 #!/bin/bash
-fakechroot fakeroot chroot /app/.root /usr/bin/Rscript "$@"
+printf -v cmds " %q" "$@"
+fakechroot fakeroot chroot /app/.root /bin/sh -c "cd /app; /usr/bin/Rscript \"$cmds\""
