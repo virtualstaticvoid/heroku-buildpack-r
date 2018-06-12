@@ -269,9 +269,6 @@ fi
 # write normalizePath hack to Rprofile.site
 cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
-# install application author dependencies from CRAN
-topic "Executing R init script"
-
 # get the init.r file to use
 # it can be init.[rR] or run.R
 if [[ -f "$BUILD_DIR/init.r" ]]; then
@@ -279,11 +276,13 @@ if [[ -f "$BUILD_DIR/init.r" ]]; then
 elif [[ -f "$BUILD_DIR/init.R" ]]; then
   INIT_FILE="$BUILD_DIR/init.R"
 else
-  # assuming run.R is present
+  # assuming run.R is present, or packrat
   unset INIT_FILE
 fi
 
 if [[ ! -z "$INIT_FILE" ]]; then
+
+  topic "Executing R init script"
 
   # prepare wrapper script
   WRAPPER="$BUILD_DIR/wrapper.R"
@@ -300,21 +299,28 @@ if [[ ! -z "$INIT_FILE" ]]; then
     /usr/bin/R --no-init-file --no-save --quiet --slave --file=/app/wrapper.R 2>&1 | indent
 
   # determine whether the R script failed
-  if [[ -f "$CHROOT_DIR/app/status" ]]; then
-    echo "R $R_VERSION successfully installed (with init)" | indent
-  else
-    echo -e "\033[1;31mERROR: R $R_VERSION failed while executing \"init\". Check the log for details.\033[0m" | indent
+  if [[ ! -f "$CHROOT_DIR/app/status" ]]; then
+    echo -e "\033[1;31mERROR: R $R_VERSION failed while executing init file. Check output for details.\033[0m" | indent
     exit 1
   fi
 
   # clean up
   rm "$CHROOT_DIR/app/status" "$WRAPPER"
 
-else
+fi
 
-  echo "R $R_VERSION successfully installed" | indent
+# packrat?
+if [[ -f "$BUILD_DIR/packrat/init.R" ]]; then
+
+  topic "Restoring Packrat packages"
+
+  # restore packages
+  fakechroot fakeroot chroot $CHROOT_DIR \
+    /bin/sh -c 'cd /app && /usr/bin/R --no-init-file --no-save --quiet --slave --file=/app/packrat/init.R --args --bootstrap-packrat' 2>&1 | indent
 
 fi
+
+echo "R $R_VERSION installed. Please check outputs for any failures." | indent
 
 # fix up /app symlink for runtime location
 pushd $CHROOT_DIR > /dev/null
