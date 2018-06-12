@@ -212,9 +212,18 @@ patch_chroot "/app" "$BUILD_DIR"
 
 pushd $CHROOT_DIR > /dev/null
 
-# link app dir into chroot
-rm -rf app # for sanity
-ln -sf $BUILD_DIR app
+# # link app dir into chroot
+# rm -rf app # for sanity
+# ln -sf $BUILD_DIR app
+
+
+# copy files from app directory into chroot
+# changed from symlink due to issues with fakechroot
+# and since packrat symlinks to system libraries which causes
+# "Too many levels of symlinks" errors
+mkdir app
+rsync --recursive --exclude .tools --exclude .root $BUILD_DIR/ app
+
 
 # make /app the home directory since application
 # authors will expect the same behaviour within the chroot
@@ -322,11 +331,18 @@ fi
 
 echo "R $R_VERSION installed. Please check outputs for any failures." | indent
 
-# fix up /app symlink for runtime location
-pushd $CHROOT_DIR > /dev/null
-rm app
-ln -s /app app
-popd > /dev/null
+
+# need to copy files back, since will be symlinked at runtime
+# and since other buildpacks may be used, so files expected to be in /app
+# rsync --recursive --ignore-existing $CHROOT_DIR/app/ $BUILD_DIR
+
+
+# # fix up /app symlink for runtime location
+# pushd $CHROOT_DIR > /dev/null
+# rm -rf app
+# ln -s /app app
+# popd > /dev/null
+
 
 # when deployed, the path will be /app
 patch_chroot "$BUILD_DIR" "/app"
