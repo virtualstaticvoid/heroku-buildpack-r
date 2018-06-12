@@ -196,12 +196,13 @@ else
   # download and unpack binaries
   echo "Downloading and unpacking R binaries ($R_BINARIES)" | indent
 
-  # if [[ !-f "$CACHE_DIR/$R_BINARIES_FILE" ]]; then
+  curl $R_BINARIES -s -o - | tar xzf - -C .
+
+  # # does't provide much of a "speed boost"
+  # if [[ ! -f "$CACHE_DIR/$R_BINARIES_FILE" ]]; then
   #   curl $R_BINARIES -s -o "$CACHE_DIR/$R_BINARIES_FILE"
   # fi
   # tar xzf "$CACHE_DIR/$R_BINARIES_FILE" -C .
-
-  curl $R_BINARIES -s -o - | tar xzf - -C .
 
 fi
 
