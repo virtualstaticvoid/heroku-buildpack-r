@@ -58,10 +58,6 @@
 #    E.g. `fakechroot fakeroot chroot /app/.root /usr/bin/R ... --no-save`
 #    There are however wrapper scripts for R and Rscript which take care of this.
 #
-#  * Your application files are in /app, which need to be symlinked into the chroot, which
-#    can cause issues if the R `base::normalizePath(..., mustWork=TRUE)` method is used.
-#    A "method replacement hack" in `Rprofile.site` solves this issue.
-#
 #  * Some third party libraries for R cannot be used, since R needs to run in the chroot, and
 #    the library is not executed in the chroot, making R inaccessible.
 #    RServe is the most viable interface to R in this case. See the node.js example application.
@@ -275,9 +271,6 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
     rm -rf /var/lib/apt/lists/* > /dev/null
 
 fi
-
-# write normalizePath hack to Rprofile.site
-cp "$BUILDPACK_DIR/bin/Rprofile.site" "$CHROOT_DIR/etc/R/Rprofile.site"
 
 # get the init.r file to use
 # it can be init.[rR] or run.R
