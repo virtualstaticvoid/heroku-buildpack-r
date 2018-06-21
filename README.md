@@ -158,15 +158,13 @@ The `R` and `Rscript` executables are available like any other executable, via t
 
 This version of the buildpack uses a fake chroot in order to properly support R on Heroku. This is because R presents some unique challenges when used on Heroku. Checkout the comments in [`bin/compile`](bin/compile) for more details.
 
-The directory layout of the buildpack places the chroot in `/app/.root` and symlinks `/app` into `/app/.root/app` so that file paths are unaffected.
+The directory layout of the buildpack places the chroot in `/app/.root` and copies application files in `/app` into `/app/.root/app`. Previously a symlink was used to link `/app` into `/app/.root/app` but this proved to be problematic.
 
-*NB*: If your application provides a `Procfile` to provide it's own process types, you may need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, to execute your application correctly.
+*NB*: If your application provides a `Procfile` for custom process types, you may need to include the `fakechroot fakeroot chroot` command with the chroot path `/app/.root`, in order to execute your application within the chroot. This isn't necessary for the `R` and `RScript` executables though.
 
 For example, this command runs bash within the chroot context:
 
 `fakechroot fakeroot chroot /app/.root /bin/bash`
-
-*NOTE:* During tests of the buildpack, the `normalizePath` R function failed for the symlinked `/app` path within the chroot context, so it is overridden in [`Rprofile.site`](bin/Rprofile.site) file in order to work correctly, however YMMV if you use additional symlinks within `/app` of your application.
 
 ### Caching
 
