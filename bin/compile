@@ -251,6 +251,7 @@ if [[ -f "$BUILD_DIR/Aptfile" ]]; then
   topic "Installing binary dependencies from Aptfile"
 
   # TODO: add support for deb files
+  # TODO: add support for apt sources
 
   PACKAGES=""
   while IFS='' read -r PACKAGE || [[ -n "$PACKAGE" ]]; do
