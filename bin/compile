@@ -218,7 +218,7 @@ pushd $CHROOT_DIR > /dev/null
 # changed from symlink due to issues with fakechroot
 # and since packrat symlinks to system libraries which causes
 # "Too many levels of symlinks" errors
-mkdir app
+mkdir -p app
 rsync --recursive --exclude .tools --exclude .root $BUILD_DIR/ app
 
 
