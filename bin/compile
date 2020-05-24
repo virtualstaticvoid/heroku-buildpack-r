@@ -4,6 +4,14 @@
 # fail fast
 set -e
 
+# NOT SUPPORTED NOTICE
+echo
+echo -e "       \e[1;31m*** NOTICE ***\e[0m"
+echo "       This version of the heroku-buildpack-r is NO LONGER SUPPORTED!"
+echo "       See https://github.com/virtualstaticvoid/heroku-buildpack-r for details."
+echo
+exit 1
+
 # debug
 # set -x
 
@@ -60,12 +68,6 @@ if [[ ! "$STACK" == "cedar-14" ]]; then
   exit 1
 
 fi
-
-# show deprecation notice
-echo
-topic "WARNING: This version of the buildpack is no longer supported."
-echo "Please see https://github.com/virtualstaticvoid/heroku-buildpack-r for more information." | indent
-echo
 
 # config
 VENDOR_DIR="$BUILD_DIR/vendor"
