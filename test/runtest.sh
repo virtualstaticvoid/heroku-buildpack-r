@@ -5,7 +5,7 @@ set -e
 
 HEROKU_STACK=${1:-18}
 BUILDPACK_VERSION=${2:-latest}
-BRANCH=${3:-heroku-18}
+BRANCH=${3:-master}
 
 topic() {
   echo "-----> $*"
@@ -36,7 +36,7 @@ git commit -m "initial" --no-gpg-sign > /dev/null
 
 # create the app with shell buildpack
 heroku create --stack heroku-${HEROKU_STACK} \
-              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r-experiments.git#${BRANCH} 2>&1 | indent
+              --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git#${BRANCH} 2>&1 | indent
 
 # set the version to use
 if [ ! "$BUILDPACK_VERSION" == "latest" ]; then
