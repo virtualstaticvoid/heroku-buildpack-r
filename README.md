@@ -1,5 +1,7 @@
 # Heroku buildpack: R
 
+**NOTE: This version is NO LONGER SUPPORTED. Please use the [master](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/master) branch.**
+
 This is a [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) for applications which use
 [R](https://www.r-project.org/) for statistical computing and [CRAN](https://cran.r-project.org/) for R packages.
 
