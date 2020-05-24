@@ -6,7 +6,7 @@ This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject
 
 The buildpack supports the [heroku-16][stack16] and [heroku-18][stack18] stacks.
 
-It also includes support for the [Packrat][packrat] and [renv][renv] package managers, the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
+It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
 ## Usage
 
@@ -16,7 +16,7 @@ The buildpack URL is [`https://github.com/virtualstaticvoid/heroku-buildpack-r.g
 heroku create --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git
 ```
 
-The buildpack will detect your application makes use of R if has one (or more) of the following files in the project directory:
+The buildpack will detect your application makes use of R if it has one (or more) of the following files in the project directory:
 
 * `init.R`
 * `packrat/init/R`
@@ -158,7 +158,7 @@ server$run(
 )
 ```
 
-### Scheduling a Recurring Job
+### Recurring Jobs
 
 You can use the [Heroku scheduler][scheduler] to schedule a recurring R process.
 
@@ -170,18 +170,13 @@ An example command for the scheduler to run `prog.R`, would be `R --file=prog.R 
 
 The buildpack currently supports `R 3.6.3`. This is updated periodically when new versions of R are released.
 
-### Paths
-
-Where possible, always use relative paths for files, so that your application is more portable; so that it can run locally in development and at runtime on Heroku without any differences.
-The current directory on Heroku will always be `/app`, and your application will be installed to this directory, so relative paths should be in respect of the root directory of your project.
-
 ### Slug Compilation vs Runtime use of `chroot`
 
-This version of the buildpack uses a [fakechroot][fakechroot] during slug compilation, to compile R packages which may include C or Fortran code.
-However it no longer uses the chroot at runtime so there it can work better in scenarios where other language buildpacks are used, such as with Python or Java.
+This version of the buildpack still uses a [fakechroot][fakechroot] during slug compilation, to compile R packages which may include C or Fortran code.
+However it no longer uses the `chroot` at runtime so it can work better in scenarios where other language buildpacks are used, such as with Python, Ruby or Java, and so that the [slug size][slugsize] is greatly reduced.
 
 If you are migrating to this version of the buildpack, you no longer need to prefix commands to use `fakechroot`, `fakeroot` or `chroot`.
-Wrappers of these commands are included in the buildpack, which will output warning messages to alert you of their use.
+Wrappers of these commands are included and they will output warning messages to alert you of their use.
 
 ### Buildpack Binaries
 
@@ -198,13 +193,44 @@ The buildpack includes the following default process types:
 
 The `R` and `Rscript` executables are available like any other executable, via the `heroku run` command.
 
-### Caching
+#### Procfile
 
-To improve the time it takes to deploy the buildpack caches the R binaries and installed R packages.
+You can include a [Procfile][procfile] in your project if you want to override the default process types and/or their command lines. This is typically required if you are using multiple buildpacks.
 
-If you need to purge the cache, it is possible by using [heroku-repo][heroku-repo] CLI plugin via the `heroku repo:purge_cache` command.
+For example, the following Profile defines the commands for the `web` and `console` processes.
 
-See the [purge-cache][purge] documentation for more information.
+```
+web: R --file=myprogram.R --gui-none --no-save
+console: R --no-save
+```
+
+#### `heroku.yml`
+
+You can include the [`heroku.yml`][herokuyml] build manifest in you project if you want to override the default process types and/or their command lines, within the `run` section. This is typically required if you are using multiple buildpacks.
+
+For example, the following `heroku.yml` file defines the commands for the `web` and `console` processes.
+
+```
+run:
+  web: R --file=myprogram.R --gui-none --no-save
+  console: R --no-save
+```
+
+### Paths
+
+Where possible, always use relative paths for files, so that your application is more portable; so that it can run locally in development and at runtime on Heroku without any differences.
+
+The current directory on Heroku will always be `/app` and your application will be installed to this directory, so relative paths should be in respect of the root directory of your project.
+
+If you need to use absolute paths, consider using [`getwd()`][getwd] together with [`file.path()`][filepath] to build up the path instead of hardcoding them.
+
+### `.Rprofile`
+
+You can include an [`.Rprofile`][rprofile] in your application's root directory and it will be executed at the start of any R process.
+
+It can be used as a convenient way to bootstrap your application, sourcing common utilities or performing configuration tasks.
+
+Please _do not_ use it to install R packages, since it may cause problems during deployment (slug compilation) and  _will_ fail at runtime.
 
 ### CRAN Mirror Override
 
@@ -217,6 +243,14 @@ heroku config:set CRAN_MIRROR=https://cloud.r-project.org/
 ```
 
 Check the CRAN [mirror status][mirrors] page to ensure the mirror is available.
+
+### Caching
+
+To improve the time it takes to deploy the buildpack caches the R binaries and installed R packages.
+
+If you need to purge the cache, it is possible by using [heroku-repo][heroku-repo] CLI plugin via the `heroku repo:purge_cache` command.
+
+See the [purge-cache][purge] documentation for more information.
 
 ## Credits
 
@@ -237,21 +271,27 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [container-stack]: https://devcenter.heroku.com/categories/deploying-with-docker
 [cran]: https://cran.r-project.org
 [fakechroot]: https://github.com/dex4er/fakechroot/wiki
+[filepath]: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/file.path
+[getwd]: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/getwd
 [heroku-docker-r]: https://github.com/virtualstaticvoid/heroku-docker-r
 [heroku-repo]: https://github.com/heroku/heroku-repo
 [herokupkgs]: https://devcenter.heroku.com/articles/stack-packages
+[herokuyml]: https://devcenter.heroku.com/articles/build-docker-images-heroku-yml#run-defining-the-processes-to-run
 [mirrors]: https://cran.r-project.org/mirmon_report.html
 [packrat]: http://rstudio.github.io/packrat
 [plumber]: https://www.rplumber.io
+[procfile]: https://devcenter.heroku.com/articles/procfile
 [purge]: https://github.com/heroku/heroku-repo#purge-cache
 [r-builds]: https://github.com/rstudio/r-builds
 [r-docker]: https://github.com/rstudio/r-docker
 [renv]: https://rstudio.github.io/renv/
 [rookonheroku]: https://github.com/noahhl/rookonheroku
+[rprofile]: https://cran.r-project.org/doc/manuals/r-release/R-intro.html#Customizing-the-environment
 [rproject]: https://www.r-project.org
 [s3]: https://heroku-buildpack-r.s3.amazonaws.com
 [scheduler]: https://addons.heroku.com/scheduler
 [shiny]: https://shiny.rstudio.com
+[slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
 [stack16]: https://devcenter.heroku.com/articles/heroku-16-stack
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [tcltk]: https://www.tcl.tk
