@@ -7,6 +7,14 @@ set -e
 # debug
 # set -x
 
+# NOT SUPPORTED NOTICE
+echo
+echo -e "       \e[1;31m*** NOTICE ***\e[0m"
+echo "       This version of the heroku-buildpack-r is NO LONGER SUPPORTED!"
+echo "       See https://github.com/virtualstaticvoid/heroku-buildpack-r for details."
+echo
+exit 1
+
 shopt -s extglob
 
 function error() {
