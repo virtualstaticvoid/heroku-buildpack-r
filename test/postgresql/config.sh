@@ -1,3 +1,3 @@
-#1/bin/bash
+#!/bin/bash
 
 heroku addons:create heroku-postgresql:hobby-dev
