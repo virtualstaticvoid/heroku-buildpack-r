@@ -1,8 +1,24 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # bin/detect <build-dir>
+# https://devcenter.heroku.com/articles/buildpack-api#bin-detect
 
-if [ -f $1/init.r ]; then
-  echo "R" && exit 0
+set -e
+# set -x # debug
+
+# look for init.r, init.R, run.R or packrat/init.R
+
+if [ -f $1/run.R ]; then
+  echo "R (shiny)"
+elif [ -f $1/app.R ] || [ -f $1/plumber.R ]; then
+  echo "R (plumber)"
+elif [ -f $1/packrat/init.R ]; then
+  echo "R (packrat)"
+elif [ -f $1/renv/activate.R ]; then
+  echo "R (renv)"
+elif [ -f $1/init.r ] || [ -f $1/init.R ]; then
+  echo "R"
 else
   echo "no" && exit 1
 fi
+
+exit 0

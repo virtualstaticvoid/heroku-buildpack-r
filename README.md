@@ -1,125 +1,259 @@
-# Heroku buildpack: R
+# Heroku Buildpack: R
 
-**NOTE: This version is DEPRECATED. Please use the [heroku-16](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/heroku-16) branch.**
+<!-- [![Build Status][travis_img]][travis] -->
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for applications which use
-[R](http://www.r-project.org/) for statistical computing and [CRAN](http://cran.r-project.org/) for R packages.
+This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
-R is ‘GNU S’, a freely available language and environment for statistical computing and graphics which provides
-a wide variety of statistical and graphical techniques: linear and nonlinear modelling, statistical tests, time
-series analysis, classification, clustering, etc. Please consult
-the [R project homepage](http://www.r-project.org/) for further information.
+The buildpack supports the [heroku-16][stack16] and [heroku-18][stack18] stacks.
 
-[CRAN](http://cran.r-project.org/) is a network of ftp and web servers around the world that
-store identical, up-to-date, versions of code and documentation for R.
-
-## NOTE - Heroku `cedar-14`
-
-For the Heroku `cedar-14` stack, please use the [cedar-14](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/cedar-14) branch.
-
-You can specify `cedar-14` branch in the buildpack url as follows:
-
-```
-$ heroku create --stack cedar-14 --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#cedar-14
-```
+It also includes support for the [Packrat][packrat] and [renv][renv] package managers, the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
 ## Usage
-Example usage:
+
+The buildpack URL is [`https://github.com/virtualstaticvoid/heroku-buildpack-r.git`][bpurl]. Provide it when creating your application on Heroku as follows:
 
 ```
-$ ls
-init.r prog1.r prog2.r ...
-
-$ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git
-
-$ git push heroku master
-...
------> Heroku receiving push
------> Fetching custom buildpack
------> R app detected
------> Vendoring R x.xx.x
-       Executing init.r script
-...
------> R successfully installed
+heroku create --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git
 ```
 
-The buildpack will detect your app makes use of R if it has the `init.r` file in the root.
-The R runtime is vendored into your slug, and includes the gcc compiler for fortran support.
+The buildpack will detect your application makes use of R if has one (or more) of the following files in the project directory:
 
-To reference a specific version of the build pack, add the Git branch or tag name to the end of the build pack URL.
+* `init.R`
+* `packrat/init/R`
+* `renv/activate.R`
+* `run.R`
+* `app.R`
+* `plumber.R`
 
-```
-$ heroku create --stack cedar --buildpack http://github.com/virtualstaticvoid/heroku-buildpack-r.git#master
-```
+If the `init.R` file is provided, it will be executed in order to install any R packages, and if `packrat/init.R` or `renv/activate.R` files are found, the respective package manager will be bootstrapped and packages installed.
 
-## Installing R packages
-During the slug compilation process, the `init.r` R file is executed. Put code in this file to install any packages you may require.
-See the [Installing-packages](http://cran.r-project.org/doc/manuals/R-admin.html#Installing-packages) for details. The
-list of available packages can be found at [http://cran.r-project.org](http://cran.r-project.org/web/packages/available_packages_by_date.html).
+Additionally:
 
-```
-# Example `init.r` file
+* If the `run.R` file is provided, the buildpack will be configured as a Shiny application.
+* If the `plumber.R` file is provided, the buildpack will be configured as a Plumber application.
 
-install.packages("nlme", dependencies = TRUE)
+See the [detect](bin/detect) script for the matching logic used.
 
-```
+### Installing R Packages
 
-R packages can also be included in your project source and installed when the `init.r` file is executed.
+The `init.R` file is used to install R packages as required.
 
-```
-install.packages("optional-path-to-packages/local-r-package-file.tar.gz", repos=NULL, type="source")
-```
+*NOTE:* Using either [Packrat][packrat] or [renv][renv] are a better way to manage your package dependencies and their respective versions, so the `init.R` file isn't required if you use `packrat` or `renv`.
 
-## R Console
-You can also run the R console application as follows:
+The following example `init.R` file can be used. Provide the package names you want to install to the `my_packages` list variable:
 
 ```
-$ heroku run R
+# init.R
+#
+# Example R code to install packages if not already installed
+#
+
+my_packages = c("package_name_1", "package_name_2", ...)
+
+install_if_missing = function(p) {
+  if (p %in% rownames(installed.packages()) == FALSE) {
+    install.packages(p)
+  }
+}
+
+invisible(sapply(my_packages, install_if_missing))
+```
+
+R packages can also be installed by providing a `.tar.gz` package archive file, if a specific version is required, or
+it is not a publicly published package. See [local-packages](test/local-packages) for an example.
+
+```
+# init.R
+#
+# Example R program to installed package from local path
+#
+
+install.packages("PackageName-Version.tar.gz", repos=NULL, type="source")
+```
+
+*NOTE:* The path to the package archive should be a relative path to the project root directory, so that it works locally in development and during deployment on Heroku.
+
+#### R Package Installation Helper
+
+For convenience, a R helper function, [`helpers.installPackages`](bin/helpers.R), is included by the buildpack to make installing packages easier.
+
+Thus the `init.R` file can be reduced to a single line of R code as shown. Provide the package names you want to install as arguments to the helper:
+
+```
+helpers.installPackages("package_name_1", "package_name_2", ...)
+```
+
+### Installing Binary Dependencies
+
+This version of the buildpack still supports the use of an `Aptfile` for installing additional system packages, however this functionality is going to be _deprecated_ in future as it isn't a foolproof solution.
+
+It is based on the same technique as used by the [heroku-buildpack-apt][bpapt] buildpack to install Ubuntu packages using `apt-get`.
+
+There are various technical and security reasons why it is no longer recommended, so your mileage may vary.
+
+If any of your R packages dependend on system libraries which aren't [included by Heroku][herokupkgs], such as `libgmp`, `libgomp`, `libgdal`, `libgeos` and `libgsl`, you should use the Heroku [container stack][container-stack] together with [heroku-docker-r][heroku-docker-r] instead.
+
+## R Applications
+
+### Heroku Console
+
+You can run the R console application as follows:
+
+```
+$ heroku run R ...
 ```
 
 Type `q()` to exit the console when you are finished.
 
-_Note that the Heroku slug is read-only, so any changes you make during the session will be discarded._
+You can also run the `Rscript` utility as follows:
 
-## Scheduling a recurring job
-You can use the [Heroku scheduler](https://addons.heroku.com/scheduler) to schedule a recurring R process.
+```
+$ heroku run Rscript ...
+```
 
-The following command would run `prog.r`:
+_Note that the Heroku slug is read-only, so any changes you make during the session will be lost._
 
-`R -f ./prog.r --gui-none --no-save`
+### Shiny Applications
 
-## Using in your applications
-This buildpack can be used in conjunction with other supported language stacks on Heroku by
-using the [heroku-buildpack-multi](https://github.com/ddollar/heroku-buildpack-multi) buildpack.
+Shiny applications must provide a `run.R` file, and can also include an `init.R` in order to install additional R packages.
+The Shiny package does not need to be installed, as it is included in the buildpack already.
 
-See the example [test applications](test) which show how to use R from the console and various other examples.
+The `run.R` file should contain at least the following code, in order to run the web application.
 
-## R Binaries
-The binaries used by the buildpack are hosted on AWS S3 at [s3://heroku-buildpack-r](https://heroku-buildpack-r.s3.amazonaws.com).
+Notice the use of the `PORT` environment variable, provided by Heroku, which is used to configure Shiny and the host must be `0.0.0.0`.
 
-See the [building guide](support/README.md) for building the R binaries yourself.
+```
+# run.R
+library(shiny)
 
-## R Versions
-Optionally, the R version and buildpack version can be configured by providing a `.r-version` and `.r-buildpack-version` file in the root directory.
-These files should contain 1 line of text containing the respective version. See [alternate-versions](https://github.com/virtualstaticvoid/heroku-buildpack-r/tree/cedar-14/test/alternate-versions) for an example.
+port <- Sys.getenv('PORT')
 
-The following versions are available:
+shiny::runApp(
+  appDir = getwd(),
+  host = '0.0.0.0',
+  port = as.numeric(port)
+)
+```
 
-### Cedar 10
+### Plumber Applications
 
-| R Version | Buildpack Version | Binary |
-|-----------|-------------------|--------|
-| 2.15.1    | 20131211-0028     | [R-2.15.1-binaries-20131211-0028.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-2.15.1-binaries-20131211-0028.tar.gz) |
-| 3.0.2     | 20140218-0019     | [R-3.0.2-binaries-20140218-0019.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.0.2-binaries-20140218-0019.tar.gz ) |
-| 3.1.0     | 20141127-0021     | [R-3.1.0-binaries-20141127-0021.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.1.0-binaries-20141127-0021.tar.gz ) |
-| 3.1.2     | 20150301-1046     | [R-3.1.2-binaries-20150301-1046.tar.gz](https://heroku-buildpack-r.s3.amazonaws.com/cedar/R-3.1.2-binaries-20150301-1046.tar.gz ) |
+Plumber applications must provide an `app.R` file, but can also include an `init.R` in order to install additional R packages.
+The Plumber package does not need to be installed, as it is included in the buildpack already.
 
-## Caveats
-Due to the size of the R runtime, the slug size on Heroku, without any additional packages or program code, is approximately 90Mb.
-If additional R packages are installed by the `init.r` script then the slug size will increase.
+The `app.R` file should contain at least the following code, in order to run the web application.
+
+Notice the use of the `PORT` environment variable, provided by Heroku, which is used to configure Shiny and the host must be `0.0.0.0`.
+
+```
+# app.R
+library(plumber)
+
+port <- Sys.getenv('PORT')
+
+server <- plumb("plumber.R")
+
+server$run(
+  host = '0.0.0.0',
+  port = as.numeric(port)
+)
+```
+
+### Scheduling a Recurring Job
+
+You can use the [Heroku scheduler][scheduler] to schedule a recurring R process.
+
+An example command for the scheduler to run `prog.R`, would be `R --file=prog.R --gui-none --no-save`.
+
+## Technical Details
+
+### R Versions
+
+The buildpack currently supports `R 3.6.3`. This is updated periodically when new versions of R are released.
+
+### Paths
+
+Where possible, always use relative paths for files, so that your application is more portable; so that it can run locally in development and at runtime on Heroku without any differences.
+The current directory on Heroku will always be `/app`, and your application will be installed to this directory, so relative paths should be in respect of the root directory of your project.
+
+### Slug Compilation vs Runtime use of `chroot`
+
+This version of the buildpack uses a [fakechroot][fakechroot] during slug compilation, to compile R packages which may include C or Fortran code.
+However it no longer uses the chroot at runtime so there it can work better in scenarios where other language buildpacks are used, such as with Python or Java.
+
+If you are migrating to this version of the buildpack, you no longer need to prefix commands to use `fakechroot`, `fakeroot` or `chroot`.
+Wrappers of these commands are included in the buildpack, which will output warning messages to alert you of their use.
+
+### Buildpack Binaries
+
+The binaries used by the buildpack are hosted on AWS S3 at [https://heroku-buildpack-r.s3.amazonaws.com][s3].
+
+See the [heroku-buildpack-r-build2][build2] repository for building the buildpack binaries yourself.
+
+### Process Types
+
+The buildpack includes the following default process types:
+
+* `console`: Executes the `R` terminal application, which is typically used for debugging.
+* `web`: Executes `run.R` to run Shiny or Plumber applications.
+
+The `R` and `Rscript` executables are available like any other executable, via the `heroku run` command.
+
+### Caching
+
+To improve the time it takes to deploy the buildpack caches the R binaries and installed R packages.
+
+If you need to purge the cache, it is possible by using [heroku-repo][heroku-repo] CLI plugin via the `heroku repo:purge_cache` command.
+
+See the [purge-cache][purge] documentation for more information.
+
+### CRAN Mirror Override
+
+It is possible to override the default CRAN mirror used, by providing the URL via the `CRAN_MIRROR` environment variable.
+
+E.g. Override the URL by setting the variable as follows.
+
+```
+heroku config:set CRAN_MIRROR=https://cloud.r-project.org/
+```
+
+Check the CRAN [mirror status][mirrors] page to ensure the mirror is available.
 
 ## Credits
-Original inspiration from [Noah Lorang's Rook on Heroku](https://github.com/noahhl/rookonheroku) project.
+
+* Original inspiration from [Noah Lorang's Rook on Heroku][rookonheroku] project.
+* Script snippets from the [rstudio/r-builds][r-builds] project.
+* Tests from the [rstudio/r-docker][r-docker] project.
+* [fakechroot][fakechroot] library.
+* [tcl/tk][tcltk] library.
 
 ## License
-MIT License. Copyright (c) 2013 Chris Stefano. See MIT_LICENSE for details.
+
+MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for details.
+
+[bpapt]: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt
+[bpurl]: https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+[build2]: https://github.com/virtualstaticvoid/heroku-buildpack-r-build2
+[buildpacks]: https://devcenter.heroku.com/articles/buildpacks
+[container-stack]: https://devcenter.heroku.com/categories/deploying-with-docker
+[cran]: https://cran.r-project.org
+[fakechroot]: https://github.com/dex4er/fakechroot/wiki
+[heroku-docker-r]: https://github.com/virtualstaticvoid/heroku-docker-r
+[heroku-repo]: https://github.com/heroku/heroku-repo
+[herokupkgs]: https://devcenter.heroku.com/articles/stack-packages
+[mirrors]: https://cran.r-project.org/mirmon_report.html
+[packrat]: http://rstudio.github.io/packrat
+[plumber]: https://www.rplumber.io
+[purge]: https://github.com/heroku/heroku-repo#purge-cache
+[r-builds]: https://github.com/rstudio/r-builds
+[r-docker]: https://github.com/rstudio/r-docker
+[renv]: https://rstudio.github.io/renv/
+[rookonheroku]: https://github.com/noahhl/rookonheroku
+[rproject]: https://www.r-project.org
+[s3]: https://heroku-buildpack-r.s3.amazonaws.com
+[scheduler]: https://addons.heroku.com/scheduler
+[shiny]: https://shiny.rstudio.com
+[stack16]: https://devcenter.heroku.com/articles/heroku-16-stack
+[stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
+[tcltk]: https://www.tcl.tk
+[travis]: https://travis-ci.org/virtualstaticvoid/heroku-buildpack-r
+[travis_img]: https://travis-ci.org/virtualstaticvoid/heroku-buildpack-r.svg?branch=master

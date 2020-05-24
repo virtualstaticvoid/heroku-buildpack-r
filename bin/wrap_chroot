@@ -1,0 +1,12 @@
+#!/bin/bash
+
+notice() {
+  echo -e "\033[1;33m${*}\033[0m"
+}
+
+notice "Use of chroot is no longer required"
+
+# first argument is the chroot path, so remove it
+shift
+
+exec "$@"

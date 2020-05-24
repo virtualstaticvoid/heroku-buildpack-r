@@ -1,122 +1,300 @@
-#!/usr/bin/env bash
-# bin/compile <build-dir> <cache-dir>
+#!/bin/bash
+# bin/compile BUILD_DIR CACHE_DIR ENV_DIR
+# https://devcenter.heroku.com/articles/buildpack-api#bin-compile
 
-# fail fast
-set -e
-
-# debug
-# set -x
-
-shopt -s extglob
-
-function error() {
-  echo " !     $*" >&2
-  exit 1
-}
-
-function indent() {
-  c='s/^/       /'
-  case $(uname) in
-    Darwin) sed -l "$c";;
-    *)      sed -u "$c";;
-  esac
-}
-
-function read_var() {
-  echo $(head -n 1 $1)
-}
-
-# clean up leaking environment
-unset GIT_DIR
+set -eo pipefail
+set -o errtrace
+set -o nounset
 
 # parse and derive params
+BUILDPACK_DIR=$(cd $(dirname $0); cd ..; pwd)
 BUILD_DIR=$1
-CACHE_DIR="$2/vendor"
-LP_DIR=`cd $(dirname $0); cd ..; pwd`
-BUILDPACK_DIR="$(dirname $(dirname $0))"
+CACHE_DIR=$2
+ENV_DIR=$3
 
-# config
+# import supporting script
+source "${BUILDPACK_DIR}/bin/script-common"
 
-# read in R version if file exists
-if [[ -f $BUILD_DIR/.r-version ]]; then
-  R_VERSION=`read_var $BUILD_DIR/.r-version`
-else
-  R_VERSION="3.1.2"
+# derive number from stack (heroku-16, heroku-18, heroku-20)
+HEROKU_STACK=${STACK:7}
+
+# check if it's supported
+if [[ ! $HEROKU_STACK =~ (16|18) ]]; then
+  echo
+  error "ERROR: This buildpack is NOT intended for use with the '${STACK}' stack"
+  echo
+  echo "The supported stacks are 'heroku-16' and 'heroku-18'." | indent
+  echo
+  echo "Use the 'heroku stack:set' CLI command to set the appropriate stack." | indent
+  echo "See https://devcenter.heroku.com/articles/stack" | indent
+  echo
+  echo "Optionally, for greater control and flexibility consider using the" | indent
+  echo "container stack together with the heroku-docker-r implementation". | indent
+  echo "See https://github.com/virtualstaticvoid/heroku-docker-r" | indent
+  echo
+  exit 1
 fi
 
-# read in buildback binary version if file exists
-if [[ -f $BUILD_DIR/.r-buildpack-version ]]; then
-  BUILD_PACK_VERSION=`read_var $BUILD_DIR/.r-buildpack-version`
-else
-  BUILD_PACK_VERSION="20150301-1046"
+# ensure current directory is the build location
+# this is where the application files will be located
+# and so relative paths can be used
+cd "$BUILD_DIR"
+
+# load any application defined environment variables,
+# so that they can be accessed by this script
+export_env_dir "$ENV_DIR"
+
+# enable script debugging
+# set via heroku config:set BUILDPACK_DEBUG=1
+if [ ! -z ${BUILDPACK_DEBUG+x} ] && [ "$BUILDPACK_DEBUG" == "1" ]; then
+  topic "Enabling script debugging"
+  set -x # debug
+  uname --all | indent
+  set | indent
 fi
 
-S3_BUCKET="heroku-buildpack-r"
-R_BINARIES="http://${S3_BUCKET}.s3.amazonaws.com/R-${R_VERSION}-binaries-${BUILD_PACK_VERSION}.tar.gz"
+# debug
+START_TIME="$(date -u +%s)"
 
-VENDOR_DIR="$BUILD_DIR/vendor"
-R_BASE="$VENDOR_DIR/R"
-CRAN_MIRROR="http://cran.revolutionanalytics.com"
+# define static vars
+BUILDPACK_NAME=heroku-buildpack-r
+R_VERSION=3.6.3
 
-mkdir -p $CACHE_DIR
+# NB: undocumented feature ~ used for testing different versions
+# E.g. set via heroku config:set BUILDPACK_VERSION=test
+BUILDPACK_VERSION=${BUILDPACK_VERSION:-latest}
 
-# vendor R into the slug
-echo "Vendoring R $R_VERSION ($BUILD_PACK_VERSION)" | indent
+# NB: change to bust cache
+CACHE_KEY=27ac154d
+BUILD_OUTPUTS="$CACHE_DIR/$CACHE_KEY.tar.gz"
 
-# download and unpack binaries
-echo "Downloading and unpacking R binaries" | indent
-mkdir -p $VENDOR_DIR && curl $R_BINARIES -s -o - | tar xzf - -C $VENDOR_DIR
+topic "Installing R"
 
-# need to copy the binaries to /app/vendor so that R works
-mkdir -p /app/vendor/gcc
-cp -R $VENDOR_DIR/gcc/* /app/vendor/gcc
+# look for init.R
+if [ -f init.R ]; then
+  INIT_FILE=init.R
+elif [ -f init.r ]; then
+  INIT_FILE=init.r
+else
+  unset INIT_FILE
+fi
 
-mkdir -p /app/vendor/glibc
-cp -R $VENDOR_DIR/glibc/* /app/vendor/glibc
+#----------------------------------------------------------------------
+# download archives
 
-mkdir -p /app/vendor/gsl
-cp -R $VENDOR_DIR/gsl/* /app/vendor/gsl
+echo "Version ${R_VERSION} will be installed." | indent
 
-mkdir -p /app/vendor/R
-cp -R $VENDOR_DIR/R/* /app/vendor/R
+topic "Downloading buildpack archives from AWS S3"
 
-# HACK: need to copy over the gcc libs so that packages can find them
-mkdir -p /app/vendor/R/lib64/R/lib
-cp /app/vendor/gcc/lib64/* /app/vendor/R/lib64/R/lib
+# deploy image (R/*, tcltk/*, etc)
+fetch $(s3_url $(deploy_archive)) deploy.tar.gz deploy_image
+echo "Extracting..." | indent
+tar xf $deploy_image
 
-# R needs to know where gfortran and glibc header files are
-export PATH="/app/vendor/R/bin:/app/vendor/gcc/bin:$PATH"
+# make relative symlinks to R executables
+mkdir -p bin
+pushd bin > /dev/null
+ln -s ../R/bin/R .
+ln -s ../R/bin/Rscript .
+popd > /dev/null
 
-export LDFLAGS="-L/app/vendor/gcc/lib64 -L/app/vendor/gsl/lib"
-export CPPFLAGS="-I/app/vendor/glibc/string -I/app/vendor/glibc/time -I/app/vendor/gsl/include"
-export PKG_LDFLAGS=$LDFLAGS
-export PKG_CPPFLAGS=$CPPFLAGS
+# restore cached outputs
+if [ -f "$BUILD_OUTPUTS" ]; then
+  topic "Restoring build outputs from cache"
+  echo "See https://github.com/heroku/heroku-repo#purge-cache for info on purging the cache" | indent
+  tar xf "$BUILD_OUTPUTS"
+fi
 
-export R_HOME=$R_BASE/lib64/R
-export R_INCLUDE=$R_HOME/include
+# figure out additional bits
+# NB: should match logic in detect script
+if [ -f run.R ]; then
 
-# copy over environment
-mkdir -p $BUILD_DIR/.profile.d
-cp "$BUILDPACK_DIR/bin/r_environment.sh" $BUILD_DIR/.profile.d/r_environment.sh
+  # shiny
+  fetch $(s3_url $(shiny_archive)) shiny.tar.gz shiny_image
+  echo "Extracting..." | indent
+  tar xf $shiny_image
 
-# prevent warnings when building packages
-mkdir -p /app/vendor/R/lib64/R/doc/html
-touch /app/vendor/R/lib64/R/doc/html/R.css
+elif [ -f app.R ] || [ -f plumber.R ]; then
 
-# install dependencies from CRAN
-echo "Executing init.r script" | indent
+  # plumber
+  fetch $(s3_url $(plumber_archive)) plumber.tar.gz plumber_image
+  echo "Extracting..." | indent
+  tar xf $plumber_image
 
-# set the CRAN mirror and run the init.r program
-/app/vendor/R/bin/R -s <<RPROG > indent
-  Sys.setenv(BUILD_DIR="$BUILD_DIR")
-  setwd("$BUILD_DIR")
-  r <- getOption("repos");
-  r["CRAN"] <- "$CRAN_MIRROR";
-  options(repos=r);
-  `cat $BUILD_DIR/init.r`
-RPROG
+fi
 
-echo "R $R_VERSION successfully installed" | indent
+#----------------------------------------------------------------------
+# some setup for slug build
 
-# need to copy binaries back so that any installed packages are included in the slug
-cp -R /app/vendor/R/* $VENDOR_DIR/R
+# Rprofile.site for further configuration of R
+cp -f "${BUILDPACK_DIR}/bin/Rprofile.site" R/lib/R/etc/Rprofile.site
+
+# installation helpers script
+cp -f "${BUILDPACK_DIR}/bin/helpers.R" R/etc/helpers.R
+
+# dependent library helper
+cp -f "${BUILDPACK_DIR}/bin/copy_libs.rb" R/etc/copy_libs.rb
+
+# patch CRAN_MIRROR if provided
+# E.g. set via heroku config:set CRAN_MIRROR=https://cran.example.org/
+if [ ! -z ${CRAN_MIRROR+x} ]; then
+  echo "Setting CRAN mirror to $CRAN_MIRROR" | indent
+  sed -i "s#https://cloud.r-project.org/#${CRAN_MIRROR}#g" R/etc/Rprofile.site
+fi
+
+#----------------------------------------------------------------------
+# need chroot?
+have_chroot=0
+
+if [ -f Aptfile ] || [ ! -z ${INIT_FILE+x} ] || [ -f packrat/init.R ] || [ -f renv/activate.R ]; then
+
+  # update flag
+  have_chroot=1
+
+  # download build image
+  fetch $(s3_url $(build_archive)) build.tar.gz build_image
+
+  # install to temp location
+  echo "Extracting..." | indent
+  ROOTFS=$(mktemp -d)
+  mkdir -p $ROOTFS
+  pushd $ROOTFS > /dev/null
+  tar xf $build_image
+  popd > /dev/null
+
+  #
+  # it isn't possible to mount BUILD_DIR into the chroot as /app directory since
+  # this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
+  # allows a "pass through" mechanism making it possible to simulate mounting a directory.
+  #
+  # unfortunately, slug compilation occurs under /build/... so to get this to work
+  # all the files need to be copied to /app so that paths and symlinks work as expected
+  # during slug compilation and ultimately are correct in the runtime environment.
+  #
+  # there are a bunch of Heroku files in /app, seemingly related to slug compilation
+  # so these files will need to be excluded, after the R bits have been compiled and
+  # the files are copied back to /build/...
+  #
+  # not the greatest situation, but hey it works
+  #
+
+  # make inventory of current contents of /app (before copy)
+  pushd /app > /dev/null
+  find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > $BUILD_DIR/.rsync-excludes
+  find . -maxdepth 1 -type f | cut -c 2- >> $BUILD_DIR/.rsync-excludes
+  popd > /dev/null
+
+  # copy everything to /app
+  rsync -a $BUILD_DIR/ /app/
+
+fi
+
+#----------------------------------------------------------------------
+# slug compile
+
+# look for Aptfile; install the packages contained
+if [ -f Aptfile ]; then
+  echo
+  notice "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
+  echo "Please consider using https://github.com/virtualstaticvoid/heroku-docker-r instead" | indent
+  echo "since it provides much more flexibility for installing packages and configuring R." | indent
+  echo
+
+  packages=""
+  while IFS='' read -r package || [[ -n "$package" ]]; do
+    packages="$packages $package"
+  done < Aptfile
+
+  in_chroot_sudo /bin/bash -c "DEBIAN_FRONTEND=noninteractive apt-get update -qq" 2>&1 | indent
+  in_chroot_sudo /bin/bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qy install $packages" 2>&1 | indent
+fi
+
+# execute init.R
+if [ ! -z ${INIT_FILE+x} ]; then
+  topic "Executing ${INIT_FILE} file"
+  in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-save --quiet --slave --file=${INIT_FILE}" 2>&1 | indent
+
+  #
+  # any libarary dependencies, installed via Aptfile, which are referenced by the R packages installed by init.R
+  # will need to be "packaged" into the slug since the chroot isn't included at runtime.
+  #
+  # this script uses ldd to inspect each .so file under the /app/R/site-library to get the referenced .so files
+  # to copy them to /app/R/lib/R/lib so that they can be found at runtime.
+  #
+  # any dynamic dependencies, such as a command line utility or any other files, won't be included in this
+  # process, hence the warnings regarding the use of the Aptfile. YMMV
+  #
+  if [ -f Aptfile ]; then
+    echo "Attempting to locate binary dependencies" | indent
+    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/site-library/**/*.so" 2>&1 | indent
+  fi
+fi
+
+# bootstrap packrat?
+if [ -f packrat/init.R ]; then
+  topic "Bootstrapping packrat"
+  in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-init-file --no-save --quiet --slave --file=packrat/init.R --args --bootstrap-packrat" 2>&1 | indent
+
+  # system dependencies?
+  if [ -f Aptfile ]; then
+    echo "Attempting to locate binary dependencies" | indent
+    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/packrat/**/*.so" 2>&1 | indent
+  fi
+fi
+
+# renv packrat?
+if [ -f renv/activate.R ]; then
+  topic "Bootstrapping renv"
+  in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-save --quiet --slave -e 'renv::restore()'" 2>&1 | indent
+
+  # system dependencies?
+  if [ -f Aptfile ]; then
+    echo "Attempting to locate binary dependencies" | indent
+    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/renv/**/*.so" 2>&1 | indent
+  fi
+fi
+
+if [ "$have_chroot" == "1" ]; then
+
+  # copy new and changed files back from /app (excluding original contents of /app)
+  pushd /app > /dev/null
+  rsync -a --exclude-from=$BUILD_DIR/.rsync-excludes . $BUILD_DIR/
+  popd > /dev/null
+
+  # clean up
+  rm .rsync-excludes
+
+fi
+
+# for backward compatibility, include wrappers for fakechroot, fakeroot and chroot
+cp $BUILDPACK_DIR/bin/wrap_fakechroot bin/fakechroot
+cp $BUILDPACK_DIR/bin/wrap_fakeroot bin/fakeroot
+cp $BUILDPACK_DIR/bin/wrap_chroot bin/chroot
+
+# clean ups (remove unneeded files, etc)
+rm -rf fakechroot
+
+# copy over profile
+topic "Writing environment to profile"
+mkdir -p .profile.d
+cp $BUILDPACK_DIR/bin/env.sh .profile.d/heroku-buildpack-r-env.sh
+
+# include meta variables
+cat >> .profile.d/heroku-buildpack-r-env.sh <<EOL
+export BUILDPACK_NAME="$BUILDPACK_NAME"
+export BUILDPACK_VERSION="$BUILDPACK_VERSION"
+export BUILDPACK_R_VERSION="$R_VERSION"
+EOL
+
+# write export script for other buildpacks
+cp $BUILDPACK_DIR/bin/env.sh "$BUILDPACK_DIR/export"
+
+topic "Caching build outputs"
+tar czf "$BUILD_OUTPUTS" R/site-library
+
+topic "R ${R_VERSION} installed successfully!"
+
+# debug
+END_TIME="$(date -u +%s)"
+ELAPSED="$(($END_TIME-$START_TIME))"
+echo "Install took $ELAPSED seconds to complete" | indent

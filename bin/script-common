@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+topic() {
+  echo "-----> $*"
+}
+
+notice() {
+  echo -e "       \e[1;33m${*}\e[0m"
+}
+
+error() {
+  echo -e " !     \e[1;31m${*}\e[0m"
+}
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+export_env_dir() {
+  local env_dir=$1
+  local whitelist_regex=${2:-''}
+  local blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  if [ -d "$env_dir" ]; then
+    for e in $(ls $env_dir); do
+      echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
+      export "$e=$(cat $env_dir/$e)"
+      :
+    done
+  fi
+}
+
+build_archive() {
+  echo "${BUILDPACK_NAME}-${HEROKU_STACK}-${R_VERSION}-chroot.tar.gz"
+}
+
+deploy_archive() {
+  echo "${BUILDPACK_NAME}-${HEROKU_STACK}-${R_VERSION}-deploy.tar.gz"
+}
+
+shiny_archive() {
+  echo "${BUILDPACK_NAME}-${HEROKU_STACK}-${R_VERSION}-shiny.tar.gz"
+}
+
+plumber_archive() {
+  echo "${BUILDPACK_NAME}-${HEROKU_STACK}-${R_VERSION}-plumber.tar.gz"
+}
+
+function s3_url() {
+  echo "https://${BUILDPACK_NAME}.s3.amazonaws.com/${BUILDPACK_VERSION}/${1}"
+}
+
+fetch() {
+  local url="$1"
+  local file="$2"
+  local __filevar=$3
+
+  local filename="${CACHE_DIR}/${CACHE_KEY}-${file}"
+
+  if [ -f $filename ]; then
+    echo "Loading $file from cache" | indent
+  else
+    echo "Downloading $url" | indent
+    curl -sSfL -o "$filename" "$url?x-cache-key=$CACHE_KEY" | indent
+  fi
+
+  eval $__filevar="'$filename'"
+}
+
+with_fakechroot() {
+  /usr/bin/env \
+      HOME=/app \
+      PATH="/app/R/bin:/app/tcltk/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$PATH" \
+      LD_LIBRARY_PATH="/app/R/lib/R/lib:/app/tcltk/lib" \
+      R_LIBS_USER="/app/R/site-library" \
+      FAKECHROOT_EXCLUDE_PATH="/app:/dev:/proc:/sys:/etc/resolv.conf:/etc/host.conf:/lib/modules" \
+    /app/fakechroot/bin/fakechroot \
+        --lib /app/fakechroot/lib/fakechroot/libfakechroot.so \
+        --environment chroot.env \
+        --config-dir /app/fakechroot/etc/fakechroot -- "$@"
+}
+
+in_chroot() {
+  with_fakechroot \
+    /usr/sbin/chroot $ROOTFS "$@"
+}
+
+in_chroot_sudo() {
+  with_fakechroot \
+    $ROOTFS/usr/bin/fakeroot-sysv \
+      --lib "$ROOTFS/usr/lib/x86_64-linux-gnu/libfakeroot/libfakeroot-sysv.so" \
+      --faked "$ROOTFS/usr/bin/faked-sysv" \
+    /usr/sbin/chroot $ROOTFS "$@"
+}

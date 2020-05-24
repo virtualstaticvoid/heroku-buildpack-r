@@ -1,6 +1,37 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # bin/release <build-dir>
+# https://devcenter.heroku.com/articles/buildpack-api#bin-release
 
-cat <<EOF
---- {}
+set -e
+# set -x # debug
+
+if [ -f "$1/run.R" ]; then
+
+  # shiny app
+  cat <<EOF
+---
+default_process_types:
+  console: R
+  web: R --file=/app/run.R --gui-none --no-save
 EOF
+
+elif [ -f "$1/app.R" ]; then
+
+  # plumber app
+  cat <<EOF
+---
+default_process_types:
+  console: R
+  web: R --file=/app/app.R --gui-none --no-save
+EOF
+
+else
+
+  # other app
+  cat <<EOF
+---
+default_process_types:
+  console: R --no-save
+EOF
+
+fi
