@@ -5,7 +5,7 @@ set -e
 
 HEROKU_STACK=${1:-18}
 BUILDPACK_VERSION=${2:-latest}
-BRANCH=${3:-master}
+BRANCH=${BUILDPACK_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}
 
 topic() {
   echo "-----> $*"
