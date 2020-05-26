@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # fail fast
+
 web_url=$(heroku apps:info -j | jq -r '.app.web_url')
 
 curl -s "${web_url}echo?msg=Hello%20World!" -o msg.txt

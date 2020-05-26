@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # fail fast
+
 web_url=$(heroku apps:info -j | jq -r '.app.web_url')
 wss_url=${web_url/http/ws}
 
