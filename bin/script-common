@@ -57,7 +57,7 @@ fetch() {
   local filename="${CACHE_DIR}/${CACHE_KEY}-${file}"
 
   if [ -f $filename ]; then
-    echo "Loading $file from cache" | indent
+    echo "Loading $url from cache" | indent
   else
     echo "Downloading $url" | indent
     curl -sSfL -o "$filename" "$url?x-cache-key=$CACHE_KEY" | indent
