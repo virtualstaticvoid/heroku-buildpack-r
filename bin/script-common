@@ -49,6 +49,13 @@ function s3_url() {
   echo "https://${BUILDPACK_NAME}.s3.amazonaws.com/${BUILDPACK_VERSION}/${1}"
 }
 
+cache_filename_for() {
+  local file="$1"
+  local __filevar=$2
+  local filename="${CACHE_DIR}/${CACHE_KEY}-${file}"
+  eval $__filevar="'$filename'"
+}
+
 fetch() {
   local url="$1"
   local file="$2"
@@ -66,13 +73,25 @@ fetch() {
   eval $__filevar="'$filename'"
 }
 
+compress() {
+  message=$1 && shift
+  archive=$1 && shift
+
+  echo "${message}" | indent
+  tar -czf $archive $@
+  echo "Done: $(du -h -s $archive | awk '{print $1}')" | indent
+}
+
 with_fakechroot() {
   /usr/bin/env \
       HOME=/app \
       PATH="/app/R/bin:/app/tcltk/bin:/app/pandoc/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$PATH" \
       LD_LIBRARY_PATH="/app/R/lib/R/lib:/app/tcltk/lib" \
+      R_LIBS_SITE="/app/R/site-library" \
       R_LIBS_USER="/app/R/site-library" \
       RSTUDIO_PANDOC="/app/pandoc/bin" \
+      R_PACKRAT_CACHE_DIR="/app/R/packrat" \
+      RENV_PATHS_ROOT="/app/R/renv" \
       FAKECHROOT_EXCLUDE_PATH="/app:/dev:/proc:/sys:/etc/resolv.conf:/etc/host.conf:/lib/modules" \
     /app/fakechroot/bin/fakechroot \
         --lib /app/fakechroot/lib/fakechroot/libfakechroot.so \

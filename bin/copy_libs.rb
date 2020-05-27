@@ -25,7 +25,7 @@ def copy_depend_libs(path, binary)
   find_depend_libs(binary).each do |src, dest|
     target = File.join(path, dest)
     next if File.exists?(target)
-    print "#{src} => #{target} "
+    print "⦁ #{src} → #{target} "
     copy_binary_file src, target
     if target =~ /\.so/ && target !~ /\.so$/
       Dir.chdir(File.dirname(target)) do
@@ -52,7 +52,7 @@ end
 #  e.g. /app/R/site-library/**/*.so
 search=ARGV[0]
 
-puts "Searching for binaries [#{search}]"
+puts "Searching in #{search}"
 
 # destination for copied libs
 dest_path = "/app/R/lib/R/lib"

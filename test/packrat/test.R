@@ -1,5 +1,7 @@
 print("Executing test.R")
 
+packrat::set_opts(ignored.directories = c("data", "inst", "R"))
+
 print(packrat::status())
 
 library("stringr")

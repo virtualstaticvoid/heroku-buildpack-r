@@ -12,6 +12,8 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
+#----------------------------------------------------------------------
+
 # import supporting script
 source "${BUILDPACK_DIR}/bin/script-common"
 
@@ -28,9 +30,9 @@ if [[ ! $HEROKU_STACK =~ (16|18) ]]; then
   echo "Use the 'heroku stack:set' CLI command to set the appropriate stack." | indent
   echo "See https://devcenter.heroku.com/articles/stack" | indent
   echo
-  echo "Optionally, for greater control and flexibility consider using the" | indent
-  echo "container stack together with the heroku-docker-r implementation". | indent
-  echo "See https://github.com/virtualstaticvoid/heroku-docker-r" | indent
+  echo "Optionally, for greater control and flexibility consider using the Heroku" | indent
+  echo "container stack together with the heroku-docker-r implementation." | indent
+  echo "See https://github.com/virtualstaticvoid/heroku-docker-r for more information." | indent
   echo
   exit 1
 fi
@@ -53,6 +55,10 @@ if [ ! -z ${BUILDPACK_DEBUG+x} ] && [ "$BUILDPACK_DEBUG" == "1" ]; then
   set | indent
 fi
 
+#----------------------------------------------------------------------
+
+topic "Installing R"
+
 # debug
 START_TIME="$(date -u +%s)"
 
@@ -65,10 +71,13 @@ R_VERSION=3.6.3
 BUILDPACK_VERSION=${BUILDPACK_VERSION:-latest}
 
 # NB: change to bust cache
-CACHE_KEY=27ac154d
-BUILD_OUTPUTS="$CACHE_DIR/$CACHE_KEY.tar.gz"
+CACHE_KEY="${BUILDPACK_VERSION}-${HEROKU_STACK}-27ac154f"
 
-topic "Installing R"
+# get cache file names
+cache_filename_for rootfs.tar.gz ROOTFS_OUTPUTS
+cache_filename_for sitelibrary.tar.gz BUILD_OUTPUTS
+cache_filename_for packrat.tar.gz PACKRAT_OUTPUTS
+cache_filename_for renv.tar.gz RENV_OUTPUTS
 
 # look for init.R
 if [ -f init.R ]; then
@@ -88,22 +97,7 @@ topic "Downloading buildpack archives from AWS S3"
 
 # deploy image (R/*, tcltk/*, etc)
 fetch $(s3_url $(deploy_archive)) deploy.tar.gz deploy_image
-echo "Extracting..." | indent
 tar xf $deploy_image
-
-# make relative symlinks to R executables
-mkdir -p bin
-pushd bin > /dev/null
-ln -s ../R/bin/R .
-ln -s ../R/bin/Rscript .
-popd > /dev/null
-
-# restore cached outputs
-if [ -f "$BUILD_OUTPUTS" ]; then
-  topic "Restoring build outputs from cache"
-  echo "See https://github.com/heroku/heroku-repo#purge-cache for info on purging the cache" | indent
-  tar xf "$BUILD_OUTPUTS"
-fi
 
 # figure out additional bits
 # NB: should match logic in detect script
@@ -111,20 +105,25 @@ if [ -f run.R ]; then
 
   # shiny
   fetch $(s3_url $(shiny_archive)) shiny.tar.gz shiny_image
-  echo "Extracting..." | indent
   tar xf $shiny_image
 
 elif [ -f app.R ] || [ -f plumber.R ]; then
 
   # plumber
   fetch $(s3_url $(plumber_archive)) plumber.tar.gz plumber_image
-  echo "Extracting..." | indent
   tar xf $plumber_image
 
 fi
 
 #----------------------------------------------------------------------
-# some setup for slug build
+# setup for slug build
+
+# make relative symlinks to R executables
+mkdir -p bin
+pushd bin > /dev/null
+ln -s ../R/bin/R .
+ln -s ../R/bin/Rscript .
+popd > /dev/null
 
 # Rprofile.site for further configuration of R
 cp -f "${BUILDPACK_DIR}/bin/Rprofile.site" R/lib/R/etc/Rprofile.site
@@ -142,52 +141,87 @@ if [ ! -z ${CRAN_MIRROR+x} ]; then
   sed -i "s#https://cloud.r-project.org/#${CRAN_MIRROR}#g" R/etc/Rprofile.site
 fi
 
+# packrat and renv paths
+mkdir -p .config/packrat R/packrat R/renv
+
 #----------------------------------------------------------------------
-# need chroot?
-have_chroot=0
+# restore cached outputs
+
+# restore cached outputs
+if [ -f "$BUILD_OUTPUTS" ]; then
+  echo "Restoring R packages from cache" | indent
+  tar xf "$BUILD_OUTPUTS"
+fi
+
+if [ -f packrat/init.R ] && [ -f "$PACKRAT_OUTPUTS" ]; then
+  echo "Restoring packrat packages from cache" | indent
+  tar xf "$PACKRAT_OUTPUTS"
+fi
+
+if [ -f renv/activate.R ] && [ -f "$RENV_OUTPUTS" ]; then
+  echo "Restoring renv packages from cache" | indent
+  tar xf "$RENV_OUTPUTS"
+fi
+
+HAVE_CHROOT=0
+delete_download=0
 
 if [ -f Aptfile ] || [ ! -z ${INIT_FILE+x} ] || [ -f packrat/init.R ] || [ -f renv/activate.R ]; then
 
   # update flag
-  have_chroot=1
+  HAVE_CHROOT=1
 
-  # download build image
-  fetch $(s3_url $(build_archive)) build.tar.gz build_image
+  if [ -f "$ROOTFS_OUTPUTS" ]; then
+    echo "Setting up build environment from cache" | indent
+    build_image=$ROOTFS_OUTPUTS
+  else
+    echo "Setting up build environment" | indent
+    fetch $(s3_url $(build_archive)) build.tar.gz build_image
+    delete_download=1
+  fi
 
   # install to temp location
-  echo "Extracting..." | indent
   ROOTFS=$(mktemp -d)
   mkdir -p $ROOTFS
   pushd $ROOTFS > /dev/null
   tar xf $build_image
   popd > /dev/null
 
-  #
-  # it isn't possible to mount BUILD_DIR into the chroot as /app directory since
-  # this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
-  # allows a "pass through" mechanism making it possible to simulate mounting a directory.
-  #
-  # unfortunately, slug compilation occurs under /build/... so to get this to work
-  # all the files need to be copied to /app so that paths and symlinks work as expected
-  # during slug compilation and ultimately are correct in the runtime environment.
-  #
-  # there are a bunch of Heroku files in /app, seemingly related to slug compilation
-  # so these files will need to be excluded, after the R bits have been compiled and
-  # the files are copied back to /build/...
-  #
-  # not the greatest situation, but hey it works
-  #
-
-  # make inventory of current contents of /app (before copy)
-  pushd /app > /dev/null
-  find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > $BUILD_DIR/.rsync-excludes
-  find . -maxdepth 1 -type f | cut -c 2- >> $BUILD_DIR/.rsync-excludes
-  popd > /dev/null
-
-  # copy everything to /app
-  rsync -a $BUILD_DIR/ /app/
+  # delete cached download?
+  if [ "$delete_download" == "1" ]; then
+    rm $build_image
+  fi
 
 fi
+
+#----------------------------------------------------------------------
+# sync files to /app (from BUILD_DIR)
+
+#
+# it isn't possible to mount BUILD_DIR into the chroot as /app directory since
+# this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
+# allows a "pass through" mechanism making it possible to simulate mounting a directory.
+#
+# unfortunately, slug compilation occurs under /build/... so to get this to work
+# all the files need to be copied to /app so that paths and symlinks work as expected
+# during slug compilation and ultimately are correct in the runtime environment.
+#
+# there are a bunch of Heroku files in /app, seemingly related to slug compilation
+# so these files will need to be excluded, after the R bits have been compiled and
+# the files are copied back to /build/...
+#
+# not the greatest situation, but hey it works
+#
+
+# make inventory of current contents of /app (before sync)
+# so when copied back, these files can be excluded
+pushd /app > /dev/null
+find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > "${BUILD_DIR}/.rsync-excludes"
+find . -maxdepth 1 -type f | cut -c 2- >> "${BUILD_DIR}/.rsync-excludes"
+popd > /dev/null
+
+# copy everything to /app
+rsync -a "${BUILD_DIR}/" /app/
 
 #----------------------------------------------------------------------
 # slug compile
@@ -196,8 +230,10 @@ fi
 if [ -f Aptfile ]; then
   echo
   notice "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
-  echo "Please consider using https://github.com/virtualstaticvoid/heroku-docker-r instead" | indent
-  echo "since it provides much more flexibility for installing packages and configuring R." | indent
+  echo
+  echo "For greater control and flexibility consider using the Heroku" | indent
+  echo "container stack together with the heroku-docker-r implementation." | indent
+  echo "See https://github.com/virtualstaticvoid/heroku-docker-r for more information." | indent
   echo
 
   packages=""
@@ -207,6 +243,8 @@ if [ -f Aptfile ]; then
 
   in_chroot_sudo /bin/bash -c "DEBIAN_FRONTEND=noninteractive apt-get update -qq" 2>&1 | indent
   in_chroot_sudo /bin/bash -c "DEBIAN_FRONTEND=noninteractive apt-get -qy install $packages" 2>&1 | indent
+  in_chroot_sudo /bin/bash -c "DEBIAN_FRONTEND=noninteractive apt-get -q clean" 2>&1 > /dev/null
+  in_chroot_sudo rm -rf /var/lib/apt/lists/* 2>&1 > /dev/null
 fi
 
 # execute init.R
@@ -225,7 +263,7 @@ if [ ! -z ${INIT_FILE+x} ]; then
   # process, hence the warnings regarding the use of the Aptfile. YMMV
   #
   if [ -f Aptfile ]; then
-    echo "Attempting to locate binary dependencies" | indent
+    echo "Attempting to locate system dependencies" | indent
     in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/site-library/**/*.so" 2>&1 | indent
   fi
 fi
@@ -237,7 +275,7 @@ if [ -f packrat/init.R ]; then
 
   # system dependencies?
   if [ -f Aptfile ]; then
-    echo "Attempting to locate binary dependencies" | indent
+    echo "Attempting to locate system dependencies" | indent
     in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/packrat/**/*.so" 2>&1 | indent
   fi
 fi
@@ -249,35 +287,36 @@ if [ -f renv/activate.R ]; then
 
   # system dependencies?
   if [ -f Aptfile ]; then
-    echo "Attempting to locate binary dependencies" | indent
+    echo "Attempting to locate system dependencies" | indent
     in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/renv/**/*.so" 2>&1 | indent
   fi
 fi
 
-if [ "$have_chroot" == "1" ]; then
+#----------------------------------------------------------------------
+# final bits
 
-  # copy new and changed files back from /app (excluding original contents of /app)
-  pushd /app > /dev/null
-  rsync -a --exclude-from=$BUILD_DIR/.rsync-excludes . $BUILD_DIR/
-  popd > /dev/null
-
-  # clean up
-  rm .rsync-excludes
-
-fi
+# copy new and changed files back from /app (excluding original contents of /app)
+pushd /app > /dev/null
+rsync -a --exclude-from="${BUILD_DIR}/.rsync-excludes" . "${BUILD_DIR}/"
+popd > /dev/null
 
 # for backward compatibility, include wrappers for fakechroot, fakeroot and chroot
-cp $BUILDPACK_DIR/bin/wrap_fakechroot bin/fakechroot
-cp $BUILDPACK_DIR/bin/wrap_fakeroot bin/fakeroot
-cp $BUILDPACK_DIR/bin/wrap_chroot bin/chroot
+cp "${BUILDPACK_DIR}/bin/wrap_fakechroot" bin/fakechroot
+cp "${BUILDPACK_DIR}/bin/wrap_fakeroot" bin/fakeroot
+cp "${BUILDPACK_DIR}/bin/wrap_chroot" bin/chroot
 
 # clean ups (remove unneeded files, etc)
 rm -rf fakechroot
+rm .rsync-excludes
+rm R/etc/copy_libs.rb
+
+#----------------------------------------------------------------------
+# environment
 
 # copy over profile
 topic "Writing environment to profile"
 mkdir -p .profile.d
-cp $BUILDPACK_DIR/bin/env.sh .profile.d/heroku-buildpack-r-env.sh
+cp "${BUILDPACK_DIR}/bin/env.sh" .profile.d/heroku-buildpack-r-env.sh
 
 # include meta variables
 cat >> .profile.d/heroku-buildpack-r-env.sh <<EOL
@@ -287,10 +326,31 @@ export BUILDPACK_R_VERSION="$R_VERSION"
 EOL
 
 # write export script for other buildpacks
-cp $BUILDPACK_DIR/bin/env.sh "$BUILDPACK_DIR/export"
+cp "${BUILDPACK_DIR}/bin/env.sh" "${BUILDPACK_DIR}/export"
+
+#----------------------------------------------------------------------
+# cache outputs
 
 topic "Caching build outputs"
-tar czf "$BUILD_OUTPUTS" R/site-library
+
+if [ "$HAVE_CHROOT" == "1" ]; then
+  pushd "$ROOTFS" > /dev/null
+  compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
+  popd > /dev/null
+fi
+
+compress "R packages..." "$BUILD_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.r_ignore" R
+
+if [ -f packrat/init.R ]; then
+  compress "packrat packages..." "$PACKRAT_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.packrat_ignore" packrat .config/packrat
+fi
+
+if [ -f renv/activate.R ]; then
+  compress "renv packages..." "$RENV_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.renv_ignore" renv
+fi
+
+#----------------------------------------------------------------------
+# done
 
 topic "R ${R_VERSION} installed successfully!"
 
