@@ -9,6 +9,8 @@ setwd(testdir)
 
 sapply(installed.packages()[,"Package"], tools::testInstalledPackage)
 
+warnings()
+
 list.files()
 
 cat("\nSuccess\n")

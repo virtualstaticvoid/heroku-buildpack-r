@@ -15,6 +15,24 @@ indent() {
   sed -u 's/^/       /'
 }
 
+run_tests() {
+
+  # R test?
+  if [ -f "test.R" ]; then
+    topic "Running 'test.R'..."
+    heroku run R --no-save --file=test.R 2>&1 | indent
+  fi
+
+  # shell test?
+  if [ -f "test.sh" ]; then
+    topic "Running 'test.sh'..."
+    bash test.sh 2>&1 | indent
+  fi
+
+}
+
+#----------------------------------------------------------------------
+
 topic "Running $(basename $(pwd)) test..."
 
 # create a temporary directory and copy the test application
@@ -60,24 +78,34 @@ if [ -f "config.sh" ]; then
   bash config.sh 2>&1 | indent
 fi
 
+#----------------------------------------------------------------------
 # test the deployment
+
 topic "Deploying test"
 git push heroku master 2>&1 | indent
 
 # wait for release to complete
 heroku ps:wait --wait-interval=20 2>&1 | indent
 
-# R test?
-if [ -f "test.R" ]; then
-  topic "Running 'test.R'..."
-  heroku run R --no-save --file=test.R 2>&1 | indent
-fi
+run_tests
 
-# shell test?
-if [ -f "test.sh" ]; then
-  topic "Running 'test.sh'..."
-  bash test.sh 2>&1 | indent
-fi
+#----------------------------------------------------------------------
+# deploy again
+
+topic "Deploying test update"
+
+cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32 > test-update
+git add --all
+git commit -m "update" --no-gpg-sign > /dev/null
+
+git push heroku master 2>&1 | indent
+
+# wait for release to complete
+heroku ps:wait --wait-interval=20 2>&1 | indent
+
+run_tests
+
+#----------------------------------------------------------------------
 
 topic "Test completed. Check outputs for any errors."
 

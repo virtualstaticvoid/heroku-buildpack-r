@@ -1,0 +1,3 @@
+renv/.gitignore
+renv/activate.R
+renv/settings.dcf

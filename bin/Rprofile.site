@@ -1,4 +1,4 @@
-cat("Loading Rprofile.site\n")
+# cat("Loading Rprofile.site\n")
 options(repos = c(CRAN = "https://cloud.r-project.org/"), download.file.method = "libcurl")
 .libPaths(c("/app/R/site-library", .libPaths()))
 source("/app/R/etc/helpers.R")

@@ -1,0 +1,10 @@
+/dev
+/home/*
+/proc
+/run
+/srv
+/sys
+/tmp/*
+/usr/share/man/*
+/var/cache/man
+/var/log/*
