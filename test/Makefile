@@ -1,7 +1,7 @@
 # default target
 all::
 
-FILES:=$(shell find . -maxdepth 2 -type f -name Makefile)
+FILES:=$(shell find . -maxdepth 2 -type f -name Makefile | sort)
 SUBDIRS:=$(filter-out ./,$(dir $(FILES)))
 LOG_FILE:=$(shell date +%Y%m%d-%H%M)
 
