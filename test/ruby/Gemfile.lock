@@ -13,7 +13,7 @@ GEM
     foreman (0.87.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    rack (2.2.2)
+    rack (2.2.3)
     rack-protection (2.0.8.1)
       rack
     ruby2_keywords (0.0.2)
@@ -39,7 +39,7 @@ DEPENDENCIES
   thin
 
 RUBY VERSION
-   ruby 2.6.3p62
+   ruby 2.7.1p83
 
 BUNDLED WITH
-   1.17.2
+   2.1.4
