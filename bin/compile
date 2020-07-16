@@ -197,6 +197,8 @@ fi
 #----------------------------------------------------------------------
 # sync files to /app (from BUILD_DIR)
 
+topic "Configuring build environment..."
+
 #
 # it isn't possible to mount BUILD_DIR into the chroot as /app directory since
 # this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
@@ -294,6 +296,8 @@ fi
 
 #----------------------------------------------------------------------
 # final bits
+
+topic "Finalising environment..."
 
 # copy new and changed files back from /app (excluding original contents of /app)
 pushd /app > /dev/null
