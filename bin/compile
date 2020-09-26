@@ -188,7 +188,7 @@ if [ -f Aptfile ] || [ ! -z ${INIT_FILE+x} ] || [ -f packrat/init.R ] || [ -f re
   popd > /dev/null
 
   # delete cached download?
-  if [ "$delete_download" == "1" ]; then
+  if [ "$delete_download" == "1" ] && [ -z ${BUILDPACK_TEST+x} ]; then
     rm $build_image
   fi
 
