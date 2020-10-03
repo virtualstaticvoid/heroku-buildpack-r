@@ -326,14 +326,14 @@ pushd "$ROOTFS" > /dev/null
 compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
 popd > /dev/null
 
-compress "R packages..." "$BUILD_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.r_ignore" R
+compress "R packages..." "$BUILD_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.r_ignore" R/site-library
 
 if [ -f packrat/init.R ]; then
-  compress "packrat packages..." "$PACKRAT_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.packrat_ignore" packrat .config/packrat
+  compress "packrat packages..." "$PACKRAT_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.packrat_ignore" packrat R/packrat .config/packrat
 fi
 
 if [ -f renv/activate.R ]; then
-  compress "renv packages..." "$RENV_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.renv_ignore" renv
+  compress "renv packages..." "$RENV_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.renv_ignore" renv R/renv
 fi
 
 #----------------------------------------------------------------------
