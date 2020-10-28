@@ -71,7 +71,7 @@ R_VERSION=4.0.0
 BUILDPACK_VERSION=${BUILDPACK_VERSION:-latest}
 
 # NB: change to bust cache
-CACHE_KEY="${BUILDPACK_VERSION}-${HEROKU_STACK}-27ac154g"
+CACHE_KEY="${BUILDPACK_VERSION}-${HEROKU_STACK}-27ac154h"
 
 # get cache file names
 cache_filename_for rootfs.tar.gz ROOTFS_OUTPUTS
