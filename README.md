@@ -135,6 +135,8 @@ shiny::runApp(
 )
 ```
 
+See the [virtualstaticvoid/heroku-shiny-app][shiny-app] example application.
+
 ### Plumber Applications
 
 Plumber applications must provide an `app.R` file, but can also include an `init.R` in order to install additional R packages.
@@ -157,6 +159,8 @@ server$run(
   port = as.numeric(port)
 )
 ```
+
+See the [virtualstaticvoid/heroku-plumber-app][plumber-app] example application.
 
 ### Recurring Jobs
 
@@ -279,6 +283,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [herokuyml]: https://devcenter.heroku.com/articles/build-docker-images-heroku-yml#run-defining-the-processes-to-run
 [mirrors]: https://cran.r-project.org/mirmon_report.html
 [packrat]: http://rstudio.github.io/packrat
+[plumber-app]: https://github.com/virtualstaticvoid/heroku-plumber-app
 [plumber]: https://www.rplumber.io
 [procfile]: https://devcenter.heroku.com/articles/procfile
 [purge]: https://github.com/heroku/heroku-repo#purge-cache
@@ -290,6 +295,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [rproject]: https://www.r-project.org
 [s3]: https://heroku-buildpack-r.s3.amazonaws.com
 [scheduler]: https://addons.heroku.com/scheduler
+[shiny-app]: https://github.com/virtualstaticvoid/heroku-shiny-app
 [shiny]: https://shiny.rstudio.com
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
 [stack16]: https://devcenter.heroku.com/articles/heroku-16-stack
