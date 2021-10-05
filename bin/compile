@@ -124,10 +124,11 @@ fi
 
 # make relative symlinks to R executables
 mkdir -p bin
-pushd bin > /dev/null
-ln -s ../R/bin/R .
-ln -s ../R/bin/Rscript .
-popd > /dev/null
+(
+  cd bin
+  ln -s ../R/bin/R .
+  ln -s ../R/bin/Rscript .
+)
 
 # Rprofile.site for further configuration of R
 cp -f "${BUILDPACK_DIR}/bin/Rprofile.site" R/lib/R/etc/Rprofile.site
@@ -181,9 +182,10 @@ fi
 # install to temp location
 ROOTFS=$(mktemp -d)
 mkdir -p $ROOTFS
-pushd $ROOTFS > /dev/null
-tar xf $build_image
-popd > /dev/null
+(
+  cd $ROOTFS
+  tar xf $build_image
+)
 
 # delete cached download?
 if [ "$delete_download" == "1" ] && [ -z ${BUILDPACK_TEST+x} ]; then
@@ -216,10 +218,11 @@ if [ "$BUILD_DIR" != "/app" ]; then
 
   # make inventory of current contents of /app (before sync)
   # so when copied back, these files can be excluded
-  pushd /app > /dev/null
-  find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > "${BUILD_DIR}/.rsync-excludes"
-  find . -maxdepth 1 -type f | cut -c 2- >> "${BUILD_DIR}/.rsync-excludes"
-  popd > /dev/null
+  (
+    cd /app
+    find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > "${BUILD_DIR}/.rsync-excludes"
+    find . -maxdepth 1 -type f | cut -c 2- >> "${BUILD_DIR}/.rsync-excludes"
+  )
 
   # copy everything to /app
   rsync -a "${BUILD_DIR}/" /app/
@@ -283,9 +286,10 @@ in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/lib/**/*.so" 2>&1 > /dev
 if [ "$BUILD_DIR" != "/app" ]; then
 
   # copy new and changed files back from /app (excluding original contents of /app)
-  pushd /app > /dev/null
-  rsync -a --exclude-from="${BUILD_DIR}/.rsync-excludes" . "${BUILD_DIR}/"
-  popd > /dev/null
+  (
+    cd /app
+    rsync -a --exclude-from="${BUILD_DIR}/.rsync-excludes" . "${BUILD_DIR}/"
+  )
   rm .rsync-excludes
 
 fi
@@ -322,9 +326,10 @@ cp "${BUILDPACK_DIR}/bin/env.sh" "${BUILDPACK_DIR}/export"
 
 topic "Caching build outputs"
 
-pushd "$ROOTFS" > /dev/null
-compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
-popd > /dev/null
+(
+  cd "$ROOTFS"
+  compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
+)
 
 compress "R packages..." "$BUILD_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.r_ignore" R/site-library
 
