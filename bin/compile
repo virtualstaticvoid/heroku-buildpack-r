@@ -167,35 +167,27 @@ if [ -f renv/activate.R ] && [ -f "$RENV_OUTPUTS" ]; then
   tar xf "$RENV_OUTPUTS"
 fi
 
-HAVE_CHROOT=0
 delete_download=0
 
-if [ -f Aptfile ] || [ ! -z ${INIT_FILE+x} ] || [ -f packrat/init.R ] || [ -f renv/activate.R ]; then
+if [ -f "$ROOTFS_OUTPUTS" ]; then
+  echo "Setting up build environment from cache" | indent
+  build_image=$ROOTFS_OUTPUTS
+else
+  echo "Setting up build environment" | indent
+  fetch $(s3_url $(build_archive)) build.tar.gz build_image
+  delete_download=1
+fi
 
-  # update flag
-  HAVE_CHROOT=1
+# install to temp location
+ROOTFS=$(mktemp -d)
+mkdir -p $ROOTFS
+pushd $ROOTFS > /dev/null
+tar xf $build_image
+popd > /dev/null
 
-  if [ -f "$ROOTFS_OUTPUTS" ]; then
-    echo "Setting up build environment from cache" | indent
-    build_image=$ROOTFS_OUTPUTS
-  else
-    echo "Setting up build environment" | indent
-    fetch $(s3_url $(build_archive)) build.tar.gz build_image
-    delete_download=1
-  fi
-
-  # install to temp location
-  ROOTFS=$(mktemp -d)
-  mkdir -p $ROOTFS
-  pushd $ROOTFS > /dev/null
-  tar xf $build_image
-  popd > /dev/null
-
-  # delete cached download?
-  if [ "$delete_download" == "1" ] && [ -z ${BUILDPACK_TEST+x} ]; then
-    rm $build_image
-  fi
-
+# delete cached download?
+if [ "$delete_download" == "1" ] && [ -z ${BUILDPACK_TEST+x} ]; then
+  rm $build_image
 fi
 
 #----------------------------------------------------------------------
@@ -262,51 +254,31 @@ fi
 if [ ! -z ${INIT_FILE+x} ]; then
   topic "Executing ${INIT_FILE} file"
   in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-save --quiet --slave --file=${INIT_FILE}" 2>&1 | indent
-
-  #
-  # any libarary dependencies, installed via Aptfile, which are referenced by the R packages installed by init.R
-  # will need to be "packaged" into the slug since the chroot isn't included at runtime.
-  #
-  # this script uses ldd to inspect each .so file under the /app/R/site-library to get the referenced .so files
-  # to copy them to /app/R/lib/R/lib so that they can be found at runtime.
-  #
-  # any dynamic dependencies, such as a command line utility or any other files, won't be included in this
-  # process, hence the warnings regarding the use of the Aptfile. YMMV
-  #
-  if [ -f Aptfile ]; then
-    echo "Attempting to locate system dependencies" | indent
-    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/site-library/**/*.so" 2>&1 | indent
-  fi
+  in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/site-library/**/*.so" 2>&1 > /dev/null
 fi
 
 # bootstrap packrat?
 if [ -f packrat/init.R ]; then
   topic "Bootstrapping packrat"
   in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-init-file --no-save --quiet --slave --file=packrat/init.R --args --bootstrap-packrat" 2>&1 | indent
-
-  # system dependencies?
-  if [ -f Aptfile ]; then
-    echo "Attempting to locate system dependencies" | indent
-    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/packrat/**/*.so" 2>&1 | indent
-  fi
+  in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/packrat/**/*.so" 2>&1 > /dev/null
 fi
 
 # renv packrat?
 if [ -f renv/activate.R ]; then
   topic "Bootstrapping renv"
   in_chroot /bin/bash -c "cd /app && /app/R/bin/R --no-save --quiet --slave -e 'renv::restore()'" 2>&1 | indent
-
-  # system dependencies?
-  if [ -f Aptfile ]; then
-    echo "Attempting to locate system dependencies" | indent
-    in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/renv/**/*.so" 2>&1 | indent
-  fi
+  in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/renv/**/*.so" 2>&1 > /dev/null
 fi
 
 #----------------------------------------------------------------------
 # final bits
 
 topic "Finalising environment..."
+
+# system dependencies
+in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/lib/R/bin/exec/R" 2>&1 > /dev/null
+in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/lib/**/*.so" 2>&1 > /dev/null
 
 if [ "$BUILD_DIR" != "/app" ]; then
 
@@ -350,11 +322,9 @@ cp "${BUILDPACK_DIR}/bin/env.sh" "${BUILDPACK_DIR}/export"
 
 topic "Caching build outputs"
 
-if [ "$HAVE_CHROOT" == "1" ]; then
-  pushd "$ROOTFS" > /dev/null
-  compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
-  popd > /dev/null
-fi
+pushd "$ROOTFS" > /dev/null
+compress "Build environment..." "$ROOTFS_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.chroot_ignore" .
+popd > /dev/null
 
 compress "R packages..." "$BUILD_OUTPUTS" --exclude-from="${BUILDPACK_DIR}/bin/.r_ignore" R
 
