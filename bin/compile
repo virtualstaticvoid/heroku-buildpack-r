@@ -42,6 +42,10 @@ fi
 # and so relative paths can be used
 cd "$BUILD_DIR"
 
+if [ "$BUILD_DIR" == "/app" ]; then
+  info "INFO: build directory is /app!"
+fi
+
 # load any application defined environment variables,
 # so that they can be accessed by this script
 export_env_dir "$ENV_DIR"
@@ -195,35 +199,40 @@ if [ -f Aptfile ] || [ ! -z ${INIT_FILE+x} ] || [ -f packrat/init.R ] || [ -f re
 fi
 
 #----------------------------------------------------------------------
-# sync files to /app (from BUILD_DIR)
+# sync files to /app from BUILD_DIR (if needed)
+# https://github.com/virtualstaticvoid/heroku-buildpack-r/issues/151
 
-topic "Configuring build environment..."
+if [ "$BUILD_DIR" != "/app" ]; then
 
-#
-# it isn't possible to mount BUILD_DIR into the chroot as /app directory since
-# this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
-# allows a "pass through" mechanism making it possible to simulate mounting a directory.
-#
-# unfortunately, slug compilation occurs under /build/... so to get this to work
-# all the files need to be copied to /app so that paths and symlinks work as expected
-# during slug compilation and ultimately are correct in the runtime environment.
-#
-# there are a bunch of Heroku files in /app, seemingly related to slug compilation
-# so these files will need to be excluded, after the R bits have been compiled and
-# the files are copied back to /build/...
-#
-# not the greatest situation, but hey it works
-#
+  topic "Configuring build environment..."
 
-# make inventory of current contents of /app (before sync)
-# so when copied back, these files can be excluded
-pushd /app > /dev/null
-find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > "${BUILD_DIR}/.rsync-excludes"
-find . -maxdepth 1 -type f | cut -c 2- >> "${BUILD_DIR}/.rsync-excludes"
-popd > /dev/null
+  #
+  # it isn't possible to mount BUILD_DIR into the chroot as /app directory since
+  # this is a locked down environment, so fakechroot via the FAKECHROOT_EXCLUDE_PATH
+  # allows a "pass through" mechanism making it possible to simulate mounting a directory.
+  #
+  # unfortunately, slug compilation occurs under /build/... so to get this to work
+  # all the files need to be copied to /app so that paths and symlinks work as expected
+  # during slug compilation and ultimately are correct in the runtime environment.
+  #
+  # there are a bunch of Heroku files in /app, seemingly related to slug compilation
+  # so these files will need to be excluded, after the R bits have been compiled and
+  # the files are copied back to /build/...
+  #
+  # not the greatest situation, but hey it works
+  #
 
-# copy everything to /app
-rsync -a "${BUILD_DIR}/" /app/
+  # make inventory of current contents of /app (before sync)
+  # so when copied back, these files can be excluded
+  pushd /app > /dev/null
+  find . -maxdepth 1 -type d | grep -v '^.$' | cut -c 2- > "${BUILD_DIR}/.rsync-excludes"
+  find . -maxdepth 1 -type f | cut -c 2- >> "${BUILD_DIR}/.rsync-excludes"
+  popd > /dev/null
+
+  # copy everything to /app
+  rsync -a "${BUILD_DIR}/" /app/
+
+fi
 
 #----------------------------------------------------------------------
 # slug compile
@@ -299,10 +308,15 @@ fi
 
 topic "Finalising environment..."
 
-# copy new and changed files back from /app (excluding original contents of /app)
-pushd /app > /dev/null
-rsync -a --exclude-from="${BUILD_DIR}/.rsync-excludes" . "${BUILD_DIR}/"
-popd > /dev/null
+if [ "$BUILD_DIR" != "/app" ]; then
+
+  # copy new and changed files back from /app (excluding original contents of /app)
+  pushd /app > /dev/null
+  rsync -a --exclude-from="${BUILD_DIR}/.rsync-excludes" . "${BUILD_DIR}/"
+  popd > /dev/null
+  rm .rsync-excludes
+
+fi
 
 # for backward compatibility, include wrappers for fakechroot, fakeroot and chroot
 cp "${BUILDPACK_DIR}/bin/wrap_fakechroot" bin/fakechroot
@@ -311,7 +325,6 @@ cp "${BUILDPACK_DIR}/bin/wrap_chroot" bin/chroot
 
 # clean ups (remove unneeded files, etc)
 rm -rf fakechroot
-rm .rsync-excludes
 rm R/etc/copy_libs.rb
 
 #----------------------------------------------------------------------
