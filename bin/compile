@@ -25,14 +25,14 @@ if [[ ! $HEROKU_STACK =~ (16|18) ]]; then
   echo
   error "ERROR: This buildpack is NOT intended for use with the '${STACK}' stack"
   echo
-  echo "The supported stacks are 'heroku-16' and 'heroku-18'." | indent
+  info "The supported stacks are 'heroku-16' and 'heroku-18'."
   echo
-  echo "Use the 'heroku stack:set' CLI command to set the appropriate stack." | indent
-  echo "See https://devcenter.heroku.com/articles/stack" | indent
+  info "Use the 'heroku stack:set' CLI command to set the appropriate stack."
+  info "See https://devcenter.heroku.com/articles/stack"
   echo
-  echo "Optionally, for greater control and flexibility consider using the Heroku" | indent
-  echo "container stack together with the heroku-docker-r implementation." | indent
-  echo "See https://github.com/virtualstaticvoid/heroku-docker-r for more information." | indent
+  info "Optionally, for greater control and flexibility consider using the Heroku"
+  info "container stack together with the heroku-docker-r implementation."
+  info "See https://github.com/virtualstaticvoid/heroku-docker-r for more information."
   echo
   exit 1
 fi
@@ -233,9 +233,9 @@ if [ -f Aptfile ]; then
   echo
   notice "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
   echo
-  echo "For greater control and flexibility consider using the Heroku" | indent
-  echo "container stack together with the heroku-docker-r implementation." | indent
-  echo "See https://github.com/virtualstaticvoid/heroku-docker-r for more information." | indent
+  info "For greater control and flexibility consider using the Heroku"
+  info "container stack together with the heroku-docker-r implementation."
+  info "See https://github.com/virtualstaticvoid/heroku-docker-r for more information."
   echo
 
   packages=""

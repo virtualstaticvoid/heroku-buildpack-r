@@ -8,6 +8,10 @@ notice() {
   echo -e "       \e[1;33m${*}\e[0m"
 }
 
+info() {
+  echo -e "       \e[0;32m${*}\e[0m"
+}
+
 error() {
   echo -e " !     \e[1;31m${*}\e[0m"
 }
