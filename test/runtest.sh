@@ -45,7 +45,7 @@ pushd $dir > /dev/null
 echo $(pwd) | indent
 
 # commit to git for push to heroku
-git init > /dev/null
+git init -b main -- > /dev/null
 git config user.name "Test"
 git config user.email "test@example.com"
 echo "*.log" >> .gitignore
@@ -82,7 +82,7 @@ fi
 # test the deployment
 
 topic "Deploying test"
-git push heroku master 2>&1 | indent
+git push heroku main 2>&1 | indent
 
 # wait for release to complete
 heroku ps:wait --wait-interval=20 2>&1 | indent
@@ -98,7 +98,7 @@ cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32 > test-update
 git add --all
 git commit -m "update" --no-gpg-sign > /dev/null
 
-git push heroku master 2>&1 | indent
+git push heroku main 2>&1 | indent
 
 # wait for release to complete
 heroku ps:wait --wait-interval=20 2>&1 | indent
