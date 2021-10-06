@@ -1,4 +1,4 @@
-packrat/init.R
-packrat/packrat.lock
-packrat/packrat.opts
-packrat/src
+/packrat/init.R
+/packrat/packrat.lock
+/packrat/packrat.opts
+/packrat/src

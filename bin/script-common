@@ -8,6 +8,10 @@ notice() {
   echo -e "       \e[1;33m${*}\e[0m"
 }
 
+info() {
+  echo -e "       \e[0;32m${*}\e[0m"
+}
+
 error() {
   echo -e " !     \e[1;31m${*}\e[0m"
 }
@@ -86,7 +90,6 @@ with_fakechroot() {
   /usr/bin/env \
       HOME=/app \
       PATH="/app/R/bin:/app/tcltk/bin:/app/pandoc/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$PATH" \
-      LD_LIBRARY_PATH="/app/R/lib/R/lib:/app/tcltk/lib" \
       R_LIBS_SITE="/app/R/site-library" \
       R_LIBS_USER="/app/R/site-library" \
       RSTUDIO_PANDOC="/app/pandoc/bin" \

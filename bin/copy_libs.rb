@@ -1,5 +1,17 @@
 #!/usr/bin/env ruby
 
+#
+# utility to copy libraries (some installed via Aptfile) which are referenced by the R packages
+# built during execution of init.R/packrat/renv, which need to be "packaged" into the slug since
+# the chroot isn't included at runtime.
+#
+# this script uses ldd to inspect each .so file in the given directory to get the referenced .so
+# files to copy them to /app/R/lib/R/lib so that they can be found at runtime.
+#
+# any dynamic dependencies, such as a command line utilities, scripts or any other files, won't be
+# included in this process, as there is no definitive way to know what is needed, so YMMV.
+#
+
 require 'open3'
 
 def find_depend_libs(binary)
