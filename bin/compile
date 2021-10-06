@@ -17,15 +17,15 @@ ENV_DIR=$3
 # import supporting script
 source "${BUILDPACK_DIR}/bin/script-common"
 
-# derive number from stack (heroku-16, heroku-18, heroku-20)
+# derive number from stack (heroku-18, heroku-20)
 HEROKU_STACK=${STACK:7}
 
 # check if it's supported
-if [[ ! $HEROKU_STACK =~ (16|18) ]]; then
+if [[ ! $HEROKU_STACK =~ (18|20) ]]; then
   echo
   error "ERROR: This buildpack is NOT intended for use with the '${STACK}' stack"
   echo
-  info "The supported stacks are 'heroku-16' and 'heroku-18'."
+  info "The supported stacks are 'heroku-18' and 'heroku-20'."
   echo
   info "Use the 'heroku stack:set' CLI command to set the appropriate stack."
   info "See https://devcenter.heroku.com/articles/stack"
