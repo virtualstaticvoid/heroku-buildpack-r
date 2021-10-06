@@ -2,7 +2,7 @@
 
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
-The buildpack supports the [heroku-16][stack16] and [heroku-18][stack18] stacks.
+The buildpack supports the [heroku-18][stack18] and [heroku-20][stack20] stacks.
 
 It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
@@ -296,6 +296,6 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [shiny-app]: https://github.com/virtualstaticvoid/heroku-shiny-app
 [shiny]: https://shiny.rstudio.com
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
-[stack16]: https://devcenter.heroku.com/articles/heroku-16-stack
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
+[stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
 [tcltk]: https://www.tcl.tk
