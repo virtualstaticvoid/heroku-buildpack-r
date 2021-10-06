@@ -1,7 +1,5 @@
 # Heroku Buildpack: R
 
-<!-- [![Build Status][travis_img]][travis] -->
-
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
 The buildpack supports the [heroku-16][stack16] and [heroku-18][stack18] stacks.
@@ -301,5 +299,3 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [stack16]: https://devcenter.heroku.com/articles/heroku-16-stack
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [tcltk]: https://www.tcl.tk
-[travis]: https://travis-ci.org/virtualstaticvoid/heroku-buildpack-r
-[travis_img]: https://travis-ci.org/virtualstaticvoid/heroku-buildpack-r.svg?branch=master
