@@ -8,11 +8,19 @@ It also includes support for the [Packrat][packrat] and [renv][renv] package man
 
 ## Usage
 
-The buildpack URL is [`https://github.com/virtualstaticvoid/heroku-buildpack-r.git`][bpurl]. Provide it when creating your application on Heroku as follows:
+The buildpack's name is [`vsv/heroku-buildpack-r`][bpurl]. Provide it when creating your application on Heroku as follows:
 
 ```
-heroku create --buildpack https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+heroku create --buildpack vsv/heroku-buildpack-r
 ```
+
+You can add it to an existing application using the `buildpacks:add` command, as follows:
+
+```
+heroku buildpacks:add vsv/heroku-buildpack-r
+```
+
+Alternatively, you can use the Git URL of this repository, `https://github.com/virtualstaticvoid/heroku-buildpack-r.git`, for the name.
 
 The buildpack will detect your application makes use of R if it has one (or more) of the following files in the project directory:
 
