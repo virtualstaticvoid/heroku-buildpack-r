@@ -68,7 +68,10 @@ START_TIME="$(date -u +%s)"
 
 # define static vars
 BUILDPACK_NAME=heroku-buildpack-r
-R_VERSION=4.0.0
+
+# NB: undocumented feature ~ used for testing different versions
+# E.g. set via heroku config:set R_VERSION=4.0.0
+R_VERSION=${R_VERSION:-4.0.0}
 
 # NB: undocumented feature ~ used for testing different versions
 # E.g. set via heroku config:set BUILDPACK_VERSION=test
