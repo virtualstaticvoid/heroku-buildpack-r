@@ -71,7 +71,7 @@ BUILDPACK_NAME=heroku-buildpack-r
 
 # NB: undocumented feature ~ used for testing different versions
 # E.g. set via heroku config:set R_VERSION=4.0.0
-R_VERSION=${R_VERSION:-4.0.0}
+R_VERSION=${R_VERSION:-4.1.2}
 
 # NB: undocumented feature ~ used for testing different versions
 # E.g. set via heroku config:set BUILDPACK_VERSION=test
@@ -259,21 +259,21 @@ fi
 # execute init.R
 if [ ! -z ${INIT_FILE+x} ]; then
   topic "Executing ${INIT_FILE} file"
-  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-save --quiet --slave --file=${INIT_FILE}" 2>&1 | indent
+  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-save --quiet -s --file=${INIT_FILE}" 2>&1 | indent
   in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/R/site-library/**/*.so" 2>&1 > /dev/null
 fi
 
 # bootstrap packrat?
 if [ -f packrat/init.R ]; then
   topic "Bootstrapping packrat"
-  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-init-file --no-save --quiet --slave --file=packrat/init.R --args --bootstrap-packrat" 2>&1 | indent
+  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-init-file --no-save --quiet -s --file=packrat/init.R --args --bootstrap-packrat" 2>&1 | indent
   in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/packrat/**/*.so" 2>&1 > /dev/null
 fi
 
 # renv packrat?
 if [ -f renv/activate.R ]; then
   topic "Bootstrapping renv"
-  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-save --quiet --slave -e 'renv::restore()'" 2>&1 | indent
+  in_chroot /bin/bash -e -c "cd /app && /app/R/bin/R --no-save --quiet -s -e 'renv::restore()'" 2>&1 | indent
   in_chroot /usr/bin/ruby /app/R/etc/copy_libs.rb "/app/renv/**/*.so" 2>&1 > /dev/null
 fi
 
