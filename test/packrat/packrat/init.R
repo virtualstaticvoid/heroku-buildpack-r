@@ -106,7 +106,7 @@ local({
       }
 
       ## Try downloading packrat from CRAN if available
-      else if ("packrat" %in% rownames(available.packages())) {
+      else if ("packrat" %in% available.packages()[, "Package"]) {
         message("> Installing packrat from CRAN")
         install.packages("packrat")
       }
@@ -174,7 +174,7 @@ local({
     fullCmd <- paste(
       surround(file.path(R.home("bin"), "R"), with = "\""),
       "--vanilla",
-      "--slave",
+      "-s",
       "-f",
       surround(installFile, with = "\"")
     )
@@ -186,7 +186,7 @@ local({
     ## an 'installed from source' version
 
     ## -- InstallAgent -- ##
-    installAgent <- "InstallAgent: packrat 0.5.0"
+    installAgent <- "InstallAgent: packrat 0.7.0"
 
     ## -- InstallSource -- ##
     installSource <- "InstallSource: source"
