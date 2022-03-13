@@ -94,9 +94,8 @@ run_tests
 
 topic "Deploying test update"
 
-cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32 > test-update
-git add --all
-git commit -m "update" --no-gpg-sign > /dev/null
+# fake an update
+git commit -m "update" --allow-empty --no-gpg-sign > /dev/null
 
 git push heroku main 2>&1 | indent
 
