@@ -100,7 +100,7 @@ fi
 #----------------------------------------------------------------------
 # download archives
 
-echo "Version ${R_VERSION} will be installed." | indent
+echo "Version ${R_VERSION} will be installed on ${STACK} stack." | indent
 
 topic "Downloading buildpack archives from AWS S3"
 
