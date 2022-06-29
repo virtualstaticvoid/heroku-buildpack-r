@@ -71,7 +71,7 @@ BUILDPACK_NAME=heroku-buildpack-r
 
 # NB: undocumented feature ~ used for testing different versions
 # E.g. set via heroku config:set R_VERSION=4.0.0
-R_VERSION=${R_VERSION:-4.1.2}
+R_VERSION=${R_VERSION:-$(default_r_version_for_stack $HEROKU_STACK)}
 
 # NB: undocumented feature ~ used for testing different versions
 # E.g. set via heroku config:set BUILDPACK_VERSION=test

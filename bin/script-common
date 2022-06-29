@@ -33,6 +33,15 @@ export_env_dir() {
   fi
 }
 
+default_r_version_for_stack() {
+  stack=$1
+  declare -A versions=(
+    ["18"]="4.1.2"
+    ["20"]="4.1.2"
+  )
+  echo "${versions[$stack]}"
+}
+
 build_archive() {
   echo "${BUILDPACK_NAME}-${HEROKU_STACK}-${R_VERSION}-chroot.tar.gz"
 }
