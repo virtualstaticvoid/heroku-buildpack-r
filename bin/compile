@@ -17,21 +17,23 @@ ENV_DIR=$3
 # import supporting script
 source "${BUILDPACK_DIR}/bin/script-common"
 
-# derive number from stack (heroku-18, heroku-20)
+# derive number from stack (heroku-NN)
 HEROKU_STACK=${STACK:7}
 
 # check if it's supported
-if [[ ! $HEROKU_STACK =~ (18|20) ]]; then
+if [[ ! $HEROKU_STACK =~ (18|20|22) ]]; then
   echo
   error "ERROR: This buildpack is NOT intended for use with the '${STACK}' stack"
   echo
-  info "The supported stacks are 'heroku-18' and 'heroku-20'."
+  info "The supported stacks are heroku-18, heroku-20 and heroku-22."
   echo
   info "Use the 'heroku stack:set' CLI command to set the appropriate stack."
   info "See https://devcenter.heroku.com/articles/stack"
   echo
+  notice "Note: heroku-18 will reach end-of-life on April 30th, 2023."
+  echo
   info "Optionally, for greater control and flexibility consider using the Heroku"
-  info "container stack together with the heroku-docker-r implementation."
+  info "container stack together with the \e[1;32mheroku-docker-r\e[0;32m implementation."
   info "See https://github.com/virtualstaticvoid/heroku-docker-r for more information."
   echo
   exit 1

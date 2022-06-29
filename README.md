@@ -2,7 +2,7 @@
 
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
-The buildpack supports the [heroku-18][stack18] and [heroku-20][stack20] stacks.
+The buildpack supports the [heroku-18][stack18][^18support], [heroku-20][stack20][^20support] and [heroku-22][stack22][^22support] stacks.
 
 It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
@@ -178,7 +178,7 @@ An example command for the scheduler to run `prog.R`, would be `R --file=prog.R 
 
 ### R Versions
 
-The buildpack currently supports `R 4.1.2`. This is updated periodically when new versions of R are released.
+The buildpack currently supports `R 4.2.1`. This is updated periodically when new versions of R are released.
 
 ### Slug Compilation vs Runtime use of `chroot`
 
@@ -274,6 +274,14 @@ See the [purge-cache][purge] documentation for more information.
 
 MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for details.
 
+<!-- footnotes -->
+
+[^18support]: The Heroku-18 stack is _deprecated_ and will reach end-of-life on April 30th, 2023.
+[^20support]: Heroku-20 is based on Ubuntu 20.04. It will be supported through April 2025.
+[^22support]: Heroku-22 is based on Ubuntu 22.04. It will be supported through April 2027.
+
+<!-- links -->
+
 [bpapt]: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt
 [bpurl]: https://github.com/virtualstaticvoid/heroku-buildpack-r.git
 [build2]: https://github.com/virtualstaticvoid/heroku-buildpack-r-build2
@@ -306,4 +314,5 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
+[stack22]: https://devcenter.heroku.com/articles/heroku-22-stack
 [tcltk]: https://www.tcl.tk

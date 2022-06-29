@@ -1,6 +1,6 @@
 PackratFormat: 1.4
 PackratVersion: 0.7.0
-RVersion: 4.1.2
+RVersion: 4.2.1
 Repos: CRAN=https://cloud.r-project.org
 
 Package: glue
