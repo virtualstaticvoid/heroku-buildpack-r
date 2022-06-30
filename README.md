@@ -2,7 +2,7 @@
 
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
-The buildpack supports the [heroku-18][stack18][^18support] and [heroku-20][stack20][^20support] stacks.
+The buildpack supports the [heroku-18][stack18][^18support], [heroku-20][stack20][^20support] and [heroku-22][stack22][^22support] stacks.
 
 It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
@@ -278,6 +278,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 
 [^18support]: The Heroku-18 stack is _deprecated_ and will reach end-of-life on April 30th, 2023.
 [^20support]: Heroku-20 is based on Ubuntu 20.04. It will be supported through April 2025.
+[^22support]: Heroku-22 is based on Ubuntu 22.04. It will be supported through April 2027.
 
 <!-- links -->
 
@@ -313,4 +314,5 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
+[stack22]: https://devcenter.heroku.com/articles/heroku-22-stack
 [tcltk]: https://www.tcl.tk
