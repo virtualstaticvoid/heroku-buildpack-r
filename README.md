@@ -283,7 +283,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 <!-- links -->
 
 [bpapt]: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt
-[bpurl]: https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+[bpurl]: https://elements.heroku.com/buildpacks/virtualstaticvoid/heroku-buildpack-r
 [build2]: https://github.com/virtualstaticvoid/heroku-buildpack-r-build2
 [buildpacks]: https://devcenter.heroku.com/articles/buildpacks
 [container-stack]: https://devcenter.heroku.com/categories/deploying-with-docker
