@@ -106,6 +106,8 @@ with_fakechroot() {
       R_PACKRAT_CACHE_DIR="/app/R/packrat" \
       RENV_PATHS_ROOT="/app/R/renv" \
       FAKECHROOT_EXCLUDE_PATH="/app:/dev:/proc:/sys:/etc/resolv.conf:/etc/host.conf:/lib/modules" \
+      BUILDPACK_DEBUG=${BUILDPACK_DEBUG:-"0"} \
+      PACKAGE_INSTALL_VERBOSE=${PACKAGE_INSTALL_VERBOSE:-"0"} \
     /app/fakechroot/bin/fakechroot \
         --lib /app/fakechroot/lib/fakechroot/libfakechroot.so \
         --environment chroot.env \

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set +u
 # set -x # debug
 
 HEROKU_STACK=${1:-18}
@@ -62,8 +63,13 @@ if [ ! "$BUILDPACK_VERSION" == "latest" ]; then
 fi
 
 # set debug on?
-if [ ! -z ${BUILDPACK_DEBUG+x} ] && [ "$BUILDPACK_DEBUG" == "1" ]; then
+if [ "$BUILDPACK_DEBUG" == "1" ]; then
   heroku config:set BUILDPACK_DEBUG=1
+fi
+
+# package installation?
+if [ "$PACKAGE_INSTALL_VERBOSE" == "1" ]; then
+  heroku config:set PACKAGE_INSTALL_VERBOSE=1
 fi
 
 # get app name (so it can be destroyed)

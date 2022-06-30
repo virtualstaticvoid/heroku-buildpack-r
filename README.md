@@ -262,6 +262,22 @@ If you need to purge the cache, it is possible by using [heroku-repo][heroku-rep
 
 See the [purge-cache][purge] documentation for more information.
 
+## Build Output Verbosity
+
+In previous versions of the buildpack, the full output of `install.packages()` was emitted during slug compilation, which lead to very verbose output and made it hard to spot issues in some instances. Packages are now installed with `quiet=TRUE` option set by default.
+
+To restore the previous behaviour, set the `PACKAGE_INSTALL_VERBOSE` environment variable to a value of `1` before deploying your application:
+
+```bash
+heroku config:set PACKAGE_INSTALL_VERBOSE=1
+```
+
+To revert the setting use the `config:unset` command:
+
+```bash
+heroku config:unset PACKAGE_INSTALL_VERBOSE
+```
+
 ## Credits
 
 * Original inspiration from [Noah Lorang's Rook on Heroku][rookonheroku] project.
