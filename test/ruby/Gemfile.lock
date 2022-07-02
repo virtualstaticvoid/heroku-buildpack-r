@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/virtualstaticvoid/rinruby.git
-  revision: 44c79c591fdb25da15576ee3f7857592b4775ebd
+  revision: ed59976da2f71334b9ec03d9678b91604ad545bd
   branch: master
   specs:
     rinruby (2.1.0)
+      matrix
 
 GEM
   remote: https://rubygems.org/
@@ -11,6 +12,7 @@ GEM
     daemons (1.4.1)
     eventmachine (1.2.7)
     foreman (0.87.2)
+    matrix (0.4.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.4)
