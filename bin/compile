@@ -240,7 +240,7 @@ fi
 # look for Aptfile; install the packages contained
 if [ -f Aptfile ]; then
   echo
-  notice "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
+  warning "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
   echo
   info "For greater control and flexibility consider using the Heroku"
   info "container stack together with the heroku-docker-r implementation."

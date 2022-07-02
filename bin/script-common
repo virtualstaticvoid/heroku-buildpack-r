@@ -4,12 +4,16 @@ topic() {
   echo "-----> $*"
 }
 
-notice() {
-  echo -e "       \e[1;33m${*}\e[0m"
-}
-
 info() {
   echo -e "       \e[0;32m${*}\e[0m"
+}
+
+notice() {
+  echo -e "       \e[1;34m${*}\e[0m"
+}
+
+warning() {
+  echo -e " #     \e[1;33m${*}\e[0m"
 }
 
 error() {
