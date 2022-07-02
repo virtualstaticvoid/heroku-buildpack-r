@@ -243,7 +243,7 @@ if [ -f Aptfile ]; then
   warning "WARNING: Use of the Aptfile file is NOT recommended and will be deprecated in future."
   echo
   info "For greater control and flexibility consider using the Heroku"
-  info "container stack together with the heroku-docker-r implementation."
+  info "container stack together with the \e[1;32mheroku-docker-r\e[0;32m implementation."
   info "See https://github.com/virtualstaticvoid/heroku-docker-r for more information."
   echo
 
