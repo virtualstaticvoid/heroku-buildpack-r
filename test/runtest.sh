@@ -91,7 +91,7 @@ topic "Deploying test"
 git push heroku main 2>&1 | indent
 
 # wait for release to complete
-heroku ps:wait --wait-interval=20 2>&1 | indent
+timeout 60 heroku ps:wait --wait-interval=20 2>&1 | indent
 
 run_tests
 
@@ -106,7 +106,7 @@ git commit -m "update" --allow-empty --no-gpg-sign > /dev/null
 git push heroku main 2>&1 | indent
 
 # wait for release to complete
-heroku ps:wait --wait-interval=20 2>&1 | indent
+timeout 60 heroku ps:wait --wait-interval=20 2>&1 | indent
 
 run_tests
 
