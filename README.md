@@ -2,7 +2,7 @@
 
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for statistical computing and [CRAN][cran] for R packages.
 
-The buildpack supports the [heroku-18][stack18][^18support] and [heroku-20][stack20][^20support] stacks.
+The buildpack supports the [heroku-18][stack18][^18support], [heroku-20][stack20][^20support] and [heroku-22][stack22][^22support] stacks.
 
 It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
 
@@ -262,6 +262,22 @@ If you need to purge the cache, it is possible by using [heroku-repo][heroku-rep
 
 See the [purge-cache][purge] documentation for more information.
 
+## Build Output Verbosity
+
+In previous versions of the buildpack, the full output of `install.packages()` was emitted during slug compilation, which lead to very verbose output and made it hard to spot issues in some instances. Packages are now installed with `quiet=TRUE` option set by default.
+
+To restore the previous behaviour, set the `PACKAGE_INSTALL_VERBOSE` environment variable to a value of `1` before deploying your application:
+
+```bash
+heroku config:set PACKAGE_INSTALL_VERBOSE=1
+```
+
+To revert the setting use the `config:unset` command:
+
+```bash
+heroku config:unset PACKAGE_INSTALL_VERBOSE
+```
+
 ## Credits
 
 * Original inspiration from [Noah Lorang's Rook on Heroku][rookonheroku] project.
@@ -278,11 +294,12 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 
 [^18support]: The Heroku-18 stack is _deprecated_ and will reach end-of-life on April 30th, 2023.
 [^20support]: Heroku-20 is based on Ubuntu 20.04. It will be supported through April 2025.
+[^22support]: Heroku-22 is based on Ubuntu 22.04. It will be supported through April 2027.
 
 <!-- links -->
 
 [bpapt]: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-apt
-[bpurl]: https://github.com/virtualstaticvoid/heroku-buildpack-r.git
+[bpurl]: https://elements.heroku.com/buildpacks/virtualstaticvoid/heroku-buildpack-r
 [build2]: https://github.com/virtualstaticvoid/heroku-buildpack-r-build2
 [buildpacks]: https://devcenter.heroku.com/articles/buildpacks
 [container-stack]: https://devcenter.heroku.com/categories/deploying-with-docker
@@ -313,4 +330,5 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
 [stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
+[stack22]: https://devcenter.heroku.com/articles/heroku-22-stack
 [tcltk]: https://www.tcl.tk

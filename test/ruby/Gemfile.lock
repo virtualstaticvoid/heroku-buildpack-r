@@ -1,28 +1,30 @@
 GIT
   remote: https://github.com/virtualstaticvoid/rinruby.git
-  revision: 44c79c591fdb25da15576ee3f7857592b4775ebd
+  revision: ed59976da2f71334b9ec03d9678b91604ad545bd
   branch: master
   specs:
     rinruby (2.1.0)
+      matrix
 
 GEM
   remote: https://rubygems.org/
   specs:
-    daemons (1.3.1)
+    daemons (1.4.1)
     eventmachine (1.2.7)
-    foreman (0.87.1)
+    foreman (0.87.2)
+    matrix (0.4.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    rack (2.2.3)
-    rack-protection (2.0.8.1)
+    rack (2.2.4)
+    rack-protection (2.2.0)
       rack
-    ruby2_keywords (0.0.2)
-    sinatra (2.0.8.1)
+    ruby2_keywords (0.0.5)
+    sinatra (2.2.0)
       mustermann (~> 1.0)
-      rack (~> 2.0)
-      rack-protection (= 2.0.8.1)
+      rack (~> 2.2)
+      rack-protection (= 2.2.0)
       tilt (~> 2.0)
-    thin (1.7.2)
+    thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
@@ -39,7 +41,7 @@ DEPENDENCIES
   thin
 
 RUBY VERSION
-   ruby 2.7.1p83
+   ruby 3.1.0p0
 
 BUNDLED WITH
-   2.1.4
+   2.3.17

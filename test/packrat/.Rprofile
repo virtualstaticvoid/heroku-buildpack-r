@@ -1,4 +1,3 @@
-cat("Loading Packrat Rprofile...\n")
-#### -- Packrat Autoloader (version 0.7.0) -- ####
+#### -- Packrat Autoloader (version 0.8.1) -- ####
 source("packrat/init.R")
 #### -- End Packrat Autoloader -- ####

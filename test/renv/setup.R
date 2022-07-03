@@ -1,0 +1,5 @@
+install.packages("renv", quiet=TRUE)
+renv::init()
+renv::install("stringr")
+renv::snapshot()
+renv::status()

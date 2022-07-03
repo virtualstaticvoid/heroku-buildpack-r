@@ -4,12 +4,16 @@ topic() {
   echo "-----> $*"
 }
 
-notice() {
-  echo -e "       \e[1;33m${*}\e[0m"
-}
-
 info() {
   echo -e "       \e[0;32m${*}\e[0m"
+}
+
+notice() {
+  echo -e "       \e[1;34m${*}\e[0m"
+}
+
+warning() {
+  echo -e " #     \e[1;33m${*}\e[0m"
 }
 
 error() {
@@ -37,7 +41,7 @@ default_r_version_for_stack() {
   stack=$1
   declare -A versions=(
     ["18"]="4.1.2"
-    ["20"]="4.1.2"
+    ["20"]="4.2.1"
     ["22"]="4.2.1"
   )
   echo "${versions[$stack]}"
@@ -106,6 +110,8 @@ with_fakechroot() {
       R_PACKRAT_CACHE_DIR="/app/R/packrat" \
       RENV_PATHS_ROOT="/app/R/renv" \
       FAKECHROOT_EXCLUDE_PATH="/app:/dev:/proc:/sys:/etc/resolv.conf:/etc/host.conf:/lib/modules" \
+      BUILDPACK_DEBUG=${BUILDPACK_DEBUG:-"0"} \
+      PACKAGE_INSTALL_VERBOSE=${PACKAGE_INSTALL_VERBOSE:-"0"} \
     /app/fakechroot/bin/fakechroot \
         --lib /app/fakechroot/lib/fakechroot/libfakechroot.so \
         --environment chroot.env \

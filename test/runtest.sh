@@ -1,9 +1,10 @@
 #!/bin/bash
 
 set -e
+set +u
 # set -x # debug
 
-HEROKU_STACK=${1:-18}
+HEROKU_STACK=${1:-22}
 BUILDPACK_VERSION=${2:-latest}
 BRANCH=${BUILDPACK_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}
 
@@ -62,8 +63,13 @@ if [ ! "$BUILDPACK_VERSION" == "latest" ]; then
 fi
 
 # set debug on?
-if [ ! -z ${BUILDPACK_DEBUG+x} ] && [ "$BUILDPACK_DEBUG" == "1" ]; then
+if [ "$BUILDPACK_DEBUG" == "1" ]; then
   heroku config:set BUILDPACK_DEBUG=1
+fi
+
+# package installation?
+if [ "$PACKAGE_INSTALL_VERBOSE" == "1" ]; then
+  heroku config:set PACKAGE_INSTALL_VERBOSE=1
 fi
 
 # get app name (so it can be destroyed)
@@ -85,7 +91,7 @@ topic "Deploying test"
 git push heroku main 2>&1 | indent
 
 # wait for release to complete
-heroku ps:wait --wait-interval=20 2>&1 | indent
+timeout 60 heroku ps:wait --wait-interval=20 2>&1 | indent
 
 run_tests
 
@@ -100,7 +106,7 @@ git commit -m "update" --allow-empty --no-gpg-sign > /dev/null
 git push heroku main 2>&1 | indent
 
 # wait for release to complete
-heroku ps:wait --wait-interval=20 2>&1 | indent
+timeout 60 heroku ps:wait --wait-interval=20 2>&1 | indent
 
 run_tests
 
