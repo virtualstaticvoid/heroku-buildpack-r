@@ -205,17 +205,17 @@ An example command for the scheduler to run `prog.R`, would be `R --file=prog.R 
 ### R Versions
 
 The following table lists the available combinations of Heroku Stack and R version.
-They are updated periodically as and when available on the [Debian R packages][cloud-r-project]
-repository.
+They are [built][build2] periodically as and when the [Debian R packages][cloud-r-project]
+are available.
 
 | R / Stack | `18` | `20` | `22` |
 |:---------:|:----:|:----:|:----:|
 | `3.6.3`   |  ⬦   |      |      |
 | `4.0.0`   |  ⬦   |   ⬦  |      |
 | `4.0.5`   |  ⬦   |   ⬦  |      |
-| `4.1.2`   |  ⬦   |   ⬦  |      |
+| `4.1.2`   |  ⬦   |   ⬦  |  ⬦   |
 | `4.1.3`   |  ⬦   |   ⬦  |      |
-| `4.2.0`   |  ⬥   |   ⬦  |      |
+| `4.2.0`   |  ⬥   |      |  ⬦   |
 | `4.2.1`   |      |   ⬥  |  ⬥   |
 
 Legend: `⬥` = default version for given stack, `⬦` = available, `-` = no Debian package
