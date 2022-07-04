@@ -1,5 +1,7 @@
 # Heroku Buildpack: R
 
+[![CI](https://github.com/virtualstaticvoid/heroku-buildpack-r-build2/actions/workflows/main.yml/badge.svg)](https://github.com/virtualstaticvoid/heroku-buildpack-r-build2/actions/workflows/main.yml)
+
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for
 statistical computing and [CRAN][cran] for R packages.
 
