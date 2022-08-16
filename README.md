@@ -206,6 +206,12 @@ An example command for the scheduler to run `prog.R`, would be `R --file=prog.R 
 
 ### R Versions
 
+The default R version can be overridden by setting the `R_VERSION` environment variable.
+
+```bash
+heroku config:set R_VERSION=4.0.0
+```
+
 The following table lists the available combinations of Heroku Stack and R version.
 They are [built][build2] periodically as and when the [Debian R packages][cloud-r-project]
 are available.
