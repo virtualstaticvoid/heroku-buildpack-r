@@ -1,6 +1,6 @@
 library(shiny)
 
-# example from http://shiny.rstudio.com/gallery/kmeans-example.html
+# example from https://shiny.rstudio.com/gallery/kmeans-example.html
 
 # Define UI for application that plots random distributions
 shinyUI(pageWithSidebar(

@@ -391,7 +391,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [herokupkgs]: https://devcenter.heroku.com/articles/stack-packages
 [herokuyml]: https://devcenter.heroku.com/articles/build-docker-images-heroku-yml#run-defining-the-processes-to-run
 [mirrors]: https://cran.r-project.org/mirmon_report.html
-[packrat]: http://rstudio.github.io/packrat
+[packrat]: https://rstudio.github.io/packrat
 [plumber-app]: https://github.com/virtualstaticvoid/heroku-plumber-app
 [plumber]: https://www.rplumber.io
 [procfile]: https://devcenter.heroku.com/articles/procfile
