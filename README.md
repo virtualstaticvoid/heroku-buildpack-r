@@ -348,6 +348,14 @@ To revert the setting use the `config:unset` command:
 heroku config:unset PACKAGE_INSTALL_VERBOSE
 ```
 
+## Hacking
+
+To enable debug outputs during deployment, set the `BUILDPACK_DEBUG` environment variable.
+
+```bash
+heroku config:set BUILDPACK_DEBUG=1
+```
+
 ## Credits
 
 * Original inspiration from [Noah Lorang's Rook on Heroku][rookonheroku] project.
