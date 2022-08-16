@@ -2,7 +2,7 @@
 export PATH="/app/R/lib/R/bin:/app/tcltk/bin:/app/pandoc/bin:$PATH"
 
 # resolve R libs
-export LD_LIBRARY_PATH="/app/R/lib/R/lib:/app/tcltk/lib"
+export LD_LIBRARY_PATH="/app/R/lib/R/lib:/app/tcltk/lib:$LD_LIBRARY_PATH"
 
 # set site and user library
 export R_LIBS_SITE="/app/R/site-library"
