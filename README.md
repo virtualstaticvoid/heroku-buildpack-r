@@ -26,8 +26,11 @@ You can add it to an existing application using the `buildpacks:add` command, as
 heroku buildpacks:add vsv/heroku-buildpack-r
 ```
 
-Alternatively, you can use the Git URL of this
-repository, `https://github.com/virtualstaticvoid/heroku-buildpack-r.git`, for the name.
+Alternatively, you can use the Git URL of this repository, together with the branch name.
+
+```
+https://github.com/virtualstaticvoid/heroku-buildpack-r.git#main
+```
 
 The buildpack will detect your application makes use of R if it has one (or more)
 of the following files in the project directory:
