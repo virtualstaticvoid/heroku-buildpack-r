@@ -216,11 +216,15 @@ are available.
 | `4.0.0`   |  ⬦   |   ⬦  |      |
 | `4.0.5`   |  ⬦   |   ⬦  |      |
 | `4.1.2`   |  ⬦   |   ⬦  |  ⬦   |
-| `4.1.3`   |  ⬦   |   ⬦  |      |
-| `4.2.0`   |  ⬥   |      |  ⬦   |
+| `4.1.3`   |  ⬦   |   ⬦  |  -   |
+| `4.2.0`   |  ⬥   |   -  |  ⬦   |
 | `4.2.1`   |      |   ⬥  |  ⬥   |
 
-Legend: `⬥` = default version for given stack, `⬦` = available, `-` = no Debian package
+Legend:
+
+* `⬥` = default version for given stack
+* `⬦` = available
+* `-` = no package available
 
 ### Slug Compilation vs Runtime use of `chroot`
 
