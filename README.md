@@ -1,6 +1,7 @@
 # Heroku Buildpack: R
 
 [![CI](https://github.com/virtualstaticvoid/heroku-buildpack-r-build2/actions/workflows/main.yml/badge.svg)](https://github.com/virtualstaticvoid/heroku-buildpack-r-build2/actions/workflows/main.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvirtualstaticvoid%2Fheroku-buildpack-r.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvirtualstaticvoid%2Fheroku-buildpack-r?ref=badge_shield)
 
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for
 statistical computing and [CRAN][cran] for R packages.
@@ -414,3 +415,6 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
 [stack22]: https://devcenter.heroku.com/articles/heroku-22-stack
 [tcltk]: https://www.tcl.tk
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvirtualstaticvoid%2Fheroku-buildpack-r.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvirtualstaticvoid%2Fheroku-buildpack-r?ref=badge_large)
