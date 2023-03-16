@@ -15,7 +15,7 @@ GEM
     matrix (0.4.2)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    rack (2.2.4)
+    rack (2.2.6.4)
     rack-protection (2.2.0)
       rack
     ruby2_keywords (0.0.5)
