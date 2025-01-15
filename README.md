@@ -5,11 +5,39 @@
 This is a [Heroku Buildpack][buildpacks] for applications which use [R][rproject] for
 statistical computing and [CRAN][cran] for R packages.
 
-The buildpack supports the [heroku-18][stack18][^18support], [heroku-20][stack20][^20support]
-and [heroku-22][stack22][^22support] stacks.
+The buildpack supports the [heroku-20][stack20][^20support], [heroku-22][stack22][^22support]
+and [heroku-24][stack24][^24support] stacks.
 
 It also includes support for the [Packrat][packrat] and [renv][renv] package managers, and
 the [Shiny][shiny] and [Plumber][plumber] web application frameworks.
+
+### Heroku Stack and R Versions
+
+The following table lists the available combinations of Heroku Stack and R version.
+They are [built][build2] periodically as and when the [Debian R packages][cloud-r-project]
+are available.
+
+| R / Stack | `20`[^20support] | `22`[^22support] | `24`[^24support] |
+|:---------:|:---:|:---:|:---:|
+| `4.0.0`   | □ |   |   |
+| `4.0.5`   | □ |   |   |
+| `4.1.2`   | □ | □ |   |
+| `4.1.3`   | □ |   |   |
+| `4.2.0`   |   | □ |   |
+| `4.2.1`   | ■ | ■ |   |
+| `4.4.2`   |   |   | ■ |
+
+Legend:
+
+* `■` = default version for given stack
+* `□` = available
+* empty = no package available
+
+The default R version can be overridden by setting the `R_VERSION` environment variable.
+
+```bash
+heroku config:set R_VERSION=4.0.0
+```
 
 ## Usage
 
@@ -207,34 +235,6 @@ An example command for the scheduler to run `prog.R`, would be `R --file=prog.R 
 
 ## Technical Details
 
-### R Versions
-
-The default R version can be overridden by setting the `R_VERSION` environment variable.
-
-```bash
-heroku config:set R_VERSION=4.0.0
-```
-
-The following table lists the available combinations of Heroku Stack and R version.
-They are [built][build2] periodically as and when the [Debian R packages][cloud-r-project]
-are available.
-
-| R / Stack | `18` | `20` | `22` |
-|:---------:|:----:|:----:|:----:|
-| `3.6.3`   |  ⬦   |      |      |
-| `4.0.0`   |  ⬦   |   ⬦  |      |
-| `4.0.5`   |  ⬦   |   ⬦  |      |
-| `4.1.2`   |  ⬦   |   ⬦  |  ⬦   |
-| `4.1.3`   |  ⬦   |   ⬦  |  -   |
-| `4.2.0`   |  ⬥   |   -  |  ⬦   |
-| `4.2.1`   |      |   ⬥  |  ⬥   |
-
-Legend:
-
-* `⬥` = default version for given stack
-* `⬦` = available
-* `-` = no package available
-
 ### Slug Compilation vs Runtime use of `chroot`
 
 This version of the buildpack still uses a [fakechroot][fakechroot] during slug compilation,
@@ -373,9 +373,9 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 
 <!-- footnotes -->
 
-[^18support]: The Heroku-18 stack is _deprecated_ and will reach end-of-life on April 30th, 2023.
 [^20support]: Heroku-20 is based on Ubuntu 20.04. It will be supported through April 2025.
 [^22support]: Heroku-22 is based on Ubuntu 22.04. It will be supported through April 2027.
+[^24support]: Heroku-24 is based on Ubuntu 24.04. It will be supported through April 2029.
 
 <!-- links -->
 
@@ -410,7 +410,7 @@ MIT License. Copyright (c) 2020 Chris Stefano. See [LICENSE](LICENSE) for detail
 [shiny-app]: https://github.com/virtualstaticvoid/heroku-shiny-app
 [shiny]: https://shiny.rstudio.com
 [slugsize]: https://devcenter.heroku.com/articles/slug-compiler#slug-size
-[stack18]: https://devcenter.heroku.com/articles/heroku-18-stack
 [stack20]: https://devcenter.heroku.com/articles/heroku-20-stack
 [stack22]: https://devcenter.heroku.com/articles/heroku-22-stack
+[stack24]: https://devcenter.heroku.com/articles/heroku-24-stack
 [tcltk]: https://www.tcl.tk
