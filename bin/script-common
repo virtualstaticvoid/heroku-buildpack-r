@@ -43,6 +43,7 @@ default_r_version_for_stack() {
     ["18"]="4.2.0"
     ["20"]="4.2.1"
     ["22"]="4.2.1"
+    ["24"]="4.4.2"
   )
   echo "${versions[$stack]}"
 }

@@ -2,4 +2,4 @@
 
 set -e # fail fast
 
-heroku addons:create heroku-postgresql:hobby-dev
+heroku addons:create heroku-postgresql:essential-0

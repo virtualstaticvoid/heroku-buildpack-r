@@ -21,18 +21,18 @@ source "${BUILDPACK_DIR}/bin/script-common"
 HEROKU_STACK=${STACK:7}
 
 # check if it's supported
-if [[ ! $HEROKU_STACK =~ (18|20|22) ]]; then
+if [[ ! $HEROKU_STACK =~ (20|22|24) ]]; then
   echo
   error "ERROR: This buildpack is NOT intended for use with the '${STACK}' stack"
   echo
-  info "The supported stacks are heroku-18, heroku-20 and heroku-22."
+  info "The supported stacks are heroku-20, heroku-22 and heroku-24."
   echo
   info "Use the 'heroku stack:set' CLI command to set the appropriate stack."
   info "See https://devcenter.heroku.com/articles/stack"
   echo
-  notice "Note: heroku-18 will reach end-of-life on April 30th, 2023."
+  notice "Note: heroku-20 will reach end-of-life on April 25th, 2025."
   echo
-  info "Optionally, for greater control and flexibility consider using the Heroku"
+  info "Ideally, for greater control and flexibility consider using the Heroku"
   info "container stack together with the \e[1;32mheroku-docker-r\e[0;32m implementation."
   info "See https://github.com/virtualstaticvoid/heroku-docker-r for more information."
   echo
@@ -232,6 +232,11 @@ if [ "$BUILD_DIR" != "/app" ]; then
   rsync -a "${BUILD_DIR}/" /app/
 
 fi
+
+#----------------------------------------------------------------------
+# debugging
+
+# in_chroot /bin/bash -e -c "set" 2>&1 | indent
 
 #----------------------------------------------------------------------
 # slug compile

@@ -29,21 +29,21 @@ def find_depend_libs(binary)
   output.split("\n")
       .reject {|s| s == "" }
       .reject {|s| s =~ /^\/app/ }
-      .select {|s| File.exists?(s) }
+      .select {|s| File.exist?(s) }
       .collect {|f| [f, File.basename(f)] }
 end
 
 def copy_depend_libs(path, binary)
   find_depend_libs(binary).each do |src, dest|
     target = File.join(path, dest)
-    next if File.exists?(target)
+    next if File.exist?(target)
     print "⦁ #{src} → #{target} "
     copy_binary_file src, target
     if target =~ /\.so/ && target !~ /\.so$/
       Dir.chdir(File.dirname(target)) do
         basename = File.basename(target)
         symlinkname = basename.sub(/\.so.*/, ".so")
-        File.symlink(basename, symlinkname) unless File.exists?(symlinkname)
+        File.symlink(basename, symlinkname) unless File.exist?(symlinkname)
       end
     end
     print "[OK]\n"
