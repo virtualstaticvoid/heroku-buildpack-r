@@ -4,8 +4,8 @@ set -e
 set +u
 # set -x # debug
 
-HEROKU_STACK=${1:-22}
-BUILDPACK_VERSION=${2:-latest}
+HEROKU_STACK=$1
+BUILDPACK_VERSION=$2
 BRANCH=${BUILDPACK_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}
 
 topic() {
